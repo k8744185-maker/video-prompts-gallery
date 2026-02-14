@@ -524,9 +524,8 @@ def delete_prompt(sheet, row_num):
         st.error(f"Error deleting prompt: {str(e)}")
         return False
 
-@st.cache_data(ttl=30)
 def get_all_prompts(sheet):
-    """Get all prompts from Google Sheets - cached for 30 seconds"""
+    """Get all prompts from Google Sheets"""
     try:
         data = sheet.get_all_records()
         return data
@@ -704,7 +703,6 @@ def main():
                     if prompt.strip() and prompt_name.strip():
                         with st.spinner('Saving...'):
                             if save_prompt(sheet, prompt_name.strip(), prompt.strip(), video_id.strip()):
-                                st.cache_data.clear()
                                 st.success("✅ Prompt saved successfully!")
                                 st.rerun()
                     else:
@@ -923,7 +921,6 @@ def main():
                         if edited_prompt.strip() and edited_prompt_name.strip():
                             with st.spinner('Updating...'):
                                 if save_prompt(sheet, edited_prompt_name.strip(), edited_prompt.strip(), edited_video_id.strip(), row_num):
-                                    st.cache_data.clear()  # Clear cache to show updated data
                                     st.success("✅ Prompt updated successfully!")
                                     st.rerun()
                         else:
@@ -932,7 +929,6 @@ def main():
                     if delete_btn:
                         with st.spinner('Deleting...'):
                             if delete_prompt(sheet, row_num):
-                                st.cache_data.clear()  # Clear cache to show updated data
                                 st.success("✅ Prompt deleted successfully!")
                                 st.rerun()
             else:
