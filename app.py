@@ -39,15 +39,15 @@ st.markdown("""
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     
-    /* Main background - static gradient for better performance */
+    /* Main background - solid color for maximum performance */
     .main {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background: #667eea;
         padding: 1rem;
         min-height: 100vh;
     }
     
     .stApp {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background: #667eea;
     }
     
     /* Hide Streamlit branding */
@@ -175,52 +175,32 @@ st.markdown("""
         margin-bottom: 0.5rem !important;
     }
     
-    /* Prompt card */
+    /* Prompt card - simplified flat design */
     .prompt-container {
-        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
-        border-radius: 24px;
+        background: white;
+        border-radius: 16px;
         padding: 0;
-        margin: 3rem 0;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
-        border: 1px solid rgba(102, 126, 234, 0.1);
+        margin: 2rem 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 1px solid #e0e0e0;
         overflow: hidden;
-        position: relative;
-    }
-    
-    .prompt-container:hover {
-        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25), 0 8px 16px rgba(0,0,0,0.08);
-        border-color: rgba(102, 126, 234, 0.4);
     }
     
     .prompt-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem 2.5rem;
+        background: #667eea;
+        padding: 1.5rem 2rem;
         color: white;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .prompt-header::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-        border-radius: 50%;
-        transform: translate(50%, -50%);
     }
     
     .prompt-body {
-        padding: 2.5rem;
+        padding: 2rem;
         background: white;
     }
     
     .prompt-footer {
-        background: linear-gradient(to right, #f8f9fa, #ffffff);
-        padding: 1.5rem 2.5rem;
-        border-top: 1px solid rgba(0,0,0,0.06);
+        background: #f8f9fa;
+        padding: 1rem 2rem;
+        border-top: 1px solid #e0e0e0;
     }
     
     .prompt-number {
@@ -231,27 +211,27 @@ st.markdown("""
     }
     
     .stSuccess {
-        border-radius: 16px !important;
+        border-radius: 12px !important;
         border-left: 4px solid #10b981 !important;
-        background: linear-gradient(to right, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)) !important;
+        background: rgba(16, 185, 129, 0.1) !important;
     }
     
     .stError {
-        border-radius: 16px !important;
+        border-radius: 12px !important;
         border-left: 4px solid #ef4444 !important;
-        background: linear-gradient(to right, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05)) !important;
+        background: rgba(239, 68, 68, 0.1) !important;
     }
     
     .stWarning {
-        border-radius: 16px !important;
+        border-radius: 12px !important;
         border-left: 4px solid #f59e0b !important;
-        background: linear-gradient(to right, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)) !important;
+        background: rgba(245, 158, 11, 0.1) !important;
     }
     
     .stInfo {
-        border-radius: 16px !important;
+        border-radius: 12px !important;
         border-left: 4px solid #3b82f6 !important;
-        background: linear-gradient(to right, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05)) !important;
+        background: rgba(59, 130, 246, 0.1) !important;
     }
     
     /* Code block with premium styling */
@@ -283,12 +263,12 @@ st.markdown("""
         letter-spacing: -0.2px !important;
     }
     
-    /* Divider with gradient */
+    /* Divider - simple solid line */
     hr {
-        margin: 2.5rem 0;
+        margin: 2rem 0;
         border: none;
         height: 1px;
-        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+        background: rgba(255, 255, 255, 0.3);
     }
     
     /* Selectbox */
@@ -544,8 +524,9 @@ def delete_prompt(sheet, row_num):
         st.error(f"Error deleting prompt: {str(e)}")
         return False
 
+@st.cache_data(ttl=30)
 def get_all_prompts(sheet):
-    """Get all prompts from Google Sheets"""
+    """Get all prompts from Google Sheets - cached for 30 seconds"""
     try:
         data = sheet.get_all_records()
         return data
@@ -688,10 +669,8 @@ def main():
             col1, col2 = st.columns([3, 1])
             with col2:
                 if st.button("🚪 Logout", key="logout", use_container_width=True):
-                    with st.spinner('Logging out...'):
-                        st.session_state.authenticated = False
-                        time.sleep(0.3)
-                        st.rerun()
+                    st.session_state.authenticated = False
+                    st.rerun()
             
             st.markdown("")  # Spacing
             
@@ -723,11 +702,10 @@ def main():
                 
                 if submitted:
                     if prompt.strip() and prompt_name.strip():
-                        with st.spinner('Saving prompt...'):
+                        with st.spinner('Saving...'):
                             if save_prompt(sheet, prompt_name.strip(), prompt.strip(), video_id.strip()):
+                                st.cache_data.clear()
                                 st.success("✅ Prompt saved successfully!")
-                                st.balloons()
-                                time.sleep(0.5)
                                 st.rerun()
                     else:
                         st.warning("⚠️ Please enter both prompt name and prompt text!")
@@ -878,10 +856,8 @@ def main():
             col1, col2 = st.columns([3, 1])
             with col2:
                 if st.button("🚪 Logout", key="logout_edit", use_container_width=True):
-                    with st.spinner('Logging out...'):
-                        st.session_state.authenticated = False
-                        time.sleep(0.3)
-                        st.rerun()
+                    st.session_state.authenticated = False
+                    st.rerun()
             
             st.markdown("")  # Spacing
             
@@ -945,19 +921,19 @@ def main():
                     
                     if update_btn:
                         if edited_prompt.strip() and edited_prompt_name.strip():
-                            with st.spinner('Updating prompt...'):
+                            with st.spinner('Updating...'):
                                 if save_prompt(sheet, edited_prompt_name.strip(), edited_prompt.strip(), edited_video_id.strip(), row_num):
+                                    st.cache_data.clear()  # Clear cache to show updated data
                                     st.success("✅ Prompt updated successfully!")
-                                    time.sleep(0.5)
                                     st.rerun()
                         else:
                             st.warning("⚠️ Prompt name and text cannot be empty!")
                     
                     if delete_btn:
-                        with st.spinner('Deleting prompt...'):
+                        with st.spinner('Deleting...'):
                             if delete_prompt(sheet, row_num):
+                                st.cache_data.clear()  # Clear cache to show updated data
                                 st.success("✅ Prompt deleted successfully!")
-                                time.sleep(0.5)
                                 st.rerun()
             else:
                 st.info("📭 No prompts to manage yet.")
