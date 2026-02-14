@@ -55,17 +55,15 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Hero section with glassmorphism */
+    /* Hero section - simplified for performance */
     .hero {
         text-align: center;
         padding: 3rem 2rem;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 30px;
-        margin-bottom: 2.5rem;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
     .hero h1 {
@@ -84,14 +82,13 @@ st.markdown("""
         letter-spacing: 0.3px;
     }
     
-    /* Tabs styling */
+    /* Tabs styling - simplified */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0.8rem;
-        background: rgba(255, 255, 255, 0.12);
-        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
         padding: 0.6rem;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
     .stTabs [data-baseweb="tab"] {
@@ -115,12 +112,11 @@ st.markdown("""
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
     
-    /* Info box styling */
+    /* Info box styling - simplified */
     .stAlert {
-        border-radius: 18px;
+        border-radius: 15px;
         border: none;
-        box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
     
     /* Button styling */
@@ -312,14 +308,13 @@ st.markdown("""
         padding: 0 0.75rem;
     }
     
-    /* Form styling with glassmorphism */
+    /* Form styling - simplified */
     .stForm {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.1);
         padding: 2rem;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
     
     /* Spinner/Loading state */
@@ -431,13 +426,21 @@ def record_failed_attempt(session_key):
         pass
 
 def check_session_timeout():
-    """Check if session has timed out"""
+    """Check if session has timed out - optimized to check less frequently"""
     try:
         if 'last_activity' not in st.session_state:
             st.session_state.last_activity = time.time()
+            st.session_state.last_timeout_check = time.time()
             return True
         
         current_time = time.time()
+        
+        # Only perform timeout check every 30 seconds to reduce overhead
+        if current_time - st.session_state.get('last_timeout_check', 0) < 30:
+            return True
+        
+        st.session_state.last_timeout_check = current_time
+        
         if current_time - st.session_state.last_activity > SESSION_TIMEOUT:
             # Session expired
             st.session_state.authenticated = False
@@ -551,11 +554,9 @@ def get_all_prompts(sheet):
         return []
 
 def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
-    """Display Google AdSense ad"""
-    # Get ads client ID - check environment variable first, then secrets
+    """Display Google AdSense ad - optimized version"""
     ads_client_id = os.getenv('GOOGLE_ADS_CLIENT_ID', '')
     
-    # If not in environment, try secrets (for Streamlit Cloud)
     if not ads_client_id and not os.path.exists('.env'):
         try:
             ads_client_id = st.secrets.get('GOOGLE_ADS_CLIENT_ID', '')
@@ -563,34 +564,23 @@ def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
             ads_client_id = ''
     
     if not ads_client_id or ads_client_id == 'ca-pub-xxxxxxxxxxxxxxxxx':
-        # Show placeholder when ads not configured
-        st.markdown("""
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                        padding: 2rem; border-radius: 15px; text-align: center; 
-                        margin: 1rem 0; border: 2px dashed rgba(255,255,255,0.3);">
-                <p style="color: white; margin: 0; font-size: 0.9rem; opacity: 0.8;">📢 Advertisement Space</p>
-                <p style="color: white; margin: 0.5rem 0 0 0; font-size: 0.75rem; opacity: 0.6;">Configure GOOGLE_ADS_CLIENT_ID in .env to show ads</p>
-            </div>
-        """, unsafe_allow_html=True)
-        return
+        return  # Don't show anything if not configured
     
-    # Google AdSense code
+    # Lightweight ad code
     ad_html = f"""
-        <div style="margin: 1.5rem 0; text-align: center;">
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ads_client_id}"
-                    crossorigin="anonymous"></script>
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="{ads_client_id}"
-                 data-ad-slot="{ad_slot}"
-                 data-ad-format="{ad_format}"
-                 data-full-width-responsive="{str(full_width).lower()}"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({{}});
-            </script>
-        </div>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ads_client_id}"
+                crossorigin="anonymous"></script>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="{ads_client_id}"
+             data-ad-slot="{ad_slot}"
+             data-ad-format="{ad_format}"
+             data-full-width-responsive="{str(full_width).lower()}"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({{}});
+        </script>
     """
-    st.components.v1.html(ad_html, height=200)
+    st.components.v1.html(ad_html, height=120)
 
 # Check admin authentication
 def check_admin_password(key_suffix=""):
@@ -684,8 +674,8 @@ def main():
         </div>
     """, unsafe_allow_html=True)
     
-    # Show ad after hero
-    show_google_ad(ad_slot="1234567890", ad_format="horizontal")
+    # Single ad placement after hero
+    show_google_ad(ad_slot="1234567890", ad_format="auto")
     
     # Create tabs
     tab1, tab2, tab3 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage"])
@@ -761,7 +751,7 @@ def main():
             
             st.markdown("---")
             
-            # Show ad before prompts
+            # Single ad before prompts
             show_google_ad(ad_slot="1234567891", ad_format="auto")
             
             # Get base URL - check environment variable first, then secrets
@@ -877,10 +867,6 @@ def main():
                     st.markdown('</div>', unsafe_allow_html=True)
                 
                 st.markdown('</div>', unsafe_allow_html=True)
-                
-                # Show ad after every 3 prompts
-                if (idx + 1) % 3 == 0 and (idx + 1) < len(prompts):
-                    show_google_ad(ad_slot=f"123456789{(idx+1)//3}", ad_format="auto")
         else:
             st.info("📭 No prompts yet. Add your first prompt in the 'Add New' tab!")
     
@@ -905,7 +891,7 @@ def main():
             
             if prompts:
                 # Select prompt to edit
-                st.markdown("**Select a prompt to edit or delete:**")
+                st.markdown('<p style="color: white; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">Select a prompt to edit or delete:</p>', unsafe_allow_html=True)
                 prompt_options = [f"#{i+1} - {p.get('Prompt Name', 'Untitled')} - {p.get('Prompt', '')[:40]}..." for i, p in enumerate(prompts)]
                 selected_idx = st.selectbox(
                     "Choose prompt:",
@@ -1016,9 +1002,6 @@ def show_single_prompt(sheet, prompt_id):
                 </div>
             """, unsafe_allow_html=True)
             
-            # Show ad after prompt card
-            show_google_ad(ad_slot="9876543210", ad_format="auto")
-            
             # Buttons row
             col1, col2 = st.columns(2)
             with col1:
@@ -1048,7 +1031,7 @@ def show_single_prompt(sheet, prompt_id):
             # Metadata footer
             if prompt_data.get('Video ID') or prompt_data.get('Timestamp'):
                 st.markdown(f"""
-                    <div style="background: rgba(255, 255, 255, 0.1); padding: 0.6rem 1rem; border-radius: 12px; margin-top: 0.8rem; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.15); font-size: 0.85rem; color: white; display: flex; justify-content: space-between; flex-wrap: wrap;">
+                    <div style="background: rgba(255, 255, 255, 0.15); padding: 0.6rem 1rem; border-radius: 12px; margin-top: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.2); font-size: 0.85rem; color: white; display: flex; justify-content: space-between; flex-wrap: wrap;">
                         <span>📹 <strong>{prompt_data.get('Video ID', 'N/A')}</strong></span>
                         <span style="opacity: 0.9;">🕒 {prompt_data.get('Timestamp', 'N/A')}</span>
                     </div>
