@@ -156,7 +156,8 @@ def get_google_sheet():
             sheet_id = st.secrets['GOOGLE_SHEET_ID']
         
         client = gspread.authorize(creds)
-        sheet = client.open_by_key(sheet_id).sheet1
+        spreadsheet = client.open_by_key(sheet_id)
+        sheet = spreadsheet.sheet1
         
         # Create headers if sheet is empty
         try:
@@ -165,6 +166,18 @@ def get_google_sheet():
                 sheet.update('A1:E1', [['Timestamp', 'Unique ID', 'Prompt Name', 'Prompt', 'Video ID']])
         except:
             sheet.update('A1:E1', [['Timestamp', 'Unique ID', 'Prompt Name', 'Prompt', 'Video ID']])
+        
+        # Initialize analytics sheet for visit counts and errors
+        try:
+            analytics_sheet = spreadsheet.worksheet('Analytics')
+        except:
+            # Create Analytics sheet if it doesn't exist
+            analytics_sheet = spreadsheet.add_worksheet(title='Analytics', rows=1000, cols=10)
+            analytics_sheet.update('A1:F1', [['Timestamp', 'Prompt ID', 'Event Type', 'User IP', 'Error Message', 'Status']])
+        
+        # Store analytics sheet in session state for later use
+        if 'analytics_sheet' not in st.session_state:
+            st.session_state.analytics_sheet = analytics_sheet
         
         return sheet
     except Exception as e:
@@ -231,6 +244,30 @@ def get_all_prompts(sheet):
         handle_error("Unable to load prompts. Please try again.", show_refresh=True)
         st.caption(f"Technical details: {str(e)}")
         return []
+
+def log_analytics_event(event_type, prompt_id='', error_msg='', status='success'):
+    """Log analytics events to Google Sheets"""
+    try:
+        if 'analytics_sheet' in st.session_state:
+            analytics_sheet = st.session_state.analytics_sheet
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            user_ip = 'N/A'  # Can be enhanced with actual IP tracking
+            analytics_sheet.append_row([timestamp, prompt_id, event_type, user_ip, error_msg, status])
+    except:
+        pass  # Silent fail for analytics
+
+def get_admin_notifications():
+    """Get unread error notifications for admin"""
+    try:
+        if 'analytics_sheet' in st.session_state:
+            analytics_sheet = st.session_state.analytics_sheet
+            data = analytics_sheet.get_all_records()
+            # Get errors from last 24 hours
+            errors = [row for row in data if row.get('Event Type') == 'error' and row.get('Status') == 'unread']
+            return len(errors), errors
+    except:
+        pass
+    return 0, []
 
 def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
     """Display Google AdSense ad - optimized version"""
@@ -337,9 +374,13 @@ def main():
     # Check if specific prompt is requested via URL
     query_params = st.query_params
     if "prompt_id" in query_params:
-        # Track click/visit count for this shared link
+        # Track click/visit count for this shared link - save to Google Sheets
         try:
             prompt_id = query_params["prompt_id"]
+            # Log visit event to Analytics sheet
+            log_analytics_event('visit', prompt_id=prompt_id, status='success')
+            
+            # Also update session state for immediate display
             if 'visit_counts' not in st.session_state:
                 st.session_state.visit_counts = {}
             if prompt_id not in st.session_state.visit_counts:
@@ -353,8 +394,43 @@ def main():
         return
     
     # Hero section (only for main page)
-    st.title("🎬 Video Prompts Gallery")
-    st.subheader("Discover and share amazing AI video generation prompts")
+    col1, col2 = st.columns([5, 1])
+    with col1:
+        st.title("🎬 Video Prompts Gallery")
+        st.subheader("Discover and share amazing AI video generation prompts")
+    with col2:
+        # Notification bell for admin only
+        if st.session_state.get('authenticated', False):
+            error_count, errors = get_admin_notifications()
+            if error_count > 0:
+                if st.button(f"🔔 {error_count}", key="notifications", help="View error notifications"):
+                    st.session_state.show_notifications = True
+            else:
+                st.markdown("<div style='padding: 0.5rem;'>🔕</div>", unsafe_allow_html=True)
+    
+    # Show notification panel if clicked
+    if st.session_state.get('show_notifications', False) and st.session_state.get('authenticated', False):
+        error_count, errors = get_admin_notifications()
+        with st.expander("⚠️ Error Notifications", expanded=True):
+            if errors:
+                for error in errors[:10]:  # Show last 10 errors
+                    st.error(f"**{error.get('Timestamp')}** - Prompt ID: {error.get('Prompt ID')}\n{error.get('Error Message')}")
+                if st.button("✅ Mark All as Read"):
+                    # Update status in Analytics sheet
+                    try:
+                        analytics_sheet = st.session_state.analytics_sheet
+                        all_data = analytics_sheet.get_all_records()
+                        for i, row in enumerate(all_data, start=2):
+                            if row.get('Event Type') == 'error' and row.get('Status') == 'unread':
+                                analytics_sheet.update(f'F{i}', 'read')
+                        st.success("All notifications marked as read")
+                        st.session_state.show_notifications = False
+                        st.rerun()
+                    except:
+                        st.error("Failed to update notifications")
+            else:
+                st.info("No new notifications")
+    
     st.divider()
     
     # Single ad placement after hero
@@ -440,9 +516,17 @@ def main():
                 with col3:
                     st.metric("🎬 Videos", len([p for p in prompts if p.get('Video ID')]))
                 with col4:
-                    # Total visits from shared links
-                    total_visits = sum(st.session_state.get('visit_counts', {}).values())
-                    st.metric("👥 Link Visits", total_visits)
+                    # Total visits from shared links - get from Analytics sheet
+                    try:
+                        if 'analytics_sheet' in st.session_state:
+                            analytics_sheet = st.session_state.analytics_sheet
+                            data = analytics_sheet.get_all_records()
+                            visit_count = len([row for row in data if row.get('Event Type') == 'visit'])
+                            st.metric("👥 Link Visits", visit_count)
+                        else:
+                            st.metric("👥 Link Visits", 0)
+                    except:
+                        st.metric("👥 Link Visits", 0)
                 
                 st.markdown("---")
                 
@@ -551,9 +635,17 @@ def main():
                         st.markdown("<br>", unsafe_allow_html=True)
                         st.info("🔗 Share this unique link:")
                         st.code(share_link, language="text")
-                        # Show visit count for this prompt
-                        visit_count = st.session_state.get('visit_counts', {}).get(unique_id, 0)
-                        st.caption(f"👥 This link has been visited {visit_count} time(s)")
+                        # Show visit count for this prompt from Analytics sheet
+                        try:
+                            if 'analytics_sheet' in st.session_state:
+                                analytics_sheet = st.session_state.analytics_sheet
+                                data = analytics_sheet.get_all_records()
+                                visit_count = len([row for row in data if row.get('Event Type') == 'visit' and row.get('Prompt ID') == unique_id])
+                                st.caption(f"👥 This link has been visited {visit_count} time(s)")
+                            else:
+                                st.caption("👥 Visit tracking: Not available")
+                        except:
+                            st.caption("👥 Visit tracking: Error loading data")
                         if st.button("✕ Close", key=f"close_{idx}_{prompt_num}", type="primary"):
                             st.session_state[f"show_link_{idx}"] = False
                     
@@ -692,16 +784,15 @@ def show_single_prompt(sheet, prompt_id):
             
             # Skip empty prompts
             if not prompt_text or prompt_text.strip() == '' or prompt_text == 'N/A':
+                # Log error to analytics
+                log_analytics_event('error', prompt_id=prompt_id, error_msg='Prompt not found or empty', status='unread')
                 st.error("❌ Prompt not found!")
                 if st.button("📚 View All Prompts", type="primary"):
                     st.query_params.clear()
                     st.rerun()
                 return
             
-            # Ad at top of shared page
-            show_google_ad(ad_slot="1234567890", ad_format="auto")
-            
-            # Single compact card - NO separate hero
+            # Single compact card - NO separate hero (NO ADS on shared page)
             st.markdown(f"""
                 <div style="background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 1px solid rgba(102, 126, 234, 0.2); margin: 0.5rem auto; max-width: 900px;">
                     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.2rem; text-align: center;">
@@ -740,10 +831,6 @@ def show_single_prompt(sheet, prompt_id):
                 if st.button("✕ Close", key="close_copy_single", type="primary"):
                     st.session_state["show_copy_single"] = False
             
-            # Ad at bottom of shared page
-            st.markdown("<br>", unsafe_allow_html=True)
-            show_google_ad(ad_slot="1234567891", ad_format="auto")
-            
             # Metadata footer
             if prompt_data.get('Video ID') or prompt_data.get('Timestamp'):
                 st.markdown(f"""
@@ -753,15 +840,15 @@ def show_single_prompt(sheet, prompt_id):
                     </div>
                 """, unsafe_allow_html=True)
         else:
+            # Log error to analytics
+            log_analytics_event('error', prompt_id=prompt_id, error_msg='Prompt ID not found in database', status='unread')
             st.error("❌ Prompt not found!")
             if st.button("📚 View All Prompts", type="primary"):
                 st.query_params.clear()
                 st.rerun()
     except Exception as e:
-        st.error(f"❌ Error loading prompt: {str(e)}")
-        if st.button("📚 View All Prompts", type="primary"):
-            st.query_params.clear()
-            st.rerun()
+        # Log error to analytics
+        log_analytics_event('error', prompt_id=prompt_id, error_msg=str(e), status='unread')
         st.error(f"❌ Error loading prompt: {str(e)}")
         if st.button("📚 View All Prompts", type="primary"):
             st.query_params.clear()
