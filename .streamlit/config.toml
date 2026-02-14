@@ -1,0 +1,12 @@
+[server]
+enableCORS = false
+enableXsrfProtection = true
+
+[client]
+showErrorDetails = false
+
+[runner]
+magicEnabled = true
+
+[logger]
+level = "error"
