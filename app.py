@@ -701,7 +701,7 @@ def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
             </script>
         </div>
     """
-    st.components.html(ad_html, height=200)
+    st.components.v1.html(ad_html, height=200)
 
 # Check admin authentication
 def check_admin_password(key_suffix=""):
