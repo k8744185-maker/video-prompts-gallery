@@ -2,6 +2,8 @@
 
 A simple web application to store and share AI video generation prompts.
 
+**Live at:** https://video-prompts-gallery.onrender.com
+
 ## Features
 - 📝 Add video generation prompts
 - 📚 View all saved prompts
