@@ -24,6 +24,18 @@ SESSION_TIMEOUT = 1800  # 30 minutes in seconds
 MAX_PROMPT_LENGTH = 5000
 MAX_NAME_LENGTH = 200
 
+# Error handling wrapper
+def handle_error(error_msg="Something went wrong", show_refresh=True):
+    """Display user-friendly error with refresh option"""
+    st.error(f"⚠️ {error_msg}")
+    if show_refresh:
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            if st.button("🔄 Refresh Page", key=f"refresh_{time.time()}"):
+                st.rerun()
+        with col2:
+            st.caption("If the issue persists, try reloading your browser.")
+
 # Page configuration - Optimized for Render.com free tier
 st.set_page_config(
     page_title="Video Prompts Gallery",
@@ -156,7 +168,8 @@ def get_google_sheet():
         
         return sheet
     except Exception as e:
-        st.error(f"Google Sheets connection failed: {str(e)}")
+        handle_error("Unable to connect to database. Please try again.", show_refresh=True)
+        st.caption(f"Technical details: {str(e)}")
         return None
 
 def generate_unique_id():
@@ -195,7 +208,8 @@ def save_prompt(sheet, prompt_name, prompt, video_id="", row_num=None):
             sheet.append_row([timestamp, unique_id, prompt_name, prompt, video_id])
         return True
     except Exception as e:
-        st.error(f"Error saving prompt: {str(e)}")
+        handle_error("Unable to save prompt. Please try again.", show_refresh=True)
+        st.caption(f"Technical details: {str(e)}")
         return False
 
 def delete_prompt(sheet, row_num):
@@ -204,7 +218,8 @@ def delete_prompt(sheet, row_num):
         sheet.delete_rows(row_num)
         return True
     except Exception as e:
-        st.error(f"Error deleting prompt: {str(e)}")
+        handle_error("Unable to delete prompt. Please try again.", show_refresh=True)
+        st.caption(f"Technical details: {str(e)}")
         return False
 
 def get_all_prompts(sheet):
@@ -213,7 +228,8 @@ def get_all_prompts(sheet):
         data = sheet.get_all_records()
         return data
     except Exception as e:
-        st.error(f"Error fetching prompts: {str(e)}")
+        handle_error("Unable to load prompts. Please try again.", show_refresh=True)
+        st.caption(f"Technical details: {str(e)}")
         return []
 
 def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
@@ -321,6 +337,17 @@ def main():
     # Check if specific prompt is requested via URL
     query_params = st.query_params
     if "prompt_id" in query_params:
+        # Track click/visit count for this shared link
+        try:
+            prompt_id = query_params["prompt_id"]
+            if 'visit_counts' not in st.session_state:
+                st.session_state.visit_counts = {}
+            if prompt_id not in st.session_state.visit_counts:
+                st.session_state.visit_counts[prompt_id] = 0
+            st.session_state.visit_counts[prompt_id] += 1
+        except:
+            pass
+        
         # NO hero section for single prompt view
         show_single_prompt(sheet, query_params["prompt_id"])
         return
@@ -333,8 +360,12 @@ def main():
     # Single ad placement after hero
     show_google_ad(ad_slot="1234567890", ad_format="auto")
     
-    # Create tabs
-    tab1, tab2, tab3 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage"])
+    # Create tabs - View All is admin-only
+    if st.session_state.get('authenticated', False):
+        tab1, tab2, tab3 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage"])
+    else:
+        tab1, tab3 = st.tabs(["📝 Add New", "✏️ Manage"])
+        tab2 = None  # No access for public users
     
     with tab1:
         st.markdown("### ✨ Create New Prompt")
@@ -387,154 +418,163 @@ def main():
                     else:
                         st.warning("⚠️ Please enter both prompt name and prompt text!")
     
-    with tab2:
-        st.markdown("### 🌟 All Prompts")
-        
-        # Cache prompts in session state to avoid repeated API calls
-        if 'cached_prompts' not in st.session_state or st.button("🔄 Refresh", key="refresh_prompts"):
-            with st.spinner('⏳ Loading...'):
-                st.session_state.cached_prompts = get_all_prompts(sheet)
-        
-        prompts = st.session_state.get('cached_prompts', [])
-        
-        if prompts:
-            # Stats at top
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("📊 Total Prompts", len(prompts))
-            with col2:
-                st.metric("🆕 Latest", f"#{len(prompts)}")
-            with col3:
-                st.metric("🎬 Videos", len([p for p in prompts if p.get('Video ID')]))
+    # View All Prompts tab - Admin only
+    if tab2:  # Only exists if user is admin
+        with tab2:
+            st.markdown("### 🌟 All Prompts")
             
-            st.markdown("---")
+            # Cache prompts in session state to avoid repeated API calls
+            if 'cached_prompts' not in st.session_state or st.button("🔄 Refresh", key="refresh_prompts"):
+                with st.spinner('⏳ Loading...'):
+                    st.session_state.cached_prompts = get_all_prompts(sheet)
             
-            # Single ad before prompts
-            show_google_ad(ad_slot="1234567891", ad_format="auto")
+            prompts = st.session_state.get('cached_prompts', [])
             
-            # Get base URL - check environment variable first, then secrets
-            base_url = os.getenv('BASE_URL', 'http://localhost:8501')
-            
-            # If not in environment, try secrets (for Streamlit Cloud)
-            if base_url == 'http://localhost:8501' and not os.path.exists('.env'):
-                try:
-                    base_url = st.secrets.get('BASE_URL', 'http://localhost:8501')
-                except:
-                    pass
-            
-            # Search box
-            search_query = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts")
-            
-            # Limit prompts to reduce memory (Render free tier optimization)
-            max_prompts = 20
-            st.caption(f"Showing latest {min(max_prompts, len(prompts))} of {len(prompts)} prompts")
-            
-            # Display prompts in reverse order (newest first)
-            displayed_count = 0
-            for idx, prompt_data in enumerate(reversed(prompts)):
-                prompt_num = len(prompts) - idx
-                unique_id = prompt_data.get('Unique ID', f'PR{str(prompt_num).zfill(4)}')
-                prompt_name = prompt_data.get('Prompt Name', f'Prompt {prompt_num}')
-                prompt_text = prompt_data.get('Prompt', 'N/A')
+            if prompts:
+                # Stats at top - 4 columns with visit tracking
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.metric("📊 Total Prompts", len(prompts))
+                with col2:
+                    st.metric("🆕 Latest", f"#{len(prompts)}")
+                with col3:
+                    st.metric("🎬 Videos", len([p for p in prompts if p.get('Video ID')]))
+                with col4:
+                    # Total visits from shared links
+                    total_visits = sum(st.session_state.get('visit_counts', {}).values())
+                    st.metric("👥 Link Visits", total_visits)
                 
-                # Skip empty prompts
-                if not prompt_text or prompt_text.strip() == '' or prompt_text == 'N/A':
-                    continue
+                st.markdown("---")
                 
-                # Filter by search
-                if search_query and search_query.lower() not in prompt_text.lower():
-                    continue
+                # Single ad before prompts
+                show_google_ad(ad_slot="1234567891", ad_format="auto")
                 
-                # Limit to max prompts for performance
-                if displayed_count >= max_prompts:
-                    break
-                displayed_count += 1
+                # Get base URL - check environment variable first, then secrets
+                base_url = os.getenv('BASE_URL', 'http://localhost:8501')
                 
-                share_link = f"{base_url}?prompt_id={unique_id}"
+                # If not in environment, try secrets (for Streamlit Cloud)
+                if base_url == 'http://localhost:8501' and not os.path.exists('.env'):
+                    try:
+                        base_url = st.secrets.get('BASE_URL', 'http://localhost:8501')
+                    except:
+                        pass
                 
-                # Main card container
-                st.markdown('<div class="prompt-container">', unsafe_allow_html=True)
+                # Search box
+                search_query = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts")
                 
-                # HEADER SECTION (Purple gradient) - Show Prompt Name
-                st.markdown(f'''
-                    <div class="prompt-header">
-                        <h2 style="margin: 0; font-size: 1.8rem; color: white;">🎬 {prompt_name}</h2>
-                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem;">Prompt #{prompt_num}</p>
-                    </div>
-                ''', unsafe_allow_html=True)
+                # Limit prompts to reduce memory (Render free tier optimization)
+                max_prompts = 20
+                st.caption(f"Showing latest {min(max_prompts, len(prompts))} of {len(prompts)} prompts")
                 
-                # BODY SECTION (Main content)
-                st.markdown('<div class="prompt-body">', unsafe_allow_html=True)
-                
-                # Prompt Text Display
-                st.markdown("### 📝 Prompt Text")
-                st.markdown(f"""
-                    <div style="background: white; padding: 2rem; border-radius: 15px; 
-                                border-left: 6px solid #667eea; margin: 1rem 0; 
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                        <p style="color: #1a1a1a; font-size: 1.2rem; line-height: 1.9; margin: 0; font-weight: 500;">
-                            {prompt_text}
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                
-                # Action Buttons - Copy for all, Share for admin only
-                if st.session_state.get('authenticated', False):
-                    # Admin: Both buttons
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        if st.button("📋 Copy Prompt Text", key=f"copy_{idx}_{prompt_num}", use_container_width=True, type="secondary"):
+                # Display prompts in reverse order (newest first)
+                displayed_count = 0
+                for idx, prompt_data in enumerate(reversed(prompts)):
+                    prompt_num = len(prompts) - idx
+                    unique_id = prompt_data.get('Unique ID', f'PR{str(prompt_num).zfill(4)}')
+                    prompt_name = prompt_data.get('Prompt Name', f'Prompt {prompt_num}')
+                    prompt_text = prompt_data.get('Prompt', 'N/A')
+                    
+                    # Skip empty prompts
+                    if not prompt_text or prompt_text.strip() == '' or prompt_text == 'N/A':
+                        continue
+                    
+                    # Filter by search
+                    if search_query and search_query.lower() not in prompt_text.lower():
+                        continue
+                    
+                    # Limit to max prompts for performance
+                    if displayed_count >= max_prompts:
+                        break
+                    displayed_count += 1
+                    
+                    share_link = f"{base_url}?prompt_id={unique_id}"
+                    
+                    # Main card container
+                    st.markdown('<div class="prompt-container">', unsafe_allow_html=True)
+                    
+                    # HEADER SECTION (Purple gradient) - Show Prompt Name
+                    st.markdown(f'''
+                        <div class="prompt-header">
+                            <h2 style="margin: 0; font-size: 1.8rem; color: white;">🎬 {prompt_name}</h2>
+                            <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem;">Prompt #{prompt_num}</p>
+                        </div>
+                    ''', unsafe_allow_html=True)
+                    
+                    # BODY SECTION (Main content)
+                    st.markdown('<div class="prompt-body">', unsafe_allow_html=True)
+                    
+                    # Prompt Text Display
+                    st.markdown("### 📝 Prompt Text")
+                    st.markdown(f"""
+                        <div style="background: white; padding: 2rem; border-radius: 15px; 
+                                    border-left: 6px solid #667eea; margin: 1rem 0; 
+                                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <p style="color: #1a1a1a; font-size: 1.2rem; line-height: 1.9; margin: 0; font-weight: 500;">
+                                {prompt_text}
+                            </p>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    
+                    # Action Buttons - Copy for all, Share for admin only
+                    if st.session_state.get('authenticated', False):
+                        # Admin: Both buttons
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            if st.button("📋 Copy Prompt Text", key=f"copy_{idx}_{prompt_num}", use_container_width=True, type="secondary"):
+                                st.session_state[f"show_copy_{idx}"] = True
+                        with col2:
+                            if st.button("🔗 Share Link", key=f"share_{idx}_{prompt_num}", use_container_width=True, type="secondary"):
+                                st.session_state[f"show_link_{idx}"] = True
+                    else:
+                        # Public users: Only copy button
+                        if st.button("📋 Copy Prompt Text", key=f"copy_{idx}_{prompt_num}", use_container_width=True, type="primary"):
                             st.session_state[f"show_copy_{idx}"] = True
-                    with col2:
-                        if st.button("🔗 Share Link", key=f"share_{idx}_{prompt_num}", use_container_width=True, type="secondary"):
-                            st.session_state[f"show_link_{idx}"] = True
-                else:
-                    # Public users: Only copy button
-                    if st.button("📋 Copy Prompt Text", key=f"copy_{idx}_{prompt_num}", use_container_width=True, type="primary"):
-                        st.session_state[f"show_copy_{idx}"] = True
-                
-                # Show copy prompt if button clicked
-                if st.session_state.get(f"show_copy_{idx}", False):
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    st.success("✅ Select the text below and press Ctrl+C (or Cmd+C on Mac) to copy:")
-                    st.text_area(
-                        "Prompt Text",
-                        value=prompt_text,
-                        height=150,
-                        key=f"textarea_{idx}_{prompt_num}",
-                        label_visibility="collapsed"
-                    )
-                    if st.button("✕ Close", key=f"close_copy_{idx}_{prompt_num}", type="primary"):
-                        st.session_state[f"show_copy_{idx}"] = False
-                
-                # Show share link if button clicked (admin only)
-                if st.session_state.get(f"show_link_{idx}", False) and st.session_state.get('authenticated', False):
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    st.info("🔗 Share this unique link:")
-                    st.code(share_link, language="text")
-                    if st.button("✕ Close", key=f"close_{idx}_{prompt_num}", type="primary"):
-                        st.session_state[f"show_link_{idx}"] = False
-                
-                st.markdown('</div>', unsafe_allow_html=True)
-                
-                # FOOTER SECTION - Only show for admin
-                if st.session_state.get('authenticated', False):
-                    st.markdown('<div class="prompt-footer">', unsafe_allow_html=True)
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        if prompt_data.get('Video ID'):
-                            st.markdown(f"**📹 Video ID:** `{prompt_data.get('Video ID')}`")
-                        else:
-                            st.markdown("**📹 Video ID:** _Not specified_")
-                    with col2:
-                        st.markdown(f"**🕒 Created:** {prompt_data.get('Timestamp', 'N/A')}")
+                    
+                    # Show copy prompt if button clicked
+                    if st.session_state.get(f"show_copy_{idx}", False):
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        st.success("✅ Select the text below and press Ctrl+C (or Cmd+C on Mac) to copy:")
+                        st.text_area(
+                            "Prompt Text",
+                            value=prompt_text,
+                            height=150,
+                            key=f"textarea_{idx}_{prompt_num}",
+                            label_visibility="collapsed"
+                        )
+                        if st.button("✕ Close", key=f"close_copy_{idx}_{prompt_num}", type="primary"):
+                            st.session_state[f"show_copy_{idx}"] = False
+                    
+                    # Show share link if button clicked (admin only)
+                    if st.session_state.get(f"show_link_{idx}", False) and st.session_state.get('authenticated', False):
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        st.info("🔗 Share this unique link:")
+                        st.code(share_link, language="text")
+                        # Show visit count for this prompt
+                        visit_count = st.session_state.get('visit_counts', {}).get(unique_id, 0)
+                        st.caption(f"👥 This link has been visited {visit_count} time(s)")
+                        if st.button("✕ Close", key=f"close_{idx}_{prompt_num}", type="primary"):
+                            st.session_state[f"show_link_{idx}"] = False
+                    
                     st.markdown('</div>', unsafe_allow_html=True)
-                
-                st.markdown('</div>', unsafe_allow_html=True)
-        else:
-            st.info("📭 No prompts yet. Add your first prompt in the 'Add New' tab!")
+                    
+                    # FOOTER SECTION - Only show for admin
+                    if st.session_state.get('authenticated', False):
+                        st.markdown('<div class="prompt-footer">', unsafe_allow_html=True)
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            if prompt_data.get('Video ID'):
+                                st.markdown(f"**📹 Video ID:** `{prompt_data.get('Video ID')}`")
+                            else:
+                                st.markdown("**📹 Video ID:** _Not specified_")
+                        with col2:
+                            st.markdown(f"**🕒 Created:** {prompt_data.get('Timestamp', 'N/A')}")
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
+            else:
+                st.info("📭 No prompts yet. Add your first prompt in the 'Add New' tab!")
     
     with tab3:
         st.markdown("### ⚙️ Manage Prompts")
@@ -658,6 +698,9 @@ def show_single_prompt(sheet, prompt_id):
                     st.rerun()
                 return
             
+            # Ad at top of shared page
+            show_google_ad(ad_slot="1234567890", ad_format="auto")
+            
             # Single compact card - NO separate hero
             st.markdown(f"""
                 <div style="background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 1px solid rgba(102, 126, 234, 0.2); margin: 0.5rem auto; max-width: 900px;">
@@ -696,6 +739,10 @@ def show_single_prompt(sheet, prompt_id):
                 )
                 if st.button("✕ Close", key="close_copy_single", type="primary"):
                     st.session_state["show_copy_single"] = False
+            
+            # Ad at bottom of shared page
+            st.markdown("<br>", unsafe_allow_html=True)
+            show_google_ad(ad_slot="1234567891", ad_format="auto")
             
             # Metadata footer
             if prompt_data.get('Video ID') or prompt_data.get('Timestamp'):
