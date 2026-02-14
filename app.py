@@ -8,10 +8,12 @@ import hashlib
 import time
 import html
 import re
+import json
 
 # Load environment variables
 # For local development, load from .env file
 # For Streamlit Cloud, load from secrets
+# For Render.com, load from environment variables
 load_dotenv()
 
 # Security Configuration
@@ -562,16 +564,23 @@ def check_session_timeout():
 
 # Google Sheets setup
 def get_google_sheet():
-    """Connect to Google Sheets - Works with both local and Streamlit Cloud"""
+    """Connect to Google Sheets - Works with local, Streamlit Cloud, and Render.com"""
     try:
         scope = ['https://spreadsheets.google.com/feeds',
                  'https://www.googleapis.com/auth/drive']
         
-        # Check if running locally (credentials.json exists) or on Streamlit Cloud
+        # Check if running locally (credentials.json exists) or on cloud
         creds_path = os.getenv('GOOGLE_CREDENTIALS_PATH', './credentials.json')
+        
         if os.path.exists(creds_path) and os.path.exists('.env'):
             # Local development - use credentials.json file
             creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, scope)
+            sheet_id = os.getenv('GOOGLE_SHEET_ID')
+        elif os.getenv('GOOGLE_CREDENTIALS'):
+            # Render.com or other cloud - credentials as JSON string in env var
+            creds_json = os.getenv('GOOGLE_CREDENTIALS')
+            creds_dict = json.loads(creds_json)
+            creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
             sheet_id = os.getenv('GOOGLE_SHEET_ID')
         else:
             # Streamlit Cloud - use secrets
