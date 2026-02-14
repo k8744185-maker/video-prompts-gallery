@@ -44,6 +44,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Google AdSense Verification Code
+st.markdown("""
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5058768956635718"
+         crossorigin="anonymous"></script>
+""", unsafe_allow_html=True)
+
 # Custom CSS - Ultra minimal for speed
 st.markdown("""
     <style>
