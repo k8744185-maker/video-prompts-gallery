@@ -84,7 +84,7 @@ st.markdown("""
         letter-spacing: 0.3px;
     }
     
-    /* Tabs styling with modern effects */
+    /* Tabs styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0.8rem;
         background: rgba(255, 255, 255, 0.12);
@@ -100,66 +100,35 @@ st.markdown("""
         font-size: 1.05rem;
         padding: 1rem 2.5rem;
         border-radius: 15px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         border: none;
         position: relative;
         overflow: hidden;
     }
     
-    .stTabs [data-baseweb="tab"]::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover::before {
-        left: 100%;
-    }
-    
     .stTabs [data-baseweb="tab"]:hover {
         background: rgba(255, 255, 255, 0.08);
-        transform: translateY(-2px);
     }
     
     .stTabs [aria-selected="true"] {
         background: white !important;
         color: #667eea !important;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-        transform: translateY(-2px);
     }
     
-    /* Info box styling with animations */
+    /* Info box styling */
     .stAlert {
         border-radius: 18px;
         border: none;
         box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-        animation: slideInLeft 0.5s ease;
         backdrop-filter: blur(10px);
     }
     
-    @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
-    /* Enhanced Button styling with ripple effect */
+    /* Button styling */
     .stButton > button {
         border-radius: 14px;
         padding: 0.85rem 2.5rem;
         font-weight: 600;
         border: none;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         position: relative;
         overflow: hidden;
@@ -167,35 +136,15 @@ st.markdown("""
         letter-spacing: 0.3px;
     }
     
-    .stButton > button::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-    }
-    
-    .stButton > button:hover::before {
-        width: 300px;
-        height: 300px;
-    }
-    
     .stButton > button:hover {
-        transform: translateY(-3px);
         box-shadow: 0 8px 24px rgba(0,0,0,0.18);
     }
     
     .stButton > button:active {
-        transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     
-    /* Input styling with focus effects */
+    /* Input styling */
     .stTextInput > div > div > input,
     .stTextArea > div > div > textarea {
         border-radius: 14px;
@@ -204,7 +153,6 @@ st.markdown("""
         color: #1a1a1a !important;
         font-size: 1.05rem;
         padding: 1rem 1.25rem;
-        transition: all 0.3s ease;
         font-weight: 500;
     }
     
@@ -213,7 +161,6 @@ st.markdown("""
         border-color: #667eea;
         background: white !important;
         box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 4px 12px rgba(0,0,0,0.08);
-        transform: translateY(-2px);
     }
     
     /* Input placeholder with better styling */
@@ -232,48 +179,19 @@ st.markdown("""
         margin-bottom: 0.5rem !important;
     }
     
-    /* Premium Prompt card with 3D effects */
+    /* Prompt card */
     .prompt-container {
         background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
         border-radius: 24px;
         padding: 0;
         margin: 3rem 0;
         box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         border: 1px solid rgba(102, 126, 234, 0.1);
         overflow: hidden;
         position: relative;
-        animation: fadeInUp 0.6s ease;
-    }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .prompt-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: left 0.7s;
-    }
-    
-    .prompt-container:hover::before {
-        left: 100%;
     }
     
     .prompt-container:hover {
-        transform: translateY(-12px) scale(1.02);
         box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25), 0 8px 16px rgba(0,0,0,0.08);
         border-color: rgba(102, 126, 234, 0.4);
     }
@@ -316,25 +234,7 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     
-    /* Enhanced animations */
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-    
     .stSuccess {
-        animation: slideIn 0.5s ease;
         border-radius: 16px !important;
         border-left: 4px solid #10b981 !important;
         background: linear-gradient(to right, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)) !important;
@@ -395,12 +295,11 @@ st.markdown("""
         background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
     }
     
-    /* Selectbox with modern styling */
+    /* Selectbox */
     .stSelectbox > div > div {
         border-radius: 14px;
         background: white;
         border: 2px solid rgba(102, 126, 234, 0.2);
-        transition: all 0.3s ease;
     }
     
     .stSelectbox > div > div:hover {
@@ -498,47 +397,59 @@ def hash_password(password):
 
 def check_rate_limit(session_key):
     """Check if user has exceeded login attempts"""
-    current_time = time.time()
-    
-    if f'{session_key}_attempts' not in st.session_state:
-        st.session_state[f'{session_key}_attempts'] = 0
-        st.session_state[f'{session_key}_lockout_until'] = 0
-    
-    # Check if still in lockout period
-    if current_time < st.session_state[f'{session_key}_lockout_until']:
-        remaining = int(st.session_state[f'{session_key}_lockout_until'] - current_time)
-        return False, f"Too many failed attempts. Try again in {remaining} seconds."
-    
-    # Reset attempts if lockout period has passed
-    if current_time >= st.session_state[f'{session_key}_lockout_until']:
-        st.session_state[f'{session_key}_attempts'] = 0
-    
-    return True, ""
+    try:
+        current_time = time.time()
+        
+        if f'{session_key}_attempts' not in st.session_state:
+            st.session_state[f'{session_key}_attempts'] = 0
+            st.session_state[f'{session_key}_lockout_until'] = 0
+        
+        # Check if still in lockout period
+        if current_time < st.session_state[f'{session_key}_lockout_until']:
+            remaining = int(st.session_state[f'{session_key}_lockout_until'] - current_time)
+            return False, f"Too many failed attempts. Try again in {remaining} seconds."
+        
+        # Reset attempts if lockout period has passed
+        if current_time >= st.session_state[f'{session_key}_lockout_until']:
+            st.session_state[f'{session_key}_attempts'] = 0
+        
+        return True, ""
+    except:
+        # Session state not initialized yet
+        return True, ""
 
 def record_failed_attempt(session_key):
     """Record a failed login attempt"""
-    st.session_state[f'{session_key}_attempts'] += 1
-    
-    if st.session_state[f'{session_key}_attempts'] >= MAX_LOGIN_ATTEMPTS:
-        st.session_state[f'{session_key}_lockout_until'] = time.time() + LOCKOUT_TIME
-        st.session_state[f'{session_key}_attempts'] = 0
+    try:
+        st.session_state[f'{session_key}_attempts'] += 1
+        
+        if st.session_state[f'{session_key}_attempts'] >= MAX_LOGIN_ATTEMPTS:
+            st.session_state[f'{session_key}_lockout_until'] = time.time() + LOCKOUT_TIME
+            st.session_state[f'{session_key}_attempts'] = 0
+    except:
+        # Session state not initialized yet
+        pass
 
 def check_session_timeout():
     """Check if session has timed out"""
-    if 'last_activity' not in st.session_state:
-        st.session_state.last_activity = time.time()
-        return True
-    
-    current_time = time.time()
-    if current_time - st.session_state.last_activity > SESSION_TIMEOUT:
-        # Session expired
-        st.session_state.authenticated = False
+    try:
+        if 'last_activity' not in st.session_state:
+            st.session_state.last_activity = time.time()
+            return True
+        
+        current_time = time.time()
+        if current_time - st.session_state.last_activity > SESSION_TIMEOUT:
+            # Session expired
+            st.session_state.authenticated = False
+            st.session_state.last_activity = current_time
+            return False
+        
+        # Update last activity time
         st.session_state.last_activity = current_time
-        return False
-    
-    # Update last activity time
-    st.session_state.last_activity = current_time
-    return True
+        return True
+    except:
+        # Session state not initialized yet
+        return True
 
 # Google Sheets setup
 def get_google_sheet():
