@@ -377,7 +377,12 @@ def main():
                     if prompt.strip() and prompt_name.strip():
                         with st.spinner('Saving...'):
                             if save_prompt(sheet, prompt_name.strip(), prompt.strip(), video_id.strip()):
-                                st.success("✅ Prompt saved successfully!")
+                                # Clear cache to show new prompt
+                                if 'cached_prompts' in st.session_state:
+                                    del st.session_state['cached_prompts']
+                                if 'cached_edit_prompts' in st.session_state:
+                                    del st.session_state['cached_edit_prompts']
+                                st.success("✅ Saved!")
                                 st.rerun()
                     else:
                         st.warning("⚠️ Please enter both prompt name and prompt text!")
@@ -385,9 +390,12 @@ def main():
     with tab2:
         st.markdown("### 🌟 All Prompts")
         
-        # Get all prompts
-        with st.spinner('⏳ Please wait, loading prompts...'):
-            prompts = get_all_prompts(sheet)
+        # Cache prompts in session state to avoid repeated API calls
+        if 'cached_prompts' not in st.session_state or st.button("🔄 Refresh", key="refresh_prompts"):
+            with st.spinner('⏳ Loading...'):
+                st.session_state.cached_prompts = get_all_prompts(sheet)
+        
+        prompts = st.session_state.get('cached_prompts', [])
         
         if prompts:
             # Stats at top
@@ -533,9 +541,12 @@ def main():
             
             st.markdown("")  # Spacing
             
-            # Get all prompts
-            with st.spinner('⏳ Please wait, loading prompts...'):
-                prompts = get_all_prompts(sheet)
+            # Cache prompts to reduce API calls
+            if 'cached_edit_prompts' not in st.session_state or st.button("🔄 Refresh List", key="refresh_edit"):
+                with st.spinner('⏳ Loading...'):
+                    st.session_state.cached_edit_prompts = get_all_prompts(sheet)
+            
+            prompts = st.session_state.get('cached_edit_prompts', [])
             
             if prompts:
                 # Select prompt to edit
@@ -595,15 +606,23 @@ def main():
                         if edited_prompt.strip() and edited_prompt_name.strip():
                             with st.spinner('Updating...'):
                                 if save_prompt(sheet, edited_prompt_name.strip(), edited_prompt.strip(), edited_video_id.strip(), row_num):
-                                    st.success("✅ Prompt updated successfully!")
+                                    if 'cached_prompts' in st.session_state:
+                                        del st.session_state['cached_prompts']
+                                    if 'cached_edit_prompts' in st.session_state:
+                                        del st.session_state['cached_edit_prompts']
+                                    st.success("✅ Updated!")
                                     st.rerun()
                         else:
-                            st.warning("⚠️ Prompt name and text cannot be empty!")
+                            st.warning("⚠️ Cannot be empty!")
                     
                     if delete_btn:
                         with st.spinner('Deleting...'):
                             if delete_prompt(sheet, row_num):
-                                st.success("✅ Prompt deleted successfully!")
+                                if 'cached_prompts' in st.session_state:
+                                    del st.session_state['cached_prompts']
+                                if 'cached_edit_prompts' in st.session_state:
+                                    del st.session_state['cached_edit_prompts']
+                                st.success("✅ Deleted!")
                                 st.rerun()
             else:
                 st.info("📭 No prompts to manage yet.")
