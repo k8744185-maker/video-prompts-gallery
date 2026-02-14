@@ -663,11 +663,15 @@ def get_all_prompts(sheet):
 
 def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
     """Display Google AdSense ad"""
-    # Get ads client ID - check local first, then secrets
-    if os.path.exists('.env'):
-        ads_client_id = os.getenv('GOOGLE_ADS_CLIENT_ID', '')
-    else:
-        ads_client_id = st.secrets.get('GOOGLE_ADS_CLIENT_ID', '')
+    # Get ads client ID - check environment variable first, then secrets
+    ads_client_id = os.getenv('GOOGLE_ADS_CLIENT_ID', '')
+    
+    # If not in environment, try secrets (for Streamlit Cloud)
+    if not ads_client_id and not os.path.exists('.env'):
+        try:
+            ads_client_id = st.secrets.get('GOOGLE_ADS_CLIENT_ID', '')
+        except:
+            ads_client_id = ''
     
     if not ads_client_id or ads_client_id == 'ca-pub-xxxxxxxxxxxxxxxxx':
         # Show placeholder when ads not configured
@@ -702,11 +706,15 @@ def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
 # Check admin authentication
 def check_admin_password(key_suffix=""):
     """Check if admin password is correct with rate limiting and session timeout"""
-    # Get admin password - check local first, then secrets
-    if os.path.exists('.env'):
-        admin_password = os.getenv('ADMIN_PASSWORD', 'admin123')
-    else:
-        admin_password = st.secrets['ADMIN_PASSWORD']
+    # Get admin password - check environment variable first, then secrets
+    admin_password = os.getenv('ADMIN_PASSWORD', '')
+    
+    # If not in environment, try secrets (for Streamlit Cloud)
+    if not admin_password and not os.path.exists('.env'):
+        try:
+            admin_password = st.secrets['ADMIN_PASSWORD']
+        except:
+            admin_password = 'admin123'
     
     # Hash the stored password for comparison
     admin_password_hash = hash_password(admin_password)
@@ -867,11 +875,15 @@ def main():
             # Show ad before prompts
             show_google_ad(ad_slot="1234567891", ad_format="auto")
             
-            # Get base URL - check local first, then secrets
-            if os.path.exists('.env'):
-                base_url = os.getenv('BASE_URL', 'http://localhost:8501')
-            else:
-                base_url = st.secrets.get('BASE_URL', 'http://localhost:8501')
+            # Get base URL - check environment variable first, then secrets
+            base_url = os.getenv('BASE_URL', 'http://localhost:8501')
+            
+            # If not in environment, try secrets (for Streamlit Cloud)
+            if base_url == 'http://localhost:8501' and not os.path.exists('.env'):
+                try:
+                    base_url = st.secrets.get('BASE_URL', 'http://localhost:8501')
+                except:
+                    pass
             
             # Search box
             search_query = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts")
