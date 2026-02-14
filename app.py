@@ -343,7 +343,6 @@ def main():
             with col2:
                 if st.button("🚪 Logout", key="logout", use_container_width=True):
                     st.session_state.authenticated = False
-                    st.rerun()
             
             st.markdown("")  # Spacing
             
@@ -377,13 +376,12 @@ def main():
                     if prompt.strip() and prompt_name.strip():
                         with st.spinner('Saving...'):
                             if save_prompt(sheet, prompt_name.strip(), prompt.strip(), video_id.strip()):
-                                # Clear cache to show new prompt
+                                # Clear cache
                                 if 'cached_prompts' in st.session_state:
                                     del st.session_state['cached_prompts']
                                 if 'cached_edit_prompts' in st.session_state:
                                     del st.session_state['cached_edit_prompts']
-                                st.success("✅ Saved!")
-                                st.rerun()
+                                st.success("✅ Saved! Switch to 'View All' tab to see it.")
                     else:
                         st.warning("⚠️ Please enter both prompt name and prompt text!")
     
@@ -498,7 +496,6 @@ def main():
                     )
                     if st.button("✕ Close", key=f"close_copy_{idx}_{prompt_num}", type="primary"):
                         st.session_state[f"show_copy_{idx}"] = False
-                        st.rerun()
                 
                 # Show share link if button clicked (admin only)
                 if st.session_state.get(f"show_link_{idx}", False) and st.session_state.get('authenticated', False):
@@ -507,7 +504,6 @@ def main():
                     st.code(share_link, language="text")
                     if st.button("✕ Close", key=f"close_{idx}_{prompt_num}", type="primary"):
                         st.session_state[f"show_link_{idx}"] = False
-                        st.rerun()
                 
                 st.markdown('</div>', unsafe_allow_html=True)
                 
@@ -537,7 +533,6 @@ def main():
             with col2:
                 if st.button("🚪 Logout", key="logout_edit", use_container_width=True):
                     st.session_state.authenticated = False
-                    st.rerun()
             
             st.markdown("")  # Spacing
             
@@ -610,8 +605,7 @@ def main():
                                         del st.session_state['cached_prompts']
                                     if 'cached_edit_prompts' in st.session_state:
                                         del st.session_state['cached_edit_prompts']
-                                    st.success("✅ Updated!")
-                                    st.rerun()
+                                    st.success("✅ Updated! Click Refresh to see changes.")
                         else:
                             st.warning("⚠️ Cannot be empty!")
                     
@@ -622,8 +616,7 @@ def main():
                                     del st.session_state['cached_prompts']
                                 if 'cached_edit_prompts' in st.session_state:
                                     del st.session_state['cached_edit_prompts']
-                                st.success("✅ Deleted!")
-                                st.rerun()
+                                st.success("✅ Deleted! Click Refresh to see changes.")
             else:
                 st.info("📭 No prompts to manage yet.")
 
@@ -691,7 +684,6 @@ def show_single_prompt(sheet, prompt_id):
                 )
                 if st.button("✕ Close", key="close_copy_single", type="primary"):
                     st.session_state["show_copy_single"] = False
-                    st.rerun()
             
             # Metadata footer
             if prompt_data.get('Video ID') or prompt_data.get('Timestamp'):
