@@ -371,8 +371,13 @@ def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def check_rate_limit(session_key):
-    """Check if user has exceeded login attempts"""
+    """Check if user has exceeded login attempts - simplified"""
     try:
+        if 'session_initialized' not in st.session_state:
+            st.session_state.session_initialized = True
+            st.session_state[f'{session_key}_attempts'] = 0
+            st.session_state[f'{session_key}_lockout_until'] = 0
+        
         current_time = time.time()
         
         if f'{session_key}_attempts' not in st.session_state:
@@ -389,8 +394,8 @@ def check_rate_limit(session_key):
             st.session_state[f'{session_key}_attempts'] = 0
         
         return True, ""
-    except:
-        # Session state not initialized yet
+    except Exception as e:
+        # If any error, allow login attempt
         return True, ""
 
 def record_failed_attempt(session_key):
@@ -404,35 +409,6 @@ def record_failed_attempt(session_key):
     except:
         # Session state not initialized yet
         pass
-
-def check_session_timeout():
-    """Check if session has timed out - optimized to check less frequently"""
-    try:
-        if 'last_activity' not in st.session_state:
-            st.session_state.last_activity = time.time()
-            st.session_state.last_timeout_check = time.time()
-            return True
-        
-        current_time = time.time()
-        
-        # Only perform timeout check every 30 seconds to reduce overhead
-        if current_time - st.session_state.get('last_timeout_check', 0) < 30:
-            return True
-        
-        st.session_state.last_timeout_check = current_time
-        
-        if current_time - st.session_state.last_activity > SESSION_TIMEOUT:
-            # Session expired
-            st.session_state.authenticated = False
-            st.session_state.last_activity = current_time
-            return False
-        
-        # Update last activity time
-        st.session_state.last_activity = current_time
-        return True
-    except:
-        # Session state not initialized yet
-        return True
 
 # Google Sheets setup
 def get_google_sheet():
@@ -581,12 +557,8 @@ def check_admin_password(key_suffix=""):
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
     
-    # Check session timeout for authenticated users
+    # Return True if already authenticated (no timeout check for performance)
     if st.session_state.authenticated:
-        if not check_session_timeout():
-            st.warning("⏱️ Session expired. Please login again.")
-            st.session_state.authenticated = False
-            st.rerun()
         return True
     
     if not st.session_state.authenticated:
