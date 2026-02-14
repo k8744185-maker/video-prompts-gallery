@@ -11,10 +11,11 @@ import re
 import json
 
 # Load environment variables
-# For local development, load from .env file
-# For Streamlit Cloud, load from secrets
-# For Render.com, load from environment variables
 load_dotenv()
+
+# Optimize for Render.com free tier (512MB RAM, 0.1 CPU)
+import gc
+gc.set_threshold(50, 5, 5)  # More aggressive garbage collection
 
 # Security Configuration
 MAX_LOGIN_ATTEMPTS = 5
@@ -23,11 +24,12 @@ SESSION_TIMEOUT = 1800  # 30 minutes in seconds
 MAX_PROMPT_LENGTH = 5000
 MAX_NAME_LENGTH = 200
 
-# Page configuration
+# Page configuration - Optimized for Render.com free tier
 st.set_page_config(
     page_title="Video Prompts Gallery",
     page_icon="🎬",
-    layout="wide"
+    layout="centered",  # Narrow layout uses less memory
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS - Ultra minimal for speed
@@ -142,6 +144,8 @@ def get_google_sheet():
             sheet_id = st.secrets['GOOGLE_SHEET_ID']
         
         client = gspread.authorize(creds)
+        # Set timeout for Render.com to prevent hanging
+        client.http_client.timeout = 10  # 10 second timeout
         sheet = client.open_by_key(sheet_id).sheet1
         
         # Create headers if sheet is empty
@@ -423,7 +427,12 @@ def main():
             # Search box
             search_query = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts")
             
+            # Limit prompts to reduce memory (Render free tier optimization)
+            max_prompts = 20
+            st.caption(f"Showing latest {min(max_prompts, len(prompts))} of {len(prompts)} prompts")
+            
             # Display prompts in reverse order (newest first)
+            displayed_count = 0
             for idx, prompt_data in enumerate(reversed(prompts)):
                 prompt_num = len(prompts) - idx
                 unique_id = prompt_data.get('Unique ID', f'PR{str(prompt_num).zfill(4)}')
@@ -437,6 +446,11 @@ def main():
                 # Filter by search
                 if search_query and search_query.lower() not in prompt_text.lower():
                     continue
+                
+                # Limit to max prompts for performance
+                if displayed_count >= max_prompts:
+                    break
+                displayed_count += 1
                 
                 share_link = f"{base_url}?prompt_id={unique_id}"
                 
