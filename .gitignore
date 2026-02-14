@@ -1,0 +1,18 @@
+# Environment variables
+.env
+credentials.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+venv/
+env/
+
+# OS
+.DS_Store
+*.log
