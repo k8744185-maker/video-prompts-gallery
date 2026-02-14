@@ -144,8 +144,6 @@ def get_google_sheet():
             sheet_id = st.secrets['GOOGLE_SHEET_ID']
         
         client = gspread.authorize(creds)
-        # Set timeout for Render.com to prevent hanging
-        client.http_client.timeout = 10  # 10 second timeout
         sheet = client.open_by_key(sheet_id).sheet1
         
         # Create headers if sheet is empty
