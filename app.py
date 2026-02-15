@@ -60,7 +60,7 @@ st.markdown("""
 
 # Google AdSense Verification Code
 st.markdown("""
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5058768956635718"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718"
          crossorigin="anonymous"></script>
 """, unsafe_allow_html=True)
 
