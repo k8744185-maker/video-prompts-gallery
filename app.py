@@ -2,6 +2,7 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+import pytz
 import os
 from dotenv import load_dotenv
 import hashlib
@@ -168,10 +169,10 @@ def get_google_sheet():
         # Create headers if sheet is empty
         try:
             headers = sheet.row_values(1)
-            if not headers or headers != ['Timestamp', 'Unique ID', 'Prompt Name', 'Prompt', 'Video ID']:
-                sheet.update('A1:E1', [['Timestamp', 'Unique ID', 'Prompt Name', 'Prompt', 'Video ID']])
+            if not headers or headers != ['Timestamp', 'Unique ID', 'Prompt Name', 'Prompt', 'Video ID', 'Category']:
+                sheet.update('A1:F1', [['Timestamp', 'Unique ID', 'Prompt Name', 'Prompt', 'Video ID', 'Category']])
         except:
-            sheet.update('A1:E1', [['Timestamp', 'Unique ID', 'Prompt Name', 'Prompt', 'Video ID']])
+            sheet.update('A1:F1', [['Timestamp', 'Unique ID', 'Prompt Name', 'Prompt', 'Video ID', 'Category']])
         
         # Initialize analytics sheet for visit counts and errors
         try:
@@ -196,7 +197,7 @@ def generate_unique_id():
     timestamp = str(time.time()).replace('.', '')
     return f"PR{timestamp[-10:]}"
 
-def save_prompt(sheet, prompt_name, prompt, video_id="", row_num=None):
+def save_prompt(sheet, prompt_name, prompt, video_id="", category="General", row_num=None):
     """Save or update prompt to Google Sheets with security validation"""
     try:
         # Validate inputs
@@ -214,17 +215,20 @@ def save_prompt(sheet, prompt_name, prompt, video_id="", row_num=None):
         prompt_name = sanitize_input(prompt_name)
         prompt = sanitize_input(prompt)
         video_id = sanitize_input(video_id) if video_id else ""
+        category = sanitize_input(category) if category else "General"
         
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # India timezone timestamp
+        india_tz = pytz.timezone('Asia/Kolkata')
+        timestamp = datetime.now(india_tz).strftime("%Y-%m-%d %H:%M:%S")
         
         if row_num:  # Update existing row
             # Get existing unique ID
             existing_data = sheet.row_values(row_num)
             unique_id = existing_data[1] if len(existing_data) > 1 else generate_unique_id()
-            sheet.update(f'A{row_num}:E{row_num}', [[timestamp, unique_id, prompt_name, prompt, video_id]])
+            sheet.update(f'A{row_num}:F{row_num}', [[timestamp, unique_id, prompt_name, prompt, video_id, category]])
         else:  # Add new row
             unique_id = generate_unique_id()
-            sheet.append_row([timestamp, unique_id, prompt_name, prompt, video_id])
+            sheet.append_row([timestamp, unique_id, prompt_name, prompt, video_id, category])
         return True
     except Exception as e:
         handle_error("Unable to save prompt. Please try again.", show_refresh=True)
@@ -256,7 +260,8 @@ def log_analytics_event(event_type, prompt_id='', error_msg='', status='success'
     try:
         if 'analytics_sheet' in st.session_state:
             analytics_sheet = st.session_state.analytics_sheet
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            india_tz = pytz.timezone('Asia/Kolkata')
+            timestamp = datetime.now(india_tz).strftime("%Y-%m-%d %H:%M:%S")
             user_ip = 'N/A'  # Can be enhanced with actual IP tracking
             analytics_sheet.append_row([timestamp, prompt_id, event_type, user_ip, error_msg, status])
     except:
@@ -442,12 +447,8 @@ def main():
     # Single ad placement after hero
     show_google_ad(ad_slot="1234567890", ad_format="auto")
     
-    # Create tabs - View All is admin-only
-    if st.session_state.get('authenticated', False):
-        tab1, tab2, tab3 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage"])
-    else:
-        tab1, tab3 = st.tabs(["📝 Add New", "✏️ Manage"])
-        tab2 = None  # No access for public users
+    # Create tabs - View All is now public
+    tab1, tab2, tab3 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage"])
     
     with tab1:
         st.markdown("### ✨ Create New Prompt")
@@ -482,7 +483,12 @@ def main():
                         placeholder="e.g., video_001"
                     )
                 with col2:
-                    st.markdown("<br>", unsafe_allow_html=True)
+                    category = st.selectbox(
+                        "🏷️ Category",
+                        ["Nature", "Urban", "People", "Abstract", "Cinematic", "Sci-Fi", "Fantasy", "General"],
+                        index=7,  # Default to "General"
+                        help="Select a category for better organization"
+                    )
                 
                 st.markdown("")  # Spacing
                 submitted = st.form_submit_button("💾 Save Prompt", use_container_width=True, type="primary")
@@ -490,7 +496,7 @@ def main():
                 if submitted:
                     if prompt.strip() and prompt_name.strip():
                         with st.spinner('Saving...'):
-                            if save_prompt(sheet, prompt_name.strip(), prompt.strip(), video_id.strip()):
+                            if save_prompt(sheet, prompt_name.strip(), prompt.strip(), video_id.strip(), category):
                                 # Clear cache
                                 if 'cached_prompts' in st.session_state:
                                     del st.session_state['cached_prompts']
@@ -500,8 +506,8 @@ def main():
                     else:
                         st.warning("⚠️ Please enter both prompt name and prompt text!")
     
-    # View All Prompts tab - Admin only
-    if tab2:  # Only exists if user is admin
+    # View All Prompts tab - Now public
+    with tab2:
         with tab2:
             st.markdown("### 🌟 All Prompts")
             
@@ -549,8 +555,15 @@ def main():
                     except:
                         pass
                 
-                # Search box
-                search_query = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts")
+                # Search box and category filter
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    search_query = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts")
+                with col2:
+                    # Get unique categories from prompts
+                    all_categories = list(set([p.get('Category', 'General') for p in prompts if p.get('Category')]))
+                    all_categories.sort()
+                    filter_category = st.selectbox("🏷️ Filter by Category", ["All"] + all_categories, index=0)
                 
                 # Limit prompts to reduce memory (Render free tier optimization)
                 max_prompts = 20
@@ -562,10 +575,15 @@ def main():
                     prompt_num = len(prompts) - idx
                     unique_id = prompt_data.get('Unique ID', f'PR{str(prompt_num).zfill(4)}')
                     prompt_name = prompt_data.get('Prompt Name', f'Prompt {prompt_num}')
+                    category = prompt_data.get('Category', 'General')
                     prompt_text = prompt_data.get('Prompt', 'N/A')
                     
                     # Skip empty prompts
                     if not prompt_text or prompt_text.strip() == '' or prompt_text == 'N/A':
+                        continue
+                    
+                    # Filter by category
+                    if filter_category != "All" and category != filter_category:
                         continue
                     
                     # Filter by search
@@ -582,11 +600,14 @@ def main():
                     # Main card container
                     st.markdown('<div class="prompt-container">', unsafe_allow_html=True)
                     
-                    # HEADER SECTION (Purple gradient) - Show Prompt Name
+                    # HEADER SECTION (Purple gradient) - Show Prompt Name with Category
                     st.markdown(f'''
                         <div class="prompt-header">
                             <h2 style="margin: 0; font-size: 1.8rem; color: white;">🎬 {prompt_name}</h2>
-                            <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem;">Prompt #{prompt_num}</p>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                                <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">Prompt #{prompt_num}</p>
+                                <span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">🏷️ {category}</span>
+                            </div>
                         </div>
                     ''', unsafe_allow_html=True)
                     
@@ -725,10 +746,24 @@ def main():
                         height=150
                     )
                     
-                    edited_video_id = st.text_input(
-                        "📹 Video ID:",
-                        value=selected_prompt.get('Video ID', '')
-                    )
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        edited_video_id = st.text_input(
+                            "📹 Video ID:",
+                            value=selected_prompt.get('Video ID', '')
+                        )
+                    with col2:
+                        current_category = selected_prompt.get('Category', 'General')
+                        categories = ["Nature", "Urban", "People", "Abstract", "Cinematic", "Sci-Fi", "Fantasy", "General"]
+                        try:
+                            cat_index = categories.index(current_category)
+                        except:
+                            cat_index = 7  # Default to General
+                        edited_category = st.selectbox(
+                            "🏷️ Category:",
+                            categories,
+                            index=cat_index
+                        )
                     
                     st.markdown("")  # Spacing
                     
@@ -750,7 +785,7 @@ def main():
                     if update_btn:
                         if edited_prompt.strip() and edited_prompt_name.strip():
                             with st.spinner('Updating...'):
-                                if save_prompt(sheet, edited_prompt_name.strip(), edited_prompt.strip(), edited_video_id.strip(), row_num):
+                                if save_prompt(sheet, edited_prompt_name.strip(), edited_prompt.strip(), edited_video_id.strip(), edited_category, row_num):
                                     if 'cached_prompts' in st.session_state:
                                         del st.session_state['cached_prompts']
                                     if 'cached_edit_prompts' in st.session_state:

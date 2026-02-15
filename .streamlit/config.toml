@@ -1,6 +1,7 @@
 [server]
 enableCORS = false
 enableXsrfProtection = true
+enableStaticServing = true
 
 [client]
 showErrorDetails = false
