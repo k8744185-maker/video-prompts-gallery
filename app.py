@@ -559,19 +559,23 @@ def main():
                 # Search box and category filter
                 col1, col2 = st.columns([3, 1])
                 with col1:
-                    search_query = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts")
+                    search_query = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts", key="search_input")
                 with col2:
-                    # Get unique categories from prompts
-                    all_categories = list(set([p.get('Category', 'General') for p in prompts if p.get('Category')]))
-                    all_categories.sort()
+                    # Get unique categories from all prompts (split multi-categories)
+                    all_categories = set()
+                    for p in prompts:
+                        cat = p.get('Category', 'General')
+                        if cat:
+                            for c in cat.split(','):
+                                all_categories.add(c.strip())
+                    all_categories = sorted(list(all_categories))
                     filter_category = st.selectbox("🏷️ Filter by Category", ["All"] + all_categories, index=0)
                 
-                # Limit prompts to reduce memory (Render free tier optimization)
-                max_prompts = 20
-                st.caption(f"Showing latest {min(max_prompts, len(prompts))} of {len(prompts)} prompts")
+                st.markdown("<br>", unsafe_allow_html=True)
                 
                 # Display prompts in reverse order (newest first)
                 displayed_count = 0
+                filtered_count = 0
                 for idx, prompt_data in enumerate(reversed(prompts)):
                     prompt_num = len(prompts) - idx
                     unique_id = prompt_data.get('Unique ID', f'PR{str(prompt_num).zfill(4)}')
@@ -589,14 +593,16 @@ def main():
                         if filter_category not in prompt_categories:
                             continue
                     
-                    # Filter by search
-                    if search_query and search_query.lower() not in prompt_text.lower():
-                        continue
+                    # Filter by search (check prompt name, text, and categories)
+                    if search_query:
+                        search_lower = search_query.lower()
+                        if not (search_lower in prompt_text.lower() or 
+                                search_lower in prompt_name.lower() or 
+                                search_lower in category.lower()):
+                            continue
                     
-                    # Limit to max prompts for performance
-                    if displayed_count >= max_prompts:
-                        break
-                    displayed_count += 1
+                    # Count filtered results
+                    filtered_count += 1
                     
                     share_link = f"{base_url}?prompt_id={unique_id}"
                     
@@ -699,6 +705,11 @@ def main():
                         st.markdown('</div>', unsafe_allow_html=True)
                     
                     st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Show results summary
+                if search_query or filter_category != "All":
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.info(f"📊 Showing **{filtered_count}** prompts matching your filters")
             else:
                 st.info("📭 No prompts yet. Add your first prompt in the 'Add New' tab!")
     
