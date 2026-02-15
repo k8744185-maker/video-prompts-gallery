@@ -448,7 +448,7 @@ def main():
     show_google_ad(ad_slot="1234567890", ad_format="auto")
     
     # Create tabs - View All is now public
-    tab1, tab2, tab3 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage", "ℹ️ Legal & Info"])
     
     with tab1:
         st.markdown("### ✨ Create New Prompt")
@@ -639,11 +639,57 @@ def main():
                 start_idx = (st.session_state.current_page - 1) * PROMPTS_PER_PAGE
                 end_idx = min(start_idx + PROMPTS_PER_PAGE, total_filtered)
                 
-                # Show pagination info
+                # Pagination controls function
+                def render_pagination():
+                    if total_pages > 1:
+                        # Create pagination buttons
+                        cols = st.columns([1, 1, 2, 1, 1])
+                        
+                        with cols[0]:
+                            if st.session_state.current_page > 1:
+                                if st.button("⬅️ Previous", use_container_width=True, key=f"prev_{st.session_state.get('pagination_location', 'top')}"):
+                                    st.session_state.current_page -= 1
+                                    st.rerun()
+                        
+                        with cols[2]:
+                            # Page number buttons (show max 5 pages)
+                            page_buttons = []
+                            if total_pages <= 5:
+                                page_buttons = list(range(1, total_pages + 1))
+                            else:
+                                current = st.session_state.current_page
+                                if current <= 3:
+                                    page_buttons = [1, 2, 3, 4, 5]
+                                elif current >= total_pages - 2:
+                                    page_buttons = list(range(total_pages - 4, total_pages + 1))
+                                else:
+                                    page_buttons = list(range(current - 2, current + 3))
+                            
+                            page_cols = st.columns(len(page_buttons))
+                            for i, page_num in enumerate(page_buttons):
+                                with page_cols[i]:
+                                    if page_num == st.session_state.current_page:
+                                        st.markdown(f"<div style='text-align: center; padding: 0.5rem; background: #667eea; color: white; border-radius: 8px; font-weight: bold;'>{page_num}</div>", unsafe_allow_html=True)
+                                    else:
+                                        if st.button(str(page_num), key=f"page_{page_num}_{st.session_state.get('pagination_location', 'top')}", use_container_width=True):
+                                            st.session_state.current_page = page_num
+                                            st.rerun()
+                        
+                        with cols[4]:
+                            if st.session_state.current_page < total_pages:
+                                if st.button("Next ➡️", use_container_width=True, key=f"next_{st.session_state.get('pagination_location', 'top')}"):
+                                    st.session_state.current_page += 1
+                                    st.rerun()
+                
+                # Show pagination info and controls at TOP
                 if total_filtered > 0:
                     col1, col2, col3 = st.columns([1, 2, 1])
                     with col2:
                         st.info(f"📄 Showing {start_idx + 1}-{end_idx} of **{total_filtered}** prompts | Page {st.session_state.current_page}/{total_pages}")
+                    
+                    st.session_state.pagination_location = 'top'
+                    render_pagination()
+                    st.markdown("<br>", unsafe_allow_html=True)
                 
                 # Display prompts for current page
                 for prompt_info in filtered_prompts[start_idx:end_idx]:
@@ -756,67 +802,11 @@ def main():
                     
                     st.markdown('</div>', unsafe_allow_html=True)
                 
-                # Pagination controls
+                # Pagination controls at BOTTOM
                 if total_pages > 1:
                     st.markdown("<br><br>", unsafe_allow_html=True)
-                    
-                    # Create pagination buttons
-                    cols = st.columns([1, 1, 2, 1, 1])
-                    
-                    with cols[0]:
-                        if st.session_state.current_page > 1:
-                            if st.button("⬅️ Previous", use_container_width=True):
-                                st.session_state.current_page -= 1
-                                st.rerun()
-                    
-                    with cols[2]:
-                        # Page number buttons (show max 5 pages)
-                        page_buttons = []
-                        if total_pages <= 5:
-                            page_buttons = list(range(1, total_pages + 1))
-                        else:
-                            current = st.session_state.current_page
-                            if current <= 3:
-                                page_buttons = [1, 2, 3, 4, 5]
-                            elif current >= total_pages - 2:
-                                page_buttons = list(range(total_pages - 4, total_pages + 1))
-                            else:
-                                page_buttons = list(range(current - 2, current + 3))
-                        
-                        page_cols = st.columns(len(page_buttons))
-                        for i, page_num in enumerate(page_buttons):
-                            with page_cols[i]:
-                                if page_num == st.session_state.current_page:
-                                    st.markdown(f"<div style='text-align: center; padding: 0.5rem; background: #667eea; color: white; border-radius: 8px; font-weight: bold;'>{page_num}</div>", unsafe_allow_html=True)
-                                else:
-                                    if st.button(str(page_num), key=f"page_{page_num}", use_container_width=True):
-                                        st.session_state.current_page = page_num
-                                        st.rerun()
-                    
-                    with cols[4]:
-                        if st.session_state.current_page < total_pages:
-                            if st.button("Next ➡️", use_container_width=True):
-                                st.session_state.current_page += 1
-                                st.rerun()
-                    
-                    st.markdown("<br><br>", unsafe_allow_html=True)
-                    
-                    # Duplicate search/filter at bottom for convenience
-                    st.markdown("---")
-                    st.caption("💡 Quick search from here too:")
-                    col1, col2 = st.columns([3, 1])
-                    with col1:
-                        search_query_bottom = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts", key="search_input_bottom", value=search_query)
-                        if search_query_bottom != search_query:
-                            st.session_state.prev_search = search_query_bottom
-                            st.session_state.current_page = 1
-                            st.rerun()
-                    with col2:
-                        filter_category_bottom = st.selectbox("🏷️ Filter by Category", ["All"] + all_categories, index=["All"] + all_categories.index(filter_category) if filter_category in all_categories else 0, key="filter_bottom")
-                        if filter_category_bottom != filter_category:
-                            st.session_state.prev_filter = filter_category_bottom
-                            st.session_state.current_page = 1
-                            st.rerun()
+                    st.session_state.pagination_location = 'bottom'
+                    render_pagination()
                 
                 # Show no results message if filtered list is empty
                 if total_filtered == 0:
@@ -932,6 +922,210 @@ def main():
                                 st.success("✅ Deleted! Click Refresh to see changes.")
             else:
                 st.info("📭 No prompts to manage yet.")
+    
+    # Legal & Info Tab (Tab 4) - Required for AdSense
+    with tab4:
+        st.markdown("### 📋 Legal & Information")
+        st.caption("Required pages for transparency and AdSense compliance")
+        
+        # Create sub-sections
+        legal_tab1, legal_tab2, legal_tab3, legal_tab4 = st.tabs(["📜 Privacy Policy", "📝 Terms of Service", "📧 Contact Us", "ℹ️ About"])
+        
+        with legal_tab1:
+            st.markdown("""
+            # Privacy Policy
+            
+            **Last Updated:** February 15, 2026
+            
+            ## Introduction
+            Video Prompts Gallery ("we", "our", "us") operates https://video-prompts-gallery.onrender.com (the "Site"). This page informs you of our policies regarding the collection, use, and disclosure of personal information when you use our Site.
+            
+            ## Information Collection and Use
+            While using our Site, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you.
+            
+            ### Types of Data Collected:
+            - **Personal Data:** Email address (if you contact us)
+            - **Usage Data:** IP address, browser type, pages visited, time spent
+            - **Cookies:** We use cookies to track activity on our Site
+            
+            ## Google AdSense
+            We use Google AdSense to display advertisements. Google may use cookies to serve ads based on your prior visits to our Site or other websites. You can opt out of personalized advertising by visiting [Google Ads Settings](https://www.google.com/settings/ads).
+            
+            ## Google Sheets Integration
+            We use Google Sheets to store prompt data. Only administrators with proper authentication can modify this data.
+            
+            ## Data Security
+            We value your trust in providing us your Personal Information and strive to use commercially acceptable means of protecting it. However, no method of transmission over the internet is 100% secure.
+            
+            ## Links to Other Sites
+            Our Site may contain links to other sites. We are not responsible for the privacy practices of other sites.
+            
+            ## Children's Privacy
+            Our Site does not address anyone under the age of 13. We do not knowingly collect personal information from children under 13.
+            
+            ## Changes to This Privacy Policy
+            We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.
+            
+            ## Contact Us
+            If you have any questions about this Privacy Policy, please contact us at: k8744185@gmail.com
+            """)
+        
+        with legal_tab2:
+            st.markdown("""
+            # Terms of Service
+            
+            **Last Updated:** February 15, 2026
+            
+            ## 1. Agreement to Terms
+            By accessing Video Prompts Gallery, you agree to be bound by these Terms of Service and all applicable laws and regulations.
+            
+            ## 2. Use License
+            Permission is granted to temporarily view and use the prompts on this site for personal, non-commercial use only.
+            
+            ### You May NOT:
+            - Modify or copy the materials without permission
+            - Use the materials for commercial purposes
+            - Remove any copyright or proprietary notations
+            - Transfer the materials to another person
+            
+            ## 3. Disclaimer
+            The materials on Video Prompts Gallery are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim all other warranties.
+            
+            ## 4. Limitations
+            In no event shall Video Prompts Gallery or its suppliers be liable for any damages arising out of the use or inability to use the materials on our Site.
+            
+            ## 5. User Conduct
+            You agree to:
+            - Not violate any laws while using our Site
+            - Not post or transmit harmful content
+            - Not attempt to gain unauthorized access to our systems
+            
+            ## 6. Intellectual Property
+            All prompts and content on this Site are the property of Video Prompts Gallery or its content creators.
+            
+            ## 7. Third-Party Services
+            Our Site uses third-party services (Google Sheets, Google AdSense) which have their own Terms of Service.
+            
+            ## 8. Modifications
+            We reserve the right to revise these terms at any time without notice. By continuing to use this Site, you agree to be bound by the current version of these Terms of Service.
+            
+            ## 9. Governing Law
+            These terms shall be governed by and construed in accordance with the laws of India.
+            
+            ## 10. Contact Information
+            For questions about these Terms, contact: k8744185@gmail.com
+            """)
+        
+        with legal_tab3:
+            st.markdown("""
+            # Contact Us
+            
+            We'd love to hear from you! Whether you have questions, feedback, or need support, feel free to reach out.
+            
+            ## 📧 Email
+            **General Inquiries:** k8744185@gmail.com
+            
+            ## 🌐 Website
+            **Live Site:** https://video-prompts-gallery.onrender.com
+            
+            ## 💬 Feedback & Suggestions
+            We're always looking to improve! If you have:
+            - Feature requests
+            - Bug reports
+            - Content suggestions
+            - Partnership inquiries
+            
+            Please email us with the subject line indicating your inquiry type.
+            
+            ## ⏰ Response Time
+            We typically respond within 24-48 hours during business days.
+            
+            ## 🔒 Privacy
+            All communications are kept confidential and handled in accordance with our Privacy Policy.
+            
+            ## 🐛 Report Issues
+            Found a technical issue? Please include:
+            - Your browser and version
+            - Steps to reproduce the issue
+            - Screenshots (if applicable)
+            
+            ## 📱 Social Media
+            Stay updated with our latest prompts and features!
+            *(Add your social media links here when available)*
+            
+            ---
+            
+            **Administrator:** K. Venkadesan  
+            **Email:** k8744185@gmail.com  
+            **Location:** India (IST Timezone)
+            """)
+        
+        with legal_tab4:
+            st.markdown("""
+            # About Video Prompts Gallery
+            
+            ## 🎬 Our Mission
+            Video Prompts Gallery is a curated collection of high-quality video prompts designed to inspire creators, filmmakers, and AI enthusiasts. Our goal is to provide cinematic, detailed prompts that help bring visual stories to life.
+            
+            ## 🌟 What We Offer
+            - **Curated Prompts:** Handcrafted video prompts across multiple categories
+            - **Multiple Categories:** Nature, Urban, People, Cinematic, Sci-Fi, Fantasy, and more
+            - **Tamil Cinema Focus:** Special collection of Tamil cinema-inspired romantic scenes
+            - **Easy Search:** Find the perfect prompt with our search and filter features
+            - **Free Access:** All prompts are freely accessible to everyone
+            
+            ## 🎯 Why We Exist
+            With the rise of AI video generation tools, having well-crafted prompts is essential. We created this gallery to:
+            - Save time for content creators
+            - Inspire new creative directions
+            - Showcase the beauty of detailed cinematography descriptions
+            - Celebrate Tamil cinema and Indian locations
+            
+            ## 🛠️ Technology
+            Built with:
+            - **Streamlit:** Modern Python web framework
+            - **Google Sheets API:** Cloud-based storage
+            - **Render.com:** Reliable hosting platform
+            - **Google AdSense:** Supporting our free service
+            
+            ## 📊 Features
+            - 🔍 Advanced search and filtering
+            - 🏷️ Multiple category tagging
+            - 📄 Pagination for smooth browsing
+            - 🕒 India Standard Time (IST) timestamps
+            - 📱 Mobile-responsive design
+            - 🔐 Admin portal for content management
+            
+            ## 👥 Target Audience
+            - AI video generation users (Runway, Pika, etc.)
+            - Filmmakers and cinematographers
+            - Content creators and storytellers
+            - Tamil cinema enthusiasts
+            - Creative professionals
+            
+            ## 🌏 Geographic Focus
+            While our prompts are useful globally, we have a special focus on:
+            - Tamil Nadu locations and culture
+            - Indian cinematography aesthetics
+            - South Indian architectural beauty
+            
+            ## 📈 Growth
+            - **Launch Date:** February 2026
+            - **Initial Collection:** 30+ prompts
+            - **Categories:** 8 diverse categories
+            - **Update Frequency:** Regular additions
+            
+            ## 🤝 Contribute
+            Interested in contributing prompts or partnering with us? Contact us at k8744185@gmail.com
+            
+            ## 📜 Legal
+            All content is original and created for this platform. Please see our Terms of Service and Privacy Policy for more information.
+            
+            ---
+            
+            **Created with ❤️ in India**  
+            **© 2026 Video Prompts Gallery. All rights reserved.**
+            """)
 
 def show_single_prompt(sheet, prompt_id):
     """Show a single prompt page - Ultra compact with no hero section"""
