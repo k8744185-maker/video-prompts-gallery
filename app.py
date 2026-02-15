@@ -39,11 +39,24 @@ def handle_error(error_msg="Something went wrong", show_refresh=True):
 
 # Page configuration - Optimized for Render.com free tier
 st.set_page_config(
-    page_title="Video Prompts Gallery",
+    page_title="Video Prompts Gallery - AI Video Prompt Collection",
     page_icon="🎬",
     layout="centered",  # Narrow layout uses less memory
     initial_sidebar_state="collapsed"
 )
+
+# SEO Meta Tags for AdSense Approval
+st.markdown("""
+    <meta name="description" content="Curated collection of high-quality AI video prompts for filmmakers and creators. Tamil cinema inspired prompts, nature scenes, urban cinematography and more.">
+    <meta name="keywords" content="video prompts, AI video generation, Tamil cinema prompts, cinematic prompts, filmmaking, Runway ML, Pika Labs">
+    <meta name="author" content="K. Venkadesan">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Video Prompts Gallery - AI Video Prompt Collection">
+    <meta property="og:description" content="30+ curated video prompts for AI video generation tools">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://video-prompts-gallery.onrender.com">
+    <link rel="canonical" href="https://video-prompts-gallery.onrender.com">
+""", unsafe_allow_html=True)
 
 # Google AdSense Verification Code
 st.markdown("""
@@ -280,6 +293,27 @@ def get_admin_notifications():
         pass
     return 0, []
 
+def generate_sitemap(prompts):
+    """Generate XML sitemap for SEO"""
+    base_url = "https://video-prompts-gallery.onrender.com"
+    sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    # Homepage
+    sitemap += f'  <url>\n    <loc>{base_url}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n'
+    
+    # Legal pages (important for AdSense)
+    sitemap += f'  <url>\n    <loc>{base_url}/?tab=Legal</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n'
+    
+    # Each prompt
+    for prompt in prompts[:50]:  # Limit to 50 for performance
+        unique_id = prompt.get('Unique ID', '')
+        if unique_id:
+            sitemap += f'  <url>\n    <loc>{base_url}/?prompt_id={unique_id}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
+    
+    sitemap += '</urlset>'
+    return sitemap
+
 def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
     """Display Google AdSense ad - optimized version"""
     ads_client_id = os.getenv('GOOGLE_ADS_CLIENT_ID', '')
@@ -371,8 +405,37 @@ def check_admin_password(key_suffix=""):
     
     return True
 
+# JSON-LD Structured Data for SEO
+def add_structured_data():
+    """Add JSON-LD structured data for better SEO"""
+    structured_data = """
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Video Prompts Gallery",
+      "url": "https://video-prompts-gallery.onrender.com",
+      "description": "Curated collection of high-quality AI video prompts for filmmakers and creators",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://video-prompts-gallery.onrender.com/?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Video Prompts Gallery",
+        "email": "k8744185@gmail.com"
+      }
+    }
+    </script>
+    """
+    st.markdown(structured_data, unsafe_allow_html=True)
+
 # Main app
 def main():
+    # Add JSON-LD structured data
+    add_structured_data()
+    
     # Show loading indicator
     with st.spinner('⏳ Please wait, loading...'):
         # Connect to Google Sheets
@@ -929,7 +992,7 @@ def main():
         st.caption("Required pages for transparency and AdSense compliance")
         
         # Create sub-sections
-        legal_tab1, legal_tab2, legal_tab3, legal_tab4 = st.tabs(["📜 Privacy Policy", "📝 Terms of Service", "📧 Contact Us", "ℹ️ About"])
+        legal_tab1, legal_tab2, legal_tab3, legal_tab4, legal_tab5 = st.tabs(["📜 Privacy Policy", "📝 Terms of Service", "📧 Contact Us", "ℹ️ About", "🗺️ Sitemap"])
         
         with legal_tab1:
             st.markdown("""
@@ -1126,6 +1189,35 @@ def main():
             **Created with ❤️ in India**  
             **© 2026 Video Prompts Gallery. All rights reserved.**
             """)
+        
+        with legal_tab5:
+            st.markdown("# 🗺️ Sitemap")
+            st.caption("XML Sitemap for search engines")
+            
+            # Generate sitemap
+            prompts = get_all_prompts(sheet)
+            sitemap_xml = generate_sitemap(prompts)
+            
+            st.markdown("""
+            This sitemap helps search engines discover and index all pages on our website.
+            
+            **What's included:**
+            - Homepage
+            - Legal pages (Privacy, Terms, Contact, About)
+            - All prompt pages (up to 50)
+            """)
+            
+            # Show download button
+            st.download_button(
+                label="📥 Download sitemap.xml",
+                data=sitemap_xml,
+                file_name="sitemap.xml",
+                mime="application/xml"
+            )
+            
+            # Show preview
+            with st.expander("👁️ Preview Sitemap"):
+                st.code(sitemap_xml, language="xml")
 
 def show_single_prompt(sheet, prompt_id):
     """Show a single prompt page - Ultra compact with no hero section"""

@@ -1,0 +1,21 @@
+# robots.txt for Video Prompts Gallery
+# Allows all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://video-prompts-gallery.onrender.com/sitemap.xml
+
+# Crawl-delay (optional - helps prevent server overload)
+Crawl-delay: 1
+
+# Google-specific rules (allow all)
+User-agent: Googlebot
+Allow: /
+
+# Google AdSense bot (allow for ad serving)
+User-agent: Mediapartners-Google
+Allow: /
+
+# Disallow nothing - site is fully public
