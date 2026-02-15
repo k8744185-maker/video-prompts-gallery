@@ -51,17 +51,12 @@ st.markdown("""
     <meta name="keywords" content="video prompts, AI video generation, Tamil cinema prompts, cinematic prompts, filmmaking, Runway ML, Pika Labs">
     <meta name="author" content="K. Venkadesan">
     <meta name="robots" content="index, follow">
+    <meta name="google-adsense-account" content="ca-pub-5050768956635718">
     <meta property="og:title" content="Video Prompts Gallery - AI Video Prompt Collection">
     <meta property="og:description" content="30+ curated video prompts for AI video generation tools">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://video-prompts-gallery.onrender.com">
     <link rel="canonical" href="https://video-prompts-gallery.onrender.com">
-""", unsafe_allow_html=True)
-
-# Google AdSense Verification Code
-st.markdown("""
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718"
-         crossorigin="anonymous"></script>
 """, unsafe_allow_html=True)
 
 # Custom CSS - Ultra minimal for speed
