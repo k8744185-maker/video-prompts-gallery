@@ -483,12 +483,13 @@ def main():
                         placeholder="e.g., video_001"
                     )
                 with col2:
-                    category = st.selectbox(
-                        "🏷️ Category",
+                    categories = st.multiselect(
+                        "🏷️ Categories",
                         ["Nature", "Urban", "People", "Abstract", "Cinematic", "Sci-Fi", "Fantasy", "General"],
-                        index=7,  # Default to "General"
-                        help="Select a category for better organization"
+                        default=["General"],
+                        help="Select one or more categories"
                     )
+                    category = ", ".join(categories) if categories else "General"
                 
                 st.markdown("")  # Spacing
                 submitted = st.form_submit_button("💾 Save Prompt", use_container_width=True, type="primary")
@@ -582,9 +583,11 @@ def main():
                     if not prompt_text or prompt_text.strip() == '' or prompt_text == 'N/A':
                         continue
                     
-                    # Filter by category
-                    if filter_category != "All" and category != filter_category:
-                        continue
+                    # Filter by category (check if ANY of the prompt's categories match)
+                    if filter_category != "All":
+                        prompt_categories = [c.strip() for c in category.split(',')] if category else ["General"]
+                        if filter_category not in prompt_categories:
+                            continue
                     
                     # Filter by search
                     if search_query and search_query.lower() not in prompt_text.lower():
@@ -601,12 +604,16 @@ def main():
                     st.markdown('<div class="prompt-container">', unsafe_allow_html=True)
                     
                     # HEADER SECTION (Purple gradient) - Show Prompt Name with Category
+                    # Create category badges
+                    category_list = [c.strip() for c in category.split(',')] if category else ["General"]
+                    category_badges = ''.join([f'<span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; margin-right: 0.5rem;">🏷️ {cat}</span>' for cat in category_list])
+                    
                     st.markdown(f'''
                         <div class="prompt-header">
                             <h2 style="margin: 0; font-size: 1.8rem; color: white;">🎬 {prompt_name}</h2>
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
                                 <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">Prompt #{prompt_num}</p>
-                                <span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">🏷️ {category}</span>
+                                {category_badges}
                             </div>
                         </div>
                     ''', unsafe_allow_html=True)
@@ -754,16 +761,15 @@ def main():
                         )
                     with col2:
                         current_category = selected_prompt.get('Category', 'General')
-                        categories = ["Nature", "Urban", "People", "Abstract", "Cinematic", "Sci-Fi", "Fantasy", "General"]
-                        try:
-                            cat_index = categories.index(current_category)
-                        except:
-                            cat_index = 7  # Default to General
-                        edited_category = st.selectbox(
-                            "🏷️ Category:",
-                            categories,
-                            index=cat_index
+                        category_options = ["Nature", "Urban", "People", "Abstract", "Cinematic", "Sci-Fi", "Fantasy", "General"]
+                        # Parse current categories (could be comma-separated)
+                        current_cats = [c.strip() for c in current_category.split(',')] if current_category else ["General"]
+                        edited_categories = st.multiselect(
+                            "🏷️ Categories:",
+                            category_options,
+                            default=[c for c in current_cats if c in category_options] or ["General"]
                         )
+                        edited_category = ", ".join(edited_categories) if edited_categories else "General"
                     
                     st.markdown("")  # Spacing
                     
