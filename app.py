@@ -556,6 +556,16 @@ def main():
                     except:
                         pass
                 
+                # Initialize pagination in session state
+                if 'current_page' not in st.session_state:
+                    st.session_state.current_page = 1
+                
+                # Track previous search/filter to reset pagination when changed
+                if 'prev_search' not in st.session_state:
+                    st.session_state.prev_search = ""
+                if 'prev_filter' not in st.session_state:
+                    st.session_state.prev_filter = "All"
+                
                 # Search box and category filter
                 col1, col2 = st.columns([3, 1])
                 with col1:
@@ -571,11 +581,16 @@ def main():
                     all_categories = sorted(list(all_categories))
                     filter_category = st.selectbox("🏷️ Filter by Category", ["All"] + all_categories, index=0)
                 
+                # Reset to page 1 if search or filter changed
+                if search_query != st.session_state.prev_search or filter_category != st.session_state.prev_filter:
+                    st.session_state.current_page = 1
+                    st.session_state.prev_search = search_query
+                    st.session_state.prev_filter = filter_category
+                
                 st.markdown("<br>", unsafe_allow_html=True)
                 
-                # Display prompts in reverse order (newest first)
-                displayed_count = 0
-                filtered_count = 0
+                # First pass: Collect all filtered prompts
+                filtered_prompts = []
                 for idx, prompt_data in enumerate(reversed(prompts)):
                     prompt_num = len(prompts) - idx
                     unique_id = prompt_data.get('Unique ID', f'PR{str(prompt_num).zfill(4)}')
@@ -601,8 +616,43 @@ def main():
                                 search_lower in category.lower()):
                             continue
                     
-                    # Count filtered results
-                    filtered_count += 1
+                    # Add to filtered list
+                    filtered_prompts.append({
+                        'prompt_num': prompt_num,
+                        'unique_id': unique_id,
+                        'prompt_name': prompt_name,
+                        'category': category,
+                        'prompt_text': prompt_text,
+                        'prompt_data': prompt_data
+                    })
+                
+                # Pagination settings
+                PROMPTS_PER_PAGE = 10
+                total_filtered = len(filtered_prompts)
+                total_pages = max(1, (total_filtered + PROMPTS_PER_PAGE - 1) // PROMPTS_PER_PAGE)
+                
+                # Reset to page 1 if current page exceeds total pages
+                if st.session_state.current_page > total_pages:
+                    st.session_state.current_page = 1
+                
+                # Calculate start and end indices for current page
+                start_idx = (st.session_state.current_page - 1) * PROMPTS_PER_PAGE
+                end_idx = min(start_idx + PROMPTS_PER_PAGE, total_filtered)
+                
+                # Show pagination info
+                if total_filtered > 0:
+                    col1, col2, col3 = st.columns([1, 2, 1])
+                    with col2:
+                        st.info(f"📄 Showing {start_idx + 1}-{end_idx} of **{total_filtered}** prompts | Page {st.session_state.current_page}/{total_pages}")
+                
+                # Display prompts for current page
+                for prompt_info in filtered_prompts[start_idx:end_idx]:
+                    prompt_num = prompt_info['prompt_num']
+                    unique_id = prompt_info['unique_id']
+                    prompt_name = prompt_info['prompt_name']
+                    category = prompt_info['category']
+                    prompt_text = prompt_info['prompt_text']
+                    prompt_data = prompt_info['prompt_data']
                     
                     share_link = f"{base_url}?prompt_id={unique_id}"
                     
@@ -706,10 +756,52 @@ def main():
                     
                     st.markdown('</div>', unsafe_allow_html=True)
                 
-                # Show results summary
-                if search_query or filter_category != "All":
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    st.info(f"📊 Showing **{filtered_count}** prompts matching your filters")
+                # Pagination controls
+                if total_pages > 1:
+                    st.markdown("<br><br>", unsafe_allow_html=True)
+                    
+                    # Create pagination buttons
+                    cols = st.columns([1, 1, 2, 1, 1])
+                    
+                    with cols[0]:
+                        if st.session_state.current_page > 1:
+                            if st.button("⬅️ Previous", use_container_width=True):
+                                st.session_state.current_page -= 1
+                                st.rerun()
+                    
+                    with cols[2]:
+                        # Page number buttons (show max 5 pages)
+                        page_buttons = []
+                        if total_pages <= 5:
+                            page_buttons = list(range(1, total_pages + 1))
+                        else:
+                            current = st.session_state.current_page
+                            if current <= 3:
+                                page_buttons = [1, 2, 3, 4, 5]
+                            elif current >= total_pages - 2:
+                                page_buttons = list(range(total_pages - 4, total_pages + 1))
+                            else:
+                                page_buttons = list(range(current - 2, current + 3))
+                        
+                        page_cols = st.columns(len(page_buttons))
+                        for i, page_num in enumerate(page_buttons):
+                            with page_cols[i]:
+                                if page_num == st.session_state.current_page:
+                                    st.markdown(f"<div style='text-align: center; padding: 0.5rem; background: #667eea; color: white; border-radius: 8px; font-weight: bold;'>{page_num}</div>", unsafe_allow_html=True)
+                                else:
+                                    if st.button(str(page_num), key=f"page_{page_num}", use_container_width=True):
+                                        st.session_state.current_page = page_num
+                                        st.rerun()
+                    
+                    with cols[4]:
+                        if st.session_state.current_page < total_pages:
+                            if st.button("Next ➡️", use_container_width=True):
+                                st.session_state.current_page += 1
+                                st.rerun()
+                
+                # Show no results message if filtered list is empty
+                if total_filtered == 0:
+                    st.info("🔍 No prompts match your search/filter criteria. Try different keywords or select 'All' categories.")
             else:
                 st.info("📭 No prompts yet. Add your first prompt in the 'Add New' tab!")
     
