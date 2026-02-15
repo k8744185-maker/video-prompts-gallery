@@ -798,6 +798,25 @@ def main():
                             if st.button("Next ➡️", use_container_width=True):
                                 st.session_state.current_page += 1
                                 st.rerun()
+                    
+                    st.markdown("<br><br>", unsafe_allow_html=True)
+                    
+                    # Duplicate search/filter at bottom for convenience
+                    st.markdown("---")
+                    st.caption("💡 Quick search from here too:")
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        search_query_bottom = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts", key="search_input_bottom", value=search_query)
+                        if search_query_bottom != search_query:
+                            st.session_state.prev_search = search_query_bottom
+                            st.session_state.current_page = 1
+                            st.rerun()
+                    with col2:
+                        filter_category_bottom = st.selectbox("🏷️ Filter by Category", ["All"] + all_categories, index=["All"] + all_categories.index(filter_category) if filter_category in all_categories else 0, key="filter_bottom")
+                        if filter_category_bottom != filter_category:
+                            st.session_state.prev_filter = filter_category_bottom
+                            st.session_state.current_page = 1
+                            st.rerun()
                 
                 # Show no results message if filtered list is empty
                 if total_filtered == 0:
