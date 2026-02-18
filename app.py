@@ -473,6 +473,12 @@ def main():
     with col1:
         st.title("🎬 Video Prompts Gallery")
         st.subheader("Discover and share amazing AI video generation prompts")
+        st.markdown("""
+        Welcome to the ultimate collection of cinematic video prompts for AI video generation! 
+        Whether you're creating content with Runway, Pika Labs, or other AI video tools, find inspiration 
+        from our curated library of professional-grade prompts spanning Nature, Urban landscapes, 
+        Cinematic scenes, Sci-Fi adventures, and Tamil cinema aesthetics.
+        """)
     with col2:
         # Notification bell for admin only
         if st.session_state.get('authenticated', False):
@@ -512,7 +518,7 @@ def main():
     show_google_ad(ad_slot="1234567890", ad_format="auto")
     
     # Create tabs - View All is now public
-    tab1, tab2, tab3, tab4 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage", "ℹ️ Legal & Info"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage", "❓ FAQ & Help", "ℹ️ Legal & Info"])
     
     with tab1:
         st.markdown("### ✨ Create New Prompt")
@@ -989,6 +995,188 @@ def main():
     
     # Legal & Info Tab (Tab 4) - Required for AdSense
     with tab4:
+        st.markdown("### ❓ Frequently Asked Questions")
+        st.caption("Everything you need to know about using Video Prompts Gallery")
+        
+        # FAQ sections
+        faq_tab1, faq_tab2, faq_tab3 = st.tabs(["🎬 General", "🔧 Technical", "📝 Prompts"])
+        
+        with faq_tab1:
+            st.markdown("""
+            # General Questions
+            
+            ### What is Video Prompts Gallery?
+            Video Prompts Gallery is a free, curated collection of high-quality video prompts designed for AI video generation tools like Runway ML, Pika Labs, and similar platforms. We provide professionally crafted prompts across multiple categories to inspire and assist content creators.
+            
+            ### Is this service free?
+            Yes! All prompts are completely free to view and use. We're supported by AdSense advertising, which allows us to keep the service free for everyone.
+            
+            ### Who can use these prompts?
+            Anyone! Whether you're a:
+            - Professional filmmaker
+            - Content creator
+            - AI enthusiast
+            - Student learning about AI video generation
+            - Hobbyist exploring creative tools
+            
+            All our prompts are freely available for your creative projects.
+            
+            ### Do I need an account?
+            No account is needed to view and use prompts. Only site administrators need authentication to add or manage content.
+            
+            ### How often is new content added?
+            We regularly add new prompts across all categories. Check back frequently for fresh inspiration!
+            
+            ### Can I share prompts with others?
+            Absolutely! Each prompt has a unique share link. Click the "🔗 Share Link" button on any prompt to copy the direct URL you can share via email, social media, or messaging apps.
+            
+            ### What makes your prompts special?
+            Our prompts are:
+            - **Detailed & Cinematic:** Professionally crafted with attention to visual details
+            - **Category-Diverse:** Spanning Nature, Urban, Sci-Fi, Fantasy, and more
+            - **Tamil Cinema Focused:** Special collection celebrating South Indian cinematography
+            - **AI-Optimized:** Tested to work well with popular AI video generation tools
+            """)
+        
+        with faq_tab2:
+            st.markdown("""
+            # Technical Questions
+            
+            ### Which AI video tools work with these prompts?
+            Our prompts are designed to work with all major AI video generation platforms:
+            - Runway ML (Gen-1, Gen-2)
+            - Pika Labs
+            - Stable Video Diffusion
+            - Any text-to-video AI tool
+            
+            Simply copy the prompt text and paste it into your preferred tool.
+            
+            ### How do I copy a prompt?
+            1. Browse to the prompt you want
+            2. Click the "📋 Copy Text" button
+            3. A text area will appear with the full prompt
+            4. Press Ctrl+C (Windows/Linux) or Cmd+C (Mac) to copy
+            5. Paste into your AI video generation tool
+            
+            ### How do I search for specific prompts?
+            Use the search box in the "View All Prompts" tab. You can search by:
+            - Keywords in the prompt text
+            - Prompt names
+            - Category names
+            
+            ### What are the category filters?
+            We organize prompts into:
+            - **Nature:** Landscapes, wildlife, natural scenery
+            - **Urban:** Cities, architecture, street scenes
+            - **People:** Character-focused, human interactions
+            - **Cinematic:** Movie-style dramatic scenes
+            - **Sci-Fi:** Futuristic, space, technology
+            - **Fantasy:** Magical, mythical, imaginative
+            - **Abstract:** Artistic, experimental visuals
+            - **General:** Uncategorized or multi-category
+            
+            ### Why does the site take time to load initially?
+            We use Render.com's free hosting tier, which puts the site to sleep after 15 minutes of inactivity. When someone visits after it's been idle, it takes 30-60 seconds to "wake up." After that initial load, everything runs smoothly!
+            
+            ### Is the site mobile-friendly?
+            Yes! The entire gallery is fully responsive and works seamlessly on:
+            - Smartphones
+            - Tablets
+            - Desktop computers
+            - All major browsers (Chrome, Firefox, Safari, Edge)
+            
+            ### How is my data protected?
+            - We don't collect personal information from visitors
+            - No account or login required to view prompts
+            - Admin authentication is password-protected with rate limiting
+            - All data is encrypted in transit (HTTPS)
+            - See our Privacy Policy for full details
+            
+            ### I found a bug. How do I report it?
+            Please email us at k8744185@gmail.com with:
+            - Description of the issue
+            - Your browser and version
+            - Steps to reproduce the problem
+            - Screenshots if applicable
+            """)
+        
+        with faq_tab3:
+            st.markdown("""
+            # Prompt-Related Questions
+            
+            ### Can I modify the prompts?
+            Absolutely! Feel free to:
+            - Adapt prompts to your specific needs
+            - Combine multiple prompts
+            - Add or remove details
+            - Translate to other languages
+            - Customize for your AI tool's requirements
+            
+            ### Can I suggest new prompts?
+            Yes! We welcome suggestions. Email us at k8744185@gmail.com with your prompt ideas. Include:
+            - Suggested category
+            - Full prompt text
+            - Any reference images or inspiration (optional)
+            
+            ### Can I submit my own prompts?
+            Currently, only site administrators can add prompts to maintain quality and consistency. However, we're considering a submission system for the future. Contact us if you're interested in contributing!
+            
+            ### What makes a good video prompt?
+            Effective video prompts typically include:
+            - **Specific visual details:** Colors, lighting, camera angles
+            - **Clear subject:** What's the main focus?
+            - **Atmosphere/Mood:** Emotional tone, time of day
+            - **Motion description:** How things move in the scene
+            - **Technical details:** Camera movement, shot type
+            
+            Example: "A cinematic wide shot of a misty forest at dawn, golden sunlight filtering through ancient trees, slow camera dolly forward, atmospheric and serene."
+            
+            ### How do I use prompts with different AI tools?
+            **For Runway ML:**
+            1. Copy the prompt
+            2. Paste into the text prompt field
+            3. Adjust duration and other settings
+            4. Generate!
+            
+            **For Pika Labs:**
+            1. Copy the prompt
+            2. Use the `/create` command in Discord
+            3. Paste the prompt
+            4. Add parameters if needed (-fps, -motion, etc.)
+            
+            Each tool has slightly different syntax, but our prompts work as a solid foundation for all platforms.
+            
+            ### What's the Tamil cinema focus about?
+            We have a special collection celebrating Tamil cinema aesthetics, including:
+            - Romantic scenes inspired by Tamil films
+            - Indian locations (Chennai, Ooty, Coimbatore)
+            - South Indian cultural elements
+            - Cinematic styles popular in Tamil filmmaking
+            
+            This makes our gallery unique and provides culturally rich prompts you won't find elsewhere!
+            
+            ### Can I use these prompts commercially?
+            The prompts themselves are free to use for any purpose, including commercial projects. However:
+            - Check the terms of service of your AI video generation tool
+            - The AI-generated videos are your creation
+            - Attribution to Video Prompts Gallery is appreciated but not required
+            - See our Terms of Service for full legal details
+            
+            ### How accurate are prompt results?
+            AI video generation results vary based on:
+            - The specific AI tool you use
+            - Tool version and updates
+            - Random seed values
+            - Your additional parameters
+            
+            Our prompts provide a solid foundation, but you may need to:
+            - Run multiple generations
+            - Tweak the prompt slightly
+            - Adjust tool-specific settings
+            - Combine with reference images (if supported)
+            """)
+    
+    with tab5:
         st.markdown("### 📋 Legal & Information")
         st.caption("Required pages for transparency and AdSense compliance")
         
@@ -1129,66 +1317,127 @@ def main():
             # About Video Prompts Gallery
             
             ## 🎬 Our Mission
-            Video Prompts Gallery is a curated collection of high-quality video prompts designed to inspire creators, filmmakers, and AI enthusiasts. Our goal is to provide cinematic, detailed prompts that help bring visual stories to life.
+            Video Prompts Gallery is a curated collection of high-quality video prompts designed to inspire creators, filmmakers, and AI enthusiasts worldwide. Our goal is to provide cinematic, detailed prompts that help bring visual stories to life through AI-powered video generation.
+            
+            In an era where AI video generation is revolutionizing content creation, we bridge the gap between creative vision and technical execution by offering professionally crafted prompts that maximize the potential of AI tools.
             
             ## 🌟 What We Offer
-            - **Curated Prompts:** Handcrafted video prompts across multiple categories
-            - **Multiple Categories:** Nature, Urban, People, Cinematic, Sci-Fi, Fantasy, and more
-            - **Tamil Cinema Focus:** Special collection of Tamil cinema-inspired romantic scenes
-            - **Easy Search:** Find the perfect prompt with our search and filter features
-            - **Free Access:** All prompts are freely accessible to everyone
+            - **Curated Prompts:** Handcrafted video prompts across multiple categories, each carefully designed for cinematic quality
+            - **Multiple Categories:** Nature, Urban, People, Cinematic, Sci-Fi, Fantasy, Abstract, and General
+            - **Tamil Cinema Focus:** Unique collection celebrating Tamil cinema aesthetics and romantic scenes
+            - **Advanced Search:** Find the perfect prompt with intelligent search and category filters
+            - **Free Access:** All prompts are freely accessible to everyone, forever
+            - **Share Functionality:** Easy-to-use share links for collaboration
+            - **Mobile Optimized:** Seamless experience on all devices
             
             ## 🎯 Why We Exist
-            With the rise of AI video generation tools, having well-crafted prompts is essential. We created this gallery to:
-            - Save time for content creators
-            - Inspire new creative directions
-            - Showcase the beauty of detailed cinematography descriptions
-            - Celebrate Tamil cinema and Indian locations
+            With the rapid rise of AI video generation tools like Runway ML, Pika Labs, and Stable Video Diffusion, having well-crafted prompts has become essential for:
+            - **Saving Time:** Skip the trial-and-error of prompt engineering
+            - **Inspiring Creativity:** Discover new directions for your projects
+            - **Learning:** Understand what makes effective video prompts
+            - **Cultural Celebration:** Showcase Tamil cinema and Indian locations to global audiences
+            - **Community Building:** Create a resource hub for AI video creators
             
-            ## 🛠️ Technology
-            Built with:
-            - **Streamlit:** Modern Python web framework
-            - **Google Sheets API:** Cloud-based storage
-            - **Render.com:** Reliable hosting platform
-            - **Google AdSense:** Supporting our free service
+            ## 💡 Our Unique Value
+            Unlike generic prompt collections, we offer:
+            - **Cinematic Focus:** Every prompt is crafted with filmmaking principles
+            - **Cultural Diversity:** Special emphasis on Tamil cinema and Indian aesthetics
+            - **Quality over Quantity:** Each prompt is tested and refined
+            - **Detailed Descriptions:** Rich visual details for better AI output
+            - **Categorized Organization:** Easy to find exactly what you need
             
-            ## 📊 Features
-            - 🔍 Advanced search and filtering
-            - 🏷️ Multiple category tagging
-            - 📄 Pagination for smooth browsing
-            - 🕒 India Standard Time (IST) timestamps
-            - 📱 Mobile-responsive design
-            - 🔐 Admin portal for content management
+            ## 🛠️ Technology Stack
+            Built with modern, reliable technologies:
+            - **Streamlit:** Modern Python web framework for fast, interactive UIs
+            - **Google Sheets API:** Cloud-based data storage with real-time sync
+            - **Render.com:** Reliable hosting with automatic deployments
+            - **Google AdSense:** Supporting our free service through ethical advertising
+            - **Python 3.11:** Latest Python with optimized performance
             
-            ## 👥 Target Audience
-            - AI video generation users (Runway, Pika, etc.)
-            - Filmmakers and cinematographers
-            - Content creators and storytellers
-            - Tamil cinema enthusiasts
-            - Creative professionals
+            ## 📊 Platform Features
+            - 🔍 **Advanced Search:** Keyword search across all prompts and metadata
+            - 🏷️ **Multi-Category Tagging:** Prompts can belong to multiple categories
+            - 📄 **Smart Pagination:** Browse large collections smoothly (10 prompts per page)
+            - 🕒 **IST Timestamps:** All times in India Standard Time
+            - 📱 **Responsive Design:** Perfect on desktop, tablet, and mobile
+            - 🔐 **Secure Admin Portal:** Password-protected content management
+            - 🔗 **Unique Share Links:** Every prompt has a permanent shareable URL
+            - 📊 **Analytics:** Track popular prompts and user engagement
+            - ⚡ **Optimized Performance:** Fast loading even on free hosting tier
             
-            ## 🌏 Geographic Focus
-            While our prompts are useful globally, we have a special focus on:
-            - Tamil Nadu locations and culture
-            - Indian cinematography aesthetics
-            - South Indian architectural beauty
+            ## 👥 Who Uses Video Prompts Gallery?
+            Our diverse user base includes:
+            - **AI Video Creators:** Using Runway, Pika, and other AI tools
+            - **Filmmakers:** Finding inspiration for traditional and AI-assisted projects
+            - **Content Creators:** YouTubers, social media creators, marketers
+            - **Educators:** Teaching AI video generation and cinematography
+            - **Students:** Learning about visual storytelling and AI
+            - **Tamil Cinema Fans:** Celebrating South Indian film aesthetics
+            - **Creative Professionals:** Designers, animators, visual artists
             
-            ## 📈 Growth
-            - **Launch Date:** February 2026
-            - **Initial Collection:** 30+ prompts
-            - **Categories:** 8 diverse categories
-            - **Update Frequency:** Regular additions
+            ## 🌏 Global Reach, Local Flavor
+            While our prompts are useful for creators worldwide, we proudly feature:
+            - **Tamil Nadu Locations:** Chennai, Ooty, Coimbatore, Madurai
+            - **Indian Architecture:** Temples, colonial buildings, modern cityscapes
+            - **South Indian Culture:** Traditional attire, festivals, customs
+            - **Tamil Cinema Style:** Romantic scenes, dramatic moments, musical aesthetics
+            - **Regional Landscapes:** Western Ghats, coastal areas, urban centers
             
-            ## 🤝 Contribute
-            Interested in contributing prompts or partnering with us? Contact us at k8744185@gmail.com
+            ## 📈 Project Milestones
+            - **Launch:** February 2026
+            - **Initial Collection:** 30+ professional prompts
+            - **Categories:** 8 diverse categories covering all genres
+            - **Update Frequency:** New prompts added weekly
+            - **Platform:** Fully responsive web application
+            - **Accessibility:** 100% free, no registration required
             
-            ## 📜 Legal
-            All content is original and created for this platform. Please see our Terms of Service and Privacy Policy for more information.
+            ## 🎨 Content Philosophy
+            We believe that:
+            - **Quality > Quantity:** Each prompt is carefully crafted
+            - **Diversity Matters:** Multiple perspectives and styles
+            - **Detail is King:** Specific visual descriptions yield better results
+            - **Culture is Beautiful:** Celebrating global and local aesthetics
+            - **Free Access is Essential:** Knowledge should be shared
+            
+            ## 🤝 Get Involved
+            We welcome collaboration! Contact us for:
+            - **Prompt Suggestions:** Share your creative ideas
+            - **Partnership Opportunities:** Collaborate with us
+            - **Feedback:** Help us improve the platform
+            - **Bug Reports:** Technical issues or improvements
+            - **Feature Requests:** What would make this better?
+            
+            Email: k8744185@gmail.com
+            
+            ## 🔒 Privacy & Ethics
+            - We respect your privacy (see Privacy Policy)
+            - No tracking beyond basic analytics
+            - Ethical advertising through Google AdSense
+            - No sale of user data
+            - Open about our technology and practices
+            
+            ## 📜 Legal & Compliance
+            All content is original and created specifically for this platform. We comply with:
+            - Google AdSense policies
+            - Privacy regulations
+            - Copyright laws
+            - Terms of service for all integrated platforms
+            
+            See our Terms of Service and Privacy Policy for complete legal information.
+            
+            ## 🙏 Acknowledgments
+            Special thanks to:
+            - The open-source community (Streamlit, Python)
+            - AI video generation pioneers (Runway, Pika Labs)
+            - Tamil cinema for endless inspiration
+            - Our users for their support and feedback
             
             ---
             
             **Created with ❤️ in India**  
-            **© 2026 Video Prompts Gallery. All rights reserved.**
+            **Celebrating Cinema, Technology, and Creativity**  
+            **© 2026 Video Prompts Gallery. All rights reserved.**  
+            **Founder & Developer:** K. Venkadesan
             """)
         
         with legal_tab5:
@@ -1219,6 +1468,25 @@ def main():
             # Show preview
             with st.expander("👁️ Preview Sitemap"):
                 st.code(sitemap_xml, language="xml")
+    
+    # Footer - appears on all pages
+    st.markdown("---")
+    st.markdown("""
+        <div style="text-align: center; padding: 2rem 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; margin-top: 3rem;">
+            <h3 style="color: white; margin-bottom: 1rem;">🎬 Video Prompts Gallery</h3>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 1.5rem;">Your source for cinematic AI video prompts</p>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <a href="?tab=FAQ+%26+Help" style="color: white; text-decoration: none;">❓ FAQ</a>
+                <a href="?tab=Legal+%26+Info" style="color: white; text-decoration: none;">📋 Legal</a>
+                <a href="mailto:k8744185@gmail.com" style="color: white; text-decoration: none;">📧 Contact</a>
+                <a href="https://github.com" style="color: white; text-decoration: none;" target="_blank">💻 GitHub</a>
+            </div>
+            <p style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin: 0;">
+                © 2026 Video Prompts Gallery | Made with ❤️ in India<br>
+                <span style="font-size: 0.8rem;">Celebrating Cinema, Technology & Creativity</span>
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
 
 def show_single_prompt(sheet, prompt_id):
     """Show a single prompt page - Ultra compact with no hero section"""
