@@ -46,55 +46,8 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Inject SEO meta tags + AdSense + verification into actual <head> using JavaScript
-st.markdown("""
-<script>
-(function() {
-    // Helper to add meta tag to <head>
-    function addMeta(attrs) {
-        var m = document.createElement('meta');
-        for (var k in attrs) m.setAttribute(k, attrs[k]);
-        document.head.appendChild(m);
-    }
-    function addLink(attrs) {
-        var l = document.createElement('link');
-        for (var k in attrs) l.setAttribute(k, attrs[k]);
-        document.head.appendChild(l);
-    }
-
-    // SEO meta tags
-    addMeta({"name": "description", "content": "Curated collection of high-quality AI video prompts for filmmakers and creators. Tamil cinema inspired prompts, nature scenes, urban cinematography and more."});
-    addMeta({"name": "keywords", "content": "video prompts, AI video generation, Tamil cinema prompts, cinematic prompts, filmmaking, Runway ML, Pika Labs"});
-    addMeta({"name": "author", "content": "K. Venkadesan"});
-    addMeta({"name": "robots", "content": "index, follow"});
-
-    // Google Search Console verification
-    addMeta({"name": "google-site-verification", "content": "8MpJT70JgoawSi-Z8yz-ZOHphQiFAsmJTq2622M41Us"});
-
-    // Google AdSense publisher ID verification
-    addMeta({"name": "google-adsense-account", "content": "ca-pub-5050768956635718"});
-
-    // Open Graph
-    addMeta({"property": "og:title", "content": "Video Prompts Gallery - AI Video Prompt Collection"});
-    addMeta({"property": "og:description", "content": "30+ curated video prompts for AI video generation tools"});
-    addMeta({"property": "og:type", "content": "website"});
-    addMeta({"property": "og:url", "content": "https://video-prompts-gallery.onrender.com"});
-
-    // Canonical
-    addLink({"rel": "canonical", "href": "https://video-prompts-gallery.onrender.com"});
-
-    // Update page title
-    document.title = "Video Prompts Gallery - AI Video Prompt Collection";
-
-    // Load Google AdSense script into <head>
-    var s = document.createElement('script');
-    s.async = true;
-    s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718";
-    s.crossOrigin = "anonymous";
-    document.head.appendChild(s);
-})();
-</script>
-""", unsafe_allow_html=True)
+# Note: Meta tags (google-site-verification, google-adsense-account) and AdSense script
+# are injected directly into Streamlit's index.html <head> via start.sh patch - no JS needed here.
 
 # Enhanced CSS with animations, dark mode, and better UI
 st.markdown("""
@@ -115,7 +68,7 @@ st.markdown("""
     }
     
     .prompt-container:hover {
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 6px 18px rgba(102, 126, 234, 0.2);
     }
     
     .prompt-header {
@@ -176,7 +129,6 @@ st.markdown("""
     a {
         color: #667eea;
         text-decoration: none;
-        transition: color 0.3s ease;
         font-weight: 500;
     }
     
@@ -491,32 +443,11 @@ def generate_sitemap(prompts):
     return sitemap
 
 def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
-    """Display Google AdSense ad - optimized version with better styling"""
-    ads_client_id = 'ca-pub-5050768956635718'  # Your AdSense client ID
-    
-    if not ads_client_id or ads_client_id == 'ca-pub-xxxxxxxxxxxxxxxxx':
-        return  # Don't show anything if not configured
-    
-    # Responsive ad code with styled container
-    ad_html = f"""
-        <div style="text-align: center; margin: 1.5rem 0; padding: 1rem; border-radius: 12px; 
-                    background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
-                    border: 1px solid rgba(102,126,234,0.1);">
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ads_client_id}"
-                    crossorigin="anonymous"></script>
-            <!-- Display ads -->
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="{ads_client_id}"
-                 data-ad-slot="1234567890"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({{}});
-            </script>
-        </div>
+    """AdSense Auto Ads - Google automatically places ads after approval.
+    Manual ins tags removed: fake slot IDs block AdSense approval.
+    The AdSense script is injected into <head> via start.sh - Auto Ads handles placement.
     """
-    st.components.v1.html(ad_html, height=280)
+    pass  # Auto Ads will display after AdSense approval - no manual placement needed
 
 # Check admin authentication
 def check_admin_password(key_suffix=""):
