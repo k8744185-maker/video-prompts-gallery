@@ -1,81 +1,138 @@
 """
-WSGI application for Render deployment
+Async proxy using aiohttp - handles HTTP + WebSocket connections
+Serves Google verification file + proxies everything else to Streamlit
 """
-import os
+import asyncio
+import aiohttp
+from aiohttp import web
 import subprocess
-import time
 import sys
-import requests
-from flask import Flask, send_from_directory, Response, request
+import os
+import time
 from pathlib import Path
 
-app = Flask(__name__)
 
-# Global variable to track Streamlit process
-streamlit_process = None
+STREAMLIT_PORT = 8501
+STREAMLIT_URL = f"http://127.0.0.1:{STREAMLIT_PORT}"
+STREAMLIT_WS  = f"ws://127.0.0.1:{STREAMLIT_PORT}"
 
-# Serve verification files
-@app.route('/google<filename>.html')
-def serve_verification(filename):
-    """Serve Google verification files"""
-    file_path = Path('static') / f'google{filename}.html'
+
+# ── Serve Google verification files ──────────────────────────────────────────
+async def serve_verification(request):
+    filename = request.match_info["filename"]
+    file_path = Path("static") / f"google{filename}.html"
     if file_path.exists():
-        return send_from_directory('static', f'google{filename}.html', mimetype='text/html')
-    return "Not found", 404
+        return web.FileResponse(file_path, content_type="text/html")
+    return web.Response(text="Not found", status=404)
 
-# Health check
-@app.route('/health')
-def health():
-    return "OK", 200
 
-# Proxy everything else to Streamlit
-@app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
-@app.route('/<path:path>', methods=['GET', 'POST'])
-def proxy_to_streamlit(path):
-    """Proxy requests to Streamlit"""
+# ── Health check ─────────────────────────────────────────────────────────────
+async def health(request):
+    return web.Response(text="OK")
+
+
+# ── WebSocket proxy ───────────────────────────────────────────────────────────
+async def websocket_proxy(request):
+    ws_client = web.WebSocketResponse()
+    await ws_client.prepare(request)
+
+    target_url = f"{STREAMLIT_WS}{request.path_qs}"
+    headers = {k: v for k, v in request.headers.items()
+               if k.lower() not in ("host","connection","upgrade",
+                                    "sec-websocket-key","sec-websocket-version",
+                                    "sec-websocket-extensions")}
     try:
-        # Streamlit URL
-        streamlit_url = f'http://127.0.0.1:8501/{path}'
-        if request.query_string:
-            streamlit_url += f'?{request.query_string.decode()}'
+        async with aiohttp.ClientSession() as session:
+            async with session.ws_connect(target_url, headers=headers) as ws_server:
 
-        # Forward the request
-        resp = requests.request(
-            method=request.method,
-            url=streamlit_url,
-            data=request.get_data(),
-            headers={key: value for key, value in request.headers if key.lower() not in ['host', 'connection']},
-            allow_redirects=False,
-            timeout=30
-        )
+                async def to_server():
+                    async for msg in ws_client:
+                        if msg.type == aiohttp.WSMsgType.TEXT:
+                            await ws_server.send_str(msg.data)
+                        elif msg.type == aiohttp.WSMsgType.BINARY:
+                            await ws_server.send_bytes(msg.data)
+                        else:
+                            break
 
-        return Response(resp.content, status=resp.status_code, headers=dict(resp.headers))
+                async def to_client():
+                    async for msg in ws_server:
+                        if msg.type == aiohttp.WSMsgType.TEXT:
+                            await ws_client.send_str(msg.data)
+                        elif msg.type == aiohttp.WSMsgType.BINARY:
+                            await ws_client.send_bytes(msg.data)
+                        else:
+                            break
 
-    except requests.exceptions.ConnectionError:
-        return "Streamlit not available", 503
+                await asyncio.gather(to_server(), to_client())
     except Exception as e:
-        return f"Proxy error: {str(e)}", 502
+        print(f"WebSocket proxy error: {e}")
+    return ws_client
+
+
+# ── HTTP proxy ────────────────────────────────────────────────────────────────
+async def http_proxy(request):
+    if request.headers.get("Upgrade", "").lower() == "websocket":
+        return await websocket_proxy(request)
+
+    target_url = f"{STREAMLIT_URL}{request.path_qs}"
+    headers = {k: v for k, v in request.headers.items()
+               if k.lower() not in ("host", "connection")}
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.request(
+                request.method, target_url, headers=headers,
+                data=await request.read(), allow_redirects=False,
+                timeout=aiohttp.ClientTimeout(total=30),
+            ) as resp:
+                body = await resp.read()
+                skip = {"transfer-encoding","connection","keep-alive"}
+                resp_headers = {k: v for k, v in resp.headers.items()
+                                if k.lower() not in skip}
+                return web.Response(body=body, status=resp.status,
+                                    headers=resp_headers)
+    except aiohttp.ClientConnectorError:
+        return web.Response(text="Streamlit not available", status=503)
+    except Exception as e:
+        return web.Response(text=f"Proxy error: {e}", status=502)
+
+
+# ── App setup ─────────────────────────────────────────────────────────────────
+def make_app():
+    app = web.Application()
+    app.router.add_get("/google{filename}.html", serve_verification)
+    app.router.add_get("/health", health)
+    app.router.add_route("*", "/", http_proxy)
+    app.router.add_route("*", "/{path_info:.*}", http_proxy)
+    return app
+
 
 def start_streamlit():
-    """Start Streamlit in background"""
-    global streamlit_process
-    if streamlit_process is None:
-        print("Starting Streamlit...")
-        streamlit_process = subprocess.Popen([
-            sys.executable, '-m', 'streamlit', 'run', 'app.py',
-            '--server.port=8501',
-            '--server.address=127.0.0.1',
-            '--server.enableCORS=false',
-            '--server.headless=true',
-            '--client.showErrorDetails=false'
-        ], env={**os.environ, 'STREAMLIT_SERVER_HEADLESS': 'true'})
-        print("Streamlit started")
+    print("Starting Streamlit on port 8501...")
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "streamlit", "run", "app.py",
+         f"--server.port={STREAMLIT_PORT}",
+         "--server.address=127.0.0.1",
+         "--server.headless=true",
+         "--server.enableCORS=true",
+         "--server.enableXsrfProtection=false"],
+        env={**os.environ, "STREAMLIT_SERVER_HEADLESS": "true"},
+    )
+    for i in range(30):
+        time.sleep(1)
+        try:
+            import urllib.request
+            urllib.request.urlopen(
+                f"http://127.0.0.1:{STREAMLIT_PORT}/healthz", timeout=2)
+            print("Streamlit is ready!")
+            return proc
+        except Exception:
+            print(f"Waiting for Streamlit... ({i+1}/30)")
+    print("Streamlit started (continuing anyway)")
+    return proc
 
-# Start Streamlit when module is imported
-start_streamlit()
 
-# Give Streamlit time to start
-time.sleep(3)
-
-# For Render - export the Flask app
-application = app
+if __name__ == "__main__":
+    start_streamlit()
+    port = int(os.environ.get("PORT", 8000))
+    print(f"Starting aiohttp proxy on port {port}")
+    web.run_app(make_app(), host="0.0.0.0", port=port)
