@@ -53,6 +53,7 @@ st.markdown("""
     <meta name="author" content="K. Venkadesan">
     <meta name="robots" content="index, follow">
     <meta name="google-site-verification" content="8MpJT70JgoawSi-Z8yz-ZOHphQiFAsmJTq2622M41Us">
+    <meta name="google-adsense-account" content="ca-pub-5050768956635718">
     <meta property="og:title" content="Video Prompts Gallery - AI Video Prompt Collection">
     <meta property="og:description" content="30+ curated video prompts for AI video generation tools">
     <meta property="og:type" content="website">
