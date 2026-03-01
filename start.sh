@@ -14,4 +14,4 @@ cp static/ads.txt "$STREAMLIT_STATIC/ads.txt"
 echo "Patches applied. Starting Streamlit..."
 
 # Run Streamlit directly on Render's PORT
-streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true
+streamlit run app.py --server.port=$PORT --server.address=0.0.0.0

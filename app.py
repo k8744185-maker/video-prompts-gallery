@@ -15,10 +15,6 @@ import json
 # Load environment variables
 load_dotenv()
 
-# Optimize for Render.com free tier (512MB RAM, 0.1 CPU)
-import gc
-gc.set_threshold(50, 5, 5)  # More aggressive garbage collection
-
 # Security Configuration
 MAX_LOGIN_ATTEMPTS = 5
 LOCKOUT_TIME = 300  # 5 minutes in seconds
@@ -313,7 +309,10 @@ def get_google_sheet():
         # Store analytics sheet in session state for later use
         if 'analytics_sheet' not in st.session_state:
             st.session_state.analytics_sheet = analytics_sheet
-        
+
+        # Store spreadsheet reference for Comments/Feedback sheets
+        st.session_state.spreadsheet = spreadsheet
+
         return sheet
     except Exception as e:
         handle_error("Unable to connect to database. Please try again.", show_refresh=True)
@@ -448,6 +447,107 @@ def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
     The AdSense script is injected into <head> via start.sh - Auto Ads handles placement.
     """
     pass  # Auto Ads will display after AdSense approval - no manual placement needed
+
+
+def get_or_create_comments_sheet():
+    """Get or create the Comments sheet in Google Sheets"""
+    try:
+        if 'comments_sheet' in st.session_state:
+            return st.session_state.comments_sheet
+        if 'spreadsheet' not in st.session_state:
+            return None
+        spreadsheet = st.session_state.spreadsheet
+        try:
+            comments_sheet = spreadsheet.worksheet('Comments')
+        except Exception:
+            comments_sheet = spreadsheet.add_worksheet(title='Comments', rows=2000, cols=6)
+            comments_sheet.update('A1:F1', [['Timestamp', 'Prompt ID', 'Name', 'Comment', 'Status', 'IP']])
+        st.session_state.comments_sheet = comments_sheet
+        return comments_sheet
+    except Exception:
+        return None
+
+
+def get_or_create_feedback_sheet():
+    """Get or create the Feedback sheet in Google Sheets"""
+    try:
+        if 'feedback_sheet' in st.session_state:
+            return st.session_state.feedback_sheet
+        if 'spreadsheet' not in st.session_state:
+            return None
+        spreadsheet = st.session_state.spreadsheet
+        try:
+            feedback_sheet = spreadsheet.worksheet('Feedback')
+        except Exception:
+            feedback_sheet = spreadsheet.add_worksheet(title='Feedback', rows=2000, cols=5)
+            feedback_sheet.update('A1:E1', [['Timestamp', 'Name', 'Rating', 'Comment', 'Email']])
+        st.session_state.feedback_sheet = feedback_sheet
+        return feedback_sheet
+    except Exception:
+        return None
+
+
+def get_likes_count(prompt_id):
+    """Get total like count for a prompt from Analytics sheet"""
+    try:
+        if 'analytics_sheet' not in st.session_state:
+            return 0
+        analytics_sheet = st.session_state.analytics_sheet
+        data = analytics_sheet.get_all_records()
+        return len([r for r in data if r.get('Event Type') == 'like' and str(r.get('Prompt ID')) == str(prompt_id)])
+    except Exception:
+        return 0
+
+
+def add_like(prompt_id):
+    """Add a like event to the Analytics sheet"""
+    log_analytics_event('like', prompt_id=prompt_id)
+
+
+def get_comments(prompt_id):
+    """Get all non-deleted comments for a prompt"""
+    try:
+        comments_sheet = get_or_create_comments_sheet()
+        if not comments_sheet:
+            return []
+        data = comments_sheet.get_all_records()
+        return [r for r in data if str(r.get('Prompt ID')) == str(prompt_id) and r.get('Status', '') != 'deleted']
+    except Exception:
+        return []
+
+
+def add_comment(prompt_id, name, comment_text):
+    """Add a comment for a prompt to the Comments sheet"""
+    try:
+        comments_sheet = get_or_create_comments_sheet()
+        if not comments_sheet:
+            return False
+        india_tz = pytz.timezone('Asia/Kolkata')
+        timestamp = datetime.now(india_tz).strftime("%Y-%m-%d %H:%M:%S")
+        safe_name = sanitize_input(name.strip() or "Anonymous")[:50]
+        safe_comment = sanitize_input(comment_text.strip())[:500]
+        comments_sheet.append_row([timestamp, prompt_id, safe_name, safe_comment, 'approved', 'N/A'])
+        return True
+    except Exception:
+        return False
+
+
+def add_feedback(name, rating, comment_text, email=""):
+    """Add website feedback to the Feedback sheet"""
+    try:
+        feedback_sheet = get_or_create_feedback_sheet()
+        if not feedback_sheet:
+            return False
+        india_tz = pytz.timezone('Asia/Kolkata')
+        timestamp = datetime.now(india_tz).strftime("%Y-%m-%d %H:%M:%S")
+        safe_name = sanitize_input(name.strip() or "Anonymous")[:50]
+        safe_comment = sanitize_input(comment_text.strip())[:1000]
+        safe_email = sanitize_input(email.strip())[:100]
+        feedback_sheet.append_row([timestamp, safe_name, rating, safe_comment, safe_email])
+        return True
+    except Exception:
+        return False
+
 
 # Check admin authentication
 def check_admin_password(key_suffix=""):
@@ -668,7 +768,7 @@ def main():
     show_google_ad(ad_slot="1234567890", ad_format="auto")
     
     # Create tabs - View All is now public
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage", "❓ FAQ & Help", "ℹ️ Legal & Info"])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage", "❓ FAQ & Help", "ℹ️ Legal & Info", "💬 Feedback"])
     
     with tab1:
         st.markdown("### ✨ Create New Prompt")
@@ -971,7 +1071,60 @@ def main():
                         # Public users: Only copy button
                         if st.button("📋 Copy Prompt Text", key=f"copy_{idx}_{prompt_num}", use_container_width=True, type="primary"):
                             st.session_state[f"show_copy_{idx}"] = True
-                    
+
+                    # ---- Like button ----
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    like_key = f"liked_{unique_id}"
+                    like_cache_key = f"like_count_{unique_id}"
+                    if like_cache_key not in st.session_state:
+                        st.session_state[like_cache_key] = get_likes_count(unique_id)
+                    like_count = st.session_state[like_cache_key]
+                    already_liked = st.session_state.get(like_key, False)
+                    like_col, _ = st.columns([1, 3])
+                    with like_col:
+                        like_label = f"❤️ {like_count} Liked" if already_liked else f"🤍 {like_count} Like"
+                        if st.button(like_label, key=f"like_btn_{idx}_{prompt_num}", use_container_width=True, disabled=already_liked):
+                            add_like(unique_id)
+                            st.session_state[like_cache_key] = like_count + 1
+                            st.session_state[like_key] = True
+                            st.rerun()
+
+                    # ---- Comments section ----
+                    comment_cache_key = f"comments_{unique_id}"
+                    if comment_cache_key not in st.session_state:
+                        st.session_state[comment_cache_key] = get_comments(unique_id)
+                    comments = st.session_state[comment_cache_key]
+                    with st.expander(f"💬 Comments ({len(comments)})"):
+                        if comments:
+                            for c in comments[-5:]:
+                                name_disp = c.get('Name', 'Anonymous') or 'Anonymous'
+                                comment_disp = c.get('Comment', '')
+                                ts_disp = str(c.get('Timestamp', ''))[:10]
+                                st.markdown(f"""
+                                    <div style="background: rgba(255,255,255,0.1); padding: 0.6rem 1rem; border-radius: 8px; margin: 0.4rem 0; border-left: 3px solid #667eea;">
+                                        <strong style="color: white;">👤 {name_disp}</strong>
+                                        <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-left: 0.5rem;">{ts_disp}</span>
+                                        <p style="color: white; margin: 0.3rem 0 0 0; font-size: 0.95rem;">{comment_disp}</p>
+                                    </div>
+                                """, unsafe_allow_html=True)
+                        else:
+                            st.caption("No comments yet. Be the first!")
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        with st.form(key=f"comment_form_{idx}_{prompt_num}", clear_on_submit=True):
+                            c_name = st.text_input("Your name (optional)", max_chars=50)
+                            c_text = st.text_area("Your comment", max_chars=500, height=80)
+                            if st.form_submit_button("📤 Post Comment", use_container_width=True):
+                                if c_text.strip():
+                                    if add_comment(unique_id, c_name or "Anonymous", c_text):
+                                        if comment_cache_key in st.session_state:
+                                            del st.session_state[comment_cache_key]
+                                        st.success("✅ Comment posted!")
+                                        st.rerun()
+                                    else:
+                                        st.error("❌ Could not post comment. Try again.")
+                                else:
+                                    st.warning("⚠️ Please write a comment before posting.")
+
                     # Show copy prompt if button clicked
                     if st.session_state.get(f"show_copy_{idx}", False):
                         st.markdown("<br>", unsafe_allow_html=True)
@@ -1622,7 +1775,81 @@ def main():
             # Show preview
             with st.expander("👁️ Preview Sitemap"):
                 st.code(sitemap_xml, language="xml")
-    
+
+    with tab6:
+        st.markdown("### 💬 Website Feedback")
+        st.markdown("We'd love to hear what you think about **Video Prompts Gallery**! Your feedback helps us improve.")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Feedback form
+        with st.form("feedback_form", clear_on_submit=True):
+            fb_name = st.text_input("Your name (optional)", max_chars=50, placeholder="Anonymous")
+            fb_email = st.text_input("Email (optional — for a reply)", max_chars=100, placeholder="you@example.com")
+
+            st.markdown("**⭐ How would you rate this site?**")
+            fb_rating = st.select_slider(
+                "Rating",
+                options=[1, 2, 3, 4, 5],
+                value=5,
+                format_func=lambda x: "⭐" * x,
+                label_visibility="collapsed"
+            )
+            fb_comment = st.text_area(
+                "Your feedback / suggestions",
+                max_chars=1000,
+                height=120,
+                placeholder="What do you love? What can be improved? Any features you'd like to see?"
+            )
+
+            submit_fb = st.form_submit_button("📩 Submit Feedback", use_container_width=True, type="primary")
+            if submit_fb:
+                if fb_comment.strip():
+                    with st.spinner("Submitting..."):
+                        if add_feedback(fb_name or "Anonymous", fb_rating, fb_comment, fb_email):
+                            st.success("✅ Thank you for your feedback! We really appreciate it. 🙏")
+                        else:
+                            st.error("❌ Could not submit feedback. Please try again later.")
+                else:
+                    st.warning("⚠️ Please write some feedback before submitting.")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.divider()
+
+        # Show aggregated ratings (if feedback sheet loaded)
+        st.markdown("### 📊 Community Ratings")
+        try:
+            fb_sheet = get_or_create_feedback_sheet()
+            if fb_sheet:
+                fb_data = fb_sheet.get_all_records()
+                if fb_data:
+                    ratings = [int(r.get('Rating', 5)) for r in fb_data if r.get('Rating')]
+                    avg_rating = sum(ratings) / len(ratings) if ratings else 5
+                    st.metric("Average Rating", f"{'⭐' * round(avg_rating)} ({avg_rating:.1f}/5)", f"{len(ratings)} review(s)")
+
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown("**Recent reviews:**")
+                    for r in reversed(fb_data[-5:]):
+                        r_name = r.get('Name', 'Anonymous') or 'Anonymous'
+                        r_rating = int(r.get('Rating', 5))
+                        r_comment = r.get('Comment', '')
+                        r_ts = str(r.get('Timestamp', ''))[:10]
+                        if r_comment:
+                            st.markdown(f"""
+                                <div style="background: rgba(255,255,255,0.1); padding: 0.7rem 1.1rem; border-radius: 10px; margin: 0.5rem 0; border-left: 4px solid #764ba2;">
+                                    <strong style="color: white;">👤 {r_name}</strong>
+                                    <span style="color: gold; margin-left: 0.5rem;">{"⭐" * r_rating}</span>
+                                    <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-left: 0.5rem;">{r_ts}</span>
+                                    <p style="color: white; margin: 0.3rem 0 0 0; font-size: 0.95rem;">{r_comment}</p>
+                                </div>
+                            """, unsafe_allow_html=True)
+                else:
+                    st.info("No feedback yet — be the first to share your thoughts! 😊")
+            else:
+                st.caption("Feedback stats loading...")
+        except Exception:
+            st.caption("Could not load feedback stats.")
+
     # Footer - appears on all pages
     st.markdown("---")
     st.markdown("""

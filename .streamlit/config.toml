@@ -1,14 +1,15 @@
 [server]
-enableCORS = true
-enableXsrfProtection = false
+enableCORS = false
+enableXsrfProtection = true
 enableStaticServing = true
 headless = true
+maxUploadSize = 5
 
 [client]
 showErrorDetails = false
 
 [runner]
-magicEnabled = true
+magicEnabled = false
 
 [logger]
 level = "error"
