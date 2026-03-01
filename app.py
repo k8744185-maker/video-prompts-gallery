@@ -249,6 +249,9 @@ def get_all_prompts_cached(sheet_id_param, creds_json=None):
         if creds_json:
             creds_dict = json.loads(creds_json)
             creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+        elif os.getenv('GOOGLE_CREDENTIALS'):
+            creds_dict = json.loads(os.getenv('GOOGLE_CREDENTIALS'))
+            creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
         else:
             creds_dict = dict(st.secrets['GOOGLE_CREDENTIALS'])
             creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
@@ -312,6 +315,8 @@ def get_google_sheet():
 
         # Store spreadsheet reference for Comments/Feedback sheets
         st.session_state.spreadsheet = spreadsheet
+        # Store sheet_id for get_all_prompts_cached in show_single_prompt
+        st.session_state.cached_sheet_id = sheet_id
 
         return sheet
     except Exception as e:
@@ -488,15 +493,9 @@ def get_or_create_feedback_sheet():
 
 
 def get_likes_count(prompt_id):
-    """Get total like count for a prompt from Analytics sheet"""
-    try:
-        if 'analytics_sheet' not in st.session_state:
-            return 0
-        analytics_sheet = st.session_state.analytics_sheet
-        data = analytics_sheet.get_all_records()
-        return len([r for r in data if r.get('Event Type') == 'like' and str(r.get('Prompt ID')) == str(prompt_id)])
-    except Exception:
-        return 0
+    """Get like count from bulk-loaded analytics cache (no extra API call per prompt)"""
+    data = st.session_state.get('analytics_cache', [])
+    return len([r for r in data if r.get('Event Type') == 'like' and str(r.get('Prompt ID')) == str(prompt_id)])
 
 
 def add_like(prompt_id):
@@ -505,15 +504,9 @@ def add_like(prompt_id):
 
 
 def get_comments(prompt_id):
-    """Get all non-deleted comments for a prompt"""
-    try:
-        comments_sheet = get_or_create_comments_sheet()
-        if not comments_sheet:
-            return []
-        data = comments_sheet.get_all_records()
-        return [r for r in data if str(r.get('Prompt ID')) == str(prompt_id) and r.get('Status', '') != 'deleted']
-    except Exception:
-        return []
+    """Get comments from bulk-loaded cache (no extra API call per prompt)"""
+    data = st.session_state.get('all_comments_cache', [])
+    return [r for r in data if str(r.get('Prompt ID')) == str(prompt_id) and r.get('Status', '') != 'deleted']
 
 
 def add_comment(prompt_id, name, comment_text):
@@ -547,6 +540,26 @@ def add_feedback(name, rating, comment_text, email=""):
         return True
     except Exception:
         return False
+
+
+def load_engagement_cache():
+    """Load ALL analytics + comments rows ONCE into session state.
+    Call once per page render (at tab2 start + show_single_prompt).
+    Replaces 20+ individual API calls with just 2 total."""
+    if 'analytics_cache' not in st.session_state:
+        try:
+            if 'analytics_sheet' in st.session_state:
+                st.session_state.analytics_cache = st.session_state.analytics_sheet.get_all_records()
+            else:
+                st.session_state.analytics_cache = []
+        except Exception:
+            st.session_state.analytics_cache = []
+    if 'all_comments_cache' not in st.session_state:
+        try:
+            cs = get_or_create_comments_sheet()
+            st.session_state.all_comments_cache = cs.get_all_records() if cs else []
+        except Exception:
+            st.session_state.all_comments_cache = []
 
 
 # Check admin authentication
@@ -831,11 +844,18 @@ def main():
     with tab2:
         with tab2:
             st.markdown("### 🌟 All Prompts")
-            
+
+            # Load engagement data (likes + comments) in 2 API calls instead of 20+
+            load_engagement_cache()
+
             # Cache prompts in session state to avoid repeated API calls
             if 'cached_prompts' not in st.session_state or st.button("🔄 Refresh", key="refresh_prompts"):
                 with st.spinner('⏳ Loading...'):
                     st.session_state.cached_prompts = get_all_prompts(sheet)
+                    # Clear engagement cache so fresh data loads on refresh
+                    st.session_state.pop('analytics_cache', None)
+                    st.session_state.pop('all_comments_cache', None)
+                    load_engagement_cache()
             
             prompts = st.session_state.get('cached_prompts', [])
             
@@ -851,13 +871,9 @@ def main():
                 with col4:
                     # Total visits from shared links - get from Analytics sheet
                     try:
-                        if 'analytics_sheet' in st.session_state:
-                            analytics_sheet = st.session_state.analytics_sheet
-                            data = analytics_sheet.get_all_records()
-                            visit_count = len([row for row in data if row.get('Event Type') == 'visit'])
-                            st.metric("👥 Link Visits", visit_count)
-                        else:
-                            st.metric("👥 Link Visits", 0)
+                        data = st.session_state.get('analytics_cache', [])
+                        visit_count = len([row for row in data if row.get('Event Type') == 'visit'])
+                        st.metric("👥 Link Visits", visit_count)
                     except:
                         st.metric("👥 Link Visits", 0)
                 
@@ -1075,25 +1091,25 @@ def main():
                     # ---- Like button ----
                     st.markdown("<br>", unsafe_allow_html=True)
                     like_key = f"liked_{unique_id}"
-                    like_cache_key = f"like_count_{unique_id}"
-                    if like_cache_key not in st.session_state:
-                        st.session_state[like_cache_key] = get_likes_count(unique_id)
-                    like_count = st.session_state[like_cache_key]
+                    like_count = get_likes_count(unique_id)   # fast — reads from analytics_cache
                     already_liked = st.session_state.get(like_key, False)
                     like_col, _ = st.columns([1, 3])
                     with like_col:
                         like_label = f"❤️ {like_count} Liked" if already_liked else f"🤍 {like_count} Like"
                         if st.button(like_label, key=f"like_btn_{idx}_{prompt_num}", use_container_width=True, disabled=already_liked):
                             add_like(unique_id)
-                            st.session_state[like_cache_key] = like_count + 1
                             st.session_state[like_key] = True
+                            # Update local cache so count reflects immediately
+                            if 'analytics_cache' in st.session_state:
+                                india_tz = pytz.timezone('Asia/Kolkata')
+                                st.session_state.analytics_cache.append({
+                                    'Event Type': 'like', 'Prompt ID': unique_id,
+                                    'Timestamp': datetime.now(india_tz).strftime("%Y-%m-%d %H:%M:%S")
+                                })
                             st.rerun()
 
                     # ---- Comments section ----
-                    comment_cache_key = f"comments_{unique_id}"
-                    if comment_cache_key not in st.session_state:
-                        st.session_state[comment_cache_key] = get_comments(unique_id)
-                    comments = st.session_state[comment_cache_key]
+                    comments = get_comments(unique_id)   # fast — reads from all_comments_cache
                     with st.expander(f"💬 Comments ({len(comments)})"):
                         if comments:
                             for c in comments[-5:]:
@@ -1116,8 +1132,16 @@ def main():
                             if st.form_submit_button("📤 Post Comment", use_container_width=True):
                                 if c_text.strip():
                                     if add_comment(unique_id, c_name or "Anonymous", c_text):
-                                        if comment_cache_key in st.session_state:
-                                            del st.session_state[comment_cache_key]
+                                        # Update bulk cache so new comment shows immediately
+                                        if 'all_comments_cache' in st.session_state:
+                                            india_tz = pytz.timezone('Asia/Kolkata')
+                                            st.session_state.all_comments_cache.append({
+                                                'Prompt ID': unique_id,
+                                                'Name': c_name or 'Anonymous',
+                                                'Comment': c_text.strip(),
+                                                'Status': 'approved',
+                                                'Timestamp': datetime.now(india_tz).strftime("%Y-%m-%d %H:%M:%S")
+                                            })
                                         st.success("✅ Comment posted!")
                                         st.rerun()
                                     else:
@@ -1872,9 +1896,16 @@ def main():
 def show_single_prompt(sheet, prompt_id):
     """Show a single prompt page - Ultra compact with no hero section"""
     try:
-        # Get all prompts
-        with st.spinner('⏳ Please wait, loading prompt...'):
-            prompts = get_all_prompts(sheet)
+        # Ensure engagement cache is loaded (likes + comments)
+        load_engagement_cache()
+        # Use cached prompts — avoids an uncached API call on every shared link visit
+        sheet_id = st.session_state.get('cached_sheet_id', '')
+        if sheet_id:
+            creds_json = os.getenv('GOOGLE_CREDENTIALS') or None
+            prompts = get_all_prompts_cached(sheet_id, creds_json)
+        else:
+            with st.spinner('⏳ Loading...'):
+                prompts = get_all_prompts(sheet)
         
         # Find the prompt with matching unique ID
         prompt_data = None
@@ -1936,6 +1967,65 @@ def show_single_prompt(sheet, prompt_id):
                 if st.button("✕ Close", key="close_copy_single", type="primary"):
                     st.session_state["show_copy_single"] = False
             
+            # ---- Like button (shared page) ----
+            st.markdown("<br>", unsafe_allow_html=True)
+            sp_like_key = f"liked_{prompt_id}"
+            already_liked_sp = st.session_state.get(sp_like_key, False)
+            like_count_sp = get_likes_count(prompt_id)
+            sp_like_col, _ = st.columns([1, 3])
+            with sp_like_col:
+                sp_like_label = f"❤️ {like_count_sp} Liked" if already_liked_sp else f"🤍 {like_count_sp} Like"
+                if st.button(sp_like_label, key="like_btn_single", use_container_width=True, disabled=already_liked_sp):
+                    add_like(prompt_id)
+                    st.session_state[sp_like_key] = True
+                    if 'analytics_cache' in st.session_state:
+                        india_tz = pytz.timezone('Asia/Kolkata')
+                        st.session_state.analytics_cache.append({
+                            'Event Type': 'like', 'Prompt ID': prompt_id,
+                            'Timestamp': datetime.now(india_tz).strftime("%Y-%m-%d %H:%M:%S")
+                        })
+                    st.rerun()
+
+            # ---- Comments section (shared page) ----
+            sp_comments = get_comments(prompt_id)
+            with st.expander(f"💬 Comments ({len(sp_comments)})"):
+                if sp_comments:
+                    for c in sp_comments[-5:]:
+                        n = c.get('Name', 'Anonymous') or 'Anonymous'
+                        cm = c.get('Comment', '')
+                        ts = str(c.get('Timestamp', ''))[:10]
+                        st.markdown(f"""
+                            <div style="background: rgba(102,126,234,0.1); padding: 0.6rem 1rem; border-radius: 8px; margin: 0.4rem 0; border-left: 3px solid #667eea;">
+                                <strong>👤 {n}</strong>
+                                <span style="color: #888; font-size: 0.8rem; margin-left: 0.5rem;">{ts}</span>
+                                <p style="margin: 0.3rem 0 0 0; font-size: 0.95rem;">{cm}</p>
+                            </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    st.caption("No comments yet. Be the first!")
+                st.markdown("<br>", unsafe_allow_html=True)
+                with st.form("comment_form_single", clear_on_submit=True):
+                    sp_c_name = st.text_input("Your name (optional)", max_chars=50)
+                    sp_c_text = st.text_area("Your comment", max_chars=500, height=80)
+                    if st.form_submit_button("📤 Post Comment", use_container_width=True):
+                        if sp_c_text.strip():
+                            if add_comment(prompt_id, sp_c_name or "Anonymous", sp_c_text):
+                                if 'all_comments_cache' in st.session_state:
+                                    india_tz = pytz.timezone('Asia/Kolkata')
+                                    st.session_state.all_comments_cache.append({
+                                        'Prompt ID': prompt_id,
+                                        'Name': sp_c_name or 'Anonymous',
+                                        'Comment': sp_c_text.strip(),
+                                        'Status': 'approved',
+                                        'Timestamp': datetime.now(india_tz).strftime("%Y-%m-%d %H:%M:%S")
+                                    })
+                                st.success("✅ Comment posted!")
+                                st.rerun()
+                            else:
+                                st.error("❌ Could not post comment. Try again.")
+                        else:
+                            st.warning("⚠️ Please write a comment before posting.")
+
             # Metadata footer
             if prompt_data.get('Video ID') or prompt_data.get('Timestamp'):
                 st.markdown(f"""
