@@ -75,26 +75,10 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Smooth animations */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+    /* Removed heavy animations - kept simple styling for better performance */
     
-    @keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-20px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-    
-    /* Prompt cards with hover effects */
+    /* Prompt cards with minimal effects */
     .prompt-container {
-        animation: fadeIn 0.6s ease-in-out;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-radius: 16px;
         overflow: hidden;
         margin-bottom: 1.5rem;
@@ -102,21 +86,18 @@ st.markdown("""
     }
     
     .prompt-container:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
     }
     
     .prompt-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 1.5rem;
         color: white;
-        animation: slideInLeft 0.7s ease-in-out;
     }
     
     .prompt-body {
         background: white;
         padding: 1.5rem;
-        animation: fadeIn 0.7s ease-in-out 0.1s both;
     }
     
     /* Better typography */
@@ -126,26 +107,29 @@ st.markdown("""
         letter-spacing: -0.5px;
     }
     
-    /* Button improvements */
+    /* Button improvements - No animations to avoid lag */
     .stButton > button {
         border-radius: 10px;
-        transition: all 0.3s ease;
         font-weight: 600;
         border: none;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: pointer;
     }
     
     .stButton > button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        opacity: 0.9;
     }
     
-    /* Pagination styling */
+    .stButton > button:active {
+        opacity: 0.8;
+    }
+    
+    /* Column styling */
     .stColumn {
-        animation: fadeIn 0.5s ease-in-out;
+        /* animation removed for performance */
     }
     
-    /* Badge styling */
+    /* Badge styling - Minimal animations */
     .category-badge {
         display: inline-block;
         background: rgba(255,255,255,0.2);
@@ -153,12 +137,10 @@ st.markdown("""
         border-radius: 15px;
         font-size: 0.85rem;
         margin-right: 0.5rem;
-        transition: all 0.3s ease;
     }
     
     .category-badge:hover {
         background: rgba(255,255,255,0.4);
-        transform: scale(1.05);
     }
     
     /* Better links */
