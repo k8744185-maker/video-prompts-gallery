@@ -1,4 +1,4 @@
 #!/bin/bash
-# Render.com start script with Gunicorn WSGI server
+# Render.com start script - run Streamlit directly
 
-gunicorn --bind 0.0.0.0:$PORT wsgi:application --workers 1 --threads 2 --timeout 30
+streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --server.enableCORS=true --server.enableXsrfProtection=false
