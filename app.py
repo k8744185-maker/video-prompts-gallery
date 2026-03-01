@@ -66,13 +66,140 @@ components.html("""
          crossorigin="anonymous"></script>
 """, height=1)
 
-# Custom CSS - Ultra minimal for speed
+# Enhanced CSS with animations, dark mode, and better UI
 st.markdown("""
     <style>
-    /* Hide Streamlit branding only */
+    /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    
+    /* Smooth animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    /* Prompt cards with hover effects */
+    .prompt-container {
+        animation: fadeIn 0.6s ease-in-out;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .prompt-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .prompt-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1.5rem;
+        color: white;
+        animation: slideInLeft 0.7s ease-in-out;
+    }
+    
+    .prompt-body {
+        background: white;
+        padding: 1.5rem;
+        animation: fadeIn 0.7s ease-in-out 0.1s both;
+    }
+    
+    /* Better typography */
+    .prompt-container h2 {
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+    
+    /* Button improvements */
+    .stButton > button {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        border: none;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stButton > button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Pagination styling */
+    .stColumn {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    /* Badge styling */
+    .category-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.2);
+        padding: 0.35rem 0.85rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .category-badge:hover {
+        background: rgba(255,255,255,0.4);
+        transform: scale(1.05);
+    }
+    
+    /* Better links */
+    a {
+        color: #667eea;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        font-weight: 500;
+    }
+    
+    a:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+    
+    /* Reduced motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 640px) {
+        .prompt-container {
+            margin-bottom: 1rem;
+        }
+        
+        .prompt-header {
+            padding: 1rem;
+        }
+        
+        .prompt-body {
+            padding: 1rem;
+        }
+        
+        .prompt-container h2 {
+            font-size: 1.5rem;
+        }
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -151,7 +278,29 @@ def record_failed_attempt(session_key):
         # Session state not initialized yet
         pass
 
-# Google Sheets setup
+# Google Sheets setup with caching
+@st.cache_data(ttl=300)  # Cache for 5 minutes
+def get_all_prompts_cached(sheet_id_param, creds_json=None):
+    """Get all prompts from Google Sheets with caching"""
+    try:
+        scope = ['https://spreadsheets.google.com/feeds',
+                 'https://www.googleapis.com/auth/drive']
+        
+        if creds_json:
+            creds_dict = json.loads(creds_json)
+            creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+        else:
+            creds_dict = dict(st.secrets['GOOGLE_CREDENTIALS'])
+            creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+        
+        client = gspread.authorize(creds)
+        spreadsheet = client.open_by_key(sheet_id_param)
+        sheet = spreadsheet.sheet1
+        data = sheet.get_all_records()
+        return data
+    except Exception as e:
+        return []
+
 def get_google_sheet():
     """Connect to Google Sheets - Works with local, Streamlit Cloud, and Render.com"""
     try:
@@ -296,54 +445,66 @@ def get_admin_notifications():
     return 0, []
 
 def generate_sitemap(prompts):
-    """Generate XML sitemap for SEO"""
+    """Generate comprehensive XML sitemap for SEO with proper lastmod dates"""
     base_url = "https://video-prompts-gallery.onrender.com"
     sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
+    sitemap += '         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'
     
-    # Homepage
-    sitemap += f'  <url>\n    <loc>{base_url}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n'
+    # Homepage - highest priority
+    today = datetime.now().strftime('%Y-%m-%d')
+    sitemap += f'  <url>\n    <loc>{base_url}/</loc>\n'
+    sitemap += f'    <lastmod>{today}</lastmod>\n'
+    sitemap += f'    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n'
     
-    # Legal pages (important for AdSense)
-    sitemap += f'  <url>\n    <loc>{base_url}/?tab=Legal</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n'
+    # Legal/Terms pages
+    legal_pages = ['privacy', 'terms', 'about', 'contact']
+    for page in legal_pages:
+        sitemap += f'  <url>\n    <loc>{base_url}/?tab={page.capitalize()}</loc>\n'
+        sitemap += f'    <lastmod>{today}</lastmod>\n'
+        sitemap += f'    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n'
     
-    # Each prompt
-    for prompt in prompts[:50]:  # Limit to 50 for performance
+    # Each prompt - sorted by timestamp (newest first)
+    for idx, prompt in enumerate(prompts[:100]):  # Increased from 50 to 100
         unique_id = prompt.get('Unique ID', '')
         if unique_id:
-            sitemap += f'  <url>\n    <loc>{base_url}/?prompt_id={unique_id}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
+            # Calculate priority based on position (newer = higher priority)
+            priority = max(0.5, 0.7 - (idx * 0.001))
+            sitemap += f'  <url>\n    <loc>{base_url}/?prompt_id={unique_id}</loc>\n'
+            sitemap += f'    <lastmod>{today}</lastmod>\n'
+            sitemap += f'    <changefreq>weekly</changefreq>\n'
+            sitemap += f'    <priority>{priority:.1f}</priority>\n  </url>\n'
     
     sitemap += '</urlset>'
     return sitemap
 
 def show_google_ad(ad_slot="", ad_format="auto", full_width=True):
-    """Display Google AdSense ad - optimized version"""
-    ads_client_id = os.getenv('GOOGLE_ADS_CLIENT_ID', '')
-    
-    if not ads_client_id and not os.path.exists('.env'):
-        try:
-            ads_client_id = st.secrets.get('GOOGLE_ADS_CLIENT_ID', '')
-        except:
-            ads_client_id = ''
+    """Display Google AdSense ad - optimized version with better styling"""
+    ads_client_id = 'ca-pub-5050768956635718'  # Your AdSense client ID
     
     if not ads_client_id or ads_client_id == 'ca-pub-xxxxxxxxxxxxxxxxx':
         return  # Don't show anything if not configured
     
-    # Lightweight ad code
+    # Responsive ad code with styled container
     ad_html = f"""
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ads_client_id}"
-                crossorigin="anonymous"></script>
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="{ads_client_id}"
-             data-ad-slot="{ad_slot}"
-             data-ad-format="{ad_format}"
-             data-full-width-responsive="{str(full_width).lower()}"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({{}});
-        </script>
+        <div style="text-align: center; margin: 1.5rem 0; padding: 1rem; border-radius: 12px; 
+                    background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
+                    border: 1px solid rgba(102,126,234,0.1);">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ads_client_id}"
+                    crossorigin="anonymous"></script>
+            <!-- Display ads -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="{ads_client_id}"
+                 data-ad-slot="1234567890"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({{}});
+            </script>
+        </div>
     """
-    st.components.v1.html(ad_html, height=120)
+    st.components.v1.html(ad_html, height=280)
 
 # Check admin authentication
 def check_admin_password(key_suffix=""):
@@ -409,7 +570,7 @@ def check_admin_password(key_suffix=""):
 
 # JSON-LD Structured Data for SEO
 def add_structured_data():
-    """Add JSON-LD structured data for better SEO"""
+    """Add comprehensive JSON-LD structured data for better SEO"""
     structured_data = """
     <script type="application/ld+json">
     {
@@ -418,6 +579,7 @@ def add_structured_data():
       "name": "Video Prompts Gallery",
       "url": "https://video-prompts-gallery.onrender.com",
       "description": "Curated collection of high-quality AI video prompts for filmmakers and creators",
+      "image": "https://video-prompts-gallery.onrender.com/logo.png",
       "potentialAction": {
         "@type": "SearchAction",
         "target": "https://video-prompts-gallery.onrender.com/?search={search_term_string}",
@@ -426,8 +588,52 @@ def add_structured_data():
       "publisher": {
         "@type": "Organization",
         "name": "Video Prompts Gallery",
-        "email": "k8744185@gmail.com"
+        "email": "k8744185@gmail.com",
+        "url": "https://video-prompts-gallery.onrender.com",
+        "sameAs": ["https://github.com/k8744185-maker/video-prompts-gallery"]
+      },
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
       }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://video-prompts-gallery.onrender.com"},
+        {"@type": "ListItem", "position": 2, "name": "Video Prompts", "item": "https://video-prompts-gallery.onrender.com#prompts"}
+      ]
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Video Prompts Gallery?",
+          "acceptedAnswer": {"@type": "Answer", "text": "A curated collection of high-quality AI video generation prompts for creators using tools like Runway ML and Pika Labs."}
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use these prompts for commercial projects?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes, our prompts are designed for both personal and commercial use with AI video generation tools."}
+        },
+        {
+          "@type": "Question",
+          "name": "What categories of prompts are available?",
+          "acceptedAnswer": {"@type": "Answer", "text": "We offer prompts in Nature, Urban, Cinematic, Sci-Fi, Tamil Cinema, and many other categories."}
+        }
+      ]
     }
     </script>
     """
@@ -763,7 +969,7 @@ def main():
                     st.markdown("<br>", unsafe_allow_html=True)
                 
                 # Display prompts for current page
-                for prompt_info in filtered_prompts[start_idx:end_idx]:
+                for idx, prompt_info in enumerate(filtered_prompts[start_idx:end_idx]):
                     prompt_num = prompt_info['prompt_num']
                     unique_id = prompt_info['unique_id']
                     prompt_name = prompt_info['prompt_name']
@@ -872,6 +1078,10 @@ def main():
                         st.markdown('</div>', unsafe_allow_html=True)
                     
                     st.markdown('</div>', unsafe_allow_html=True)
+                    
+                    # Display ads after every 3 prompts to not be intrusive
+                    if (idx + 1) % 3 == 0:
+                        show_google_ad(ad_slot="1234567892", ad_format="auto")
                 
                 # Pagination controls at BOTTOM
                 if total_pages > 1:
