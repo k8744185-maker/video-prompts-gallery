@@ -1,4 +1,4 @@
 #!/bin/bash
-# Render.com start script - run Streamlit directly
+# Render.com start script - aiohttp proxy handles WebSockets + meta tag injection
 
-streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --server.enableCORS=true --server.enableXsrfProtection=false
+python wsgi.py

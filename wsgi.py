@@ -1,6 +1,5 @@
 """
-Async proxy using aiohttp - handles HTTP + WebSocket connections
-Serves Google verification file + proxies everything else to Streamlit
+aiohttp proxy: serves static files + injects meta tags into HTML + proxies WebSockets
 """
 import asyncio
 import aiohttp
@@ -11,103 +10,120 @@ import os
 import time
 from pathlib import Path
 
-
 STREAMLIT_PORT = 8501
-STREAMLIT_URL = f"http://127.0.0.1:{STREAMLIT_PORT}"
-STREAMLIT_WS  = f"ws://127.0.0.1:{STREAMLIT_PORT}"
+ST_URL = f"http://127.0.0.1:{STREAMLIT_PORT}"
+ST_WS  = f"ws://127.0.0.1:{STREAMLIT_PORT}"
+
+SITE_VERIFICATION = "8MpJT70JgoawSi-Z8yz-ZOHphQiFAsmJTq2622M41Us"
+ADSENSE_PUB_ID    = "ca-pub-5050768956635718"
+
+META_INJECT = f"""<meta name="google-site-verification" content="{SITE_VERIFICATION}">
+<meta name="google-adsense-account" content="{ADSENSE_PUB_ID}">"""
 
 
-# ── Serve Google verification files ──────────────────────────────────────────
 async def serve_verification(request):
+    """Serve Google verification HTML file."""
     filename = request.match_info["filename"]
-    file_path = Path("static") / f"google{filename}.html"
-    if file_path.exists():
-        return web.FileResponse(file_path, content_type="text/html")
+    fp = Path("static") / f"google{filename}.html"
+    if fp.exists():
+        return web.FileResponse(fp, content_type="text/html")
     return web.Response(text="Not found", status=404)
 
 
-# ── Health check ─────────────────────────────────────────────────────────────
 async def health(request):
     return web.Response(text="OK")
 
 
-# ── WebSocket proxy ───────────────────────────────────────────────────────────
 async def websocket_proxy(request):
-    ws_client = web.WebSocketResponse()
-    await ws_client.prepare(request)
+    """Full-duplex WebSocket proxy to Streamlit."""
+    ws_server = web.WebSocketResponse()
+    await ws_server.prepare(request)
 
-    target_url = f"{STREAMLIT_WS}{request.path_qs}"
+    skip = {"host","connection","upgrade","sec-websocket-key",
+            "sec-websocket-version","sec-websocket-extensions"}
     headers = {k: v for k, v in request.headers.items()
-               if k.lower() not in ("host","connection","upgrade",
-                                    "sec-websocket-key","sec-websocket-version",
-                                    "sec-websocket-extensions")}
+               if k.lower() not in skip}
+
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.ws_connect(target_url, headers=headers) as ws_server:
+        async with aiohttp.ClientSession() as s:
+            async with s.ws_connect(f"{ST_WS}{request.path_qs}",
+                                    headers=headers) as ws_back:
 
-                async def to_server():
-                    async for msg in ws_client:
+                async def fwd(src, dst):
+                    async for msg in src:
                         if msg.type == aiohttp.WSMsgType.TEXT:
-                            await ws_server.send_str(msg.data)
+                            await dst.send_str(msg.data)
                         elif msg.type == aiohttp.WSMsgType.BINARY:
-                            await ws_server.send_bytes(msg.data)
+                            await dst.send_bytes(msg.data)
                         else:
                             break
 
-                async def to_client():
-                    async for msg in ws_server:
-                        if msg.type == aiohttp.WSMsgType.TEXT:
-                            await ws_client.send_str(msg.data)
-                        elif msg.type == aiohttp.WSMsgType.BINARY:
-                            await ws_client.send_bytes(msg.data)
-                        else:
-                            break
-
-                await asyncio.gather(to_server(), to_client())
+                await asyncio.gather(
+                    fwd(ws_server, ws_back),
+                    fwd(ws_back,   ws_server),
+                )
     except Exception as e:
-        print(f"WebSocket proxy error: {e}")
-    return ws_client
+        print(f"WS error: {e}")
+    return ws_server
 
 
-# ── HTTP proxy ────────────────────────────────────────────────────────────────
 async def http_proxy(request):
+    """HTTP proxy; injects verification meta tags into Streamlit's HTML."""
     if request.headers.get("Upgrade", "").lower() == "websocket":
         return await websocket_proxy(request)
 
-    target_url = f"{STREAMLIT_URL}{request.path_qs}"
-    headers = {k: v for k, v in request.headers.items()
-               if k.lower() not in ("host", "connection")}
+    url = f"{ST_URL}{request.path_qs}"
+    skip_req  = {"host", "connection"}
+    skip_resp = {"transfer-encoding", "connection", "keep-alive", "content-length"}
+    headers   = {k: v for k, v in request.headers.items()
+                 if k.lower() not in skip_req}
+
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.request(
-                request.method, target_url, headers=headers,
-                data=await request.read(), allow_redirects=False,
+        async with aiohttp.ClientSession() as s:
+            async with s.request(
+                request.method, url, headers=headers,
+                data=await request.read(),
+                allow_redirects=False,
                 timeout=aiohttp.ClientTimeout(total=30),
             ) as resp:
                 body = await resp.read()
-                skip = {"transfer-encoding","connection","keep-alive"}
+                ctype = resp.headers.get("Content-Type", "")
+
+                # Inject meta tags into the main HTML page
+                if "text/html" in ctype:
+                    try:
+                        text = body.decode("utf-8")
+                        if "<head>" in text:
+                            text = text.replace("<head>",
+                                                f"<head>\n{META_INJECT}")
+                            body = text.encode("utf-8")
+                    except Exception:
+                        pass
+
                 resp_headers = {k: v for k, v in resp.headers.items()
-                                if k.lower() not in skip}
+                                if k.lower() not in skip_resp}
                 return web.Response(body=body, status=resp.status,
                                     headers=resp_headers)
+
     except aiohttp.ClientConnectorError:
-        return web.Response(text="Streamlit not available", status=503)
+        return web.Response(text="Streamlit starting, please refresh in 10s...",
+                            status=503,
+                            content_type="text/html")
     except Exception as e:
         return web.Response(text=f"Proxy error: {e}", status=502)
 
 
-# ── App setup ─────────────────────────────────────────────────────────────────
 def make_app():
     app = web.Application()
     app.router.add_get("/google{filename}.html", serve_verification)
     app.router.add_get("/health", health)
-    app.router.add_route("*", "/", http_proxy)
-    app.router.add_route("*", "/{path_info:.*}", http_proxy)
+    app.router.add_route("*", "/",              http_proxy)
+    app.router.add_route("*", "/{path:.*}",     http_proxy)
     return app
 
 
 def start_streamlit():
-    print("Starting Streamlit on port 8501...")
+    print("Starting Streamlit...")
     proc = subprocess.Popen(
         [sys.executable, "-m", "streamlit", "run", "app.py",
          f"--server.port={STREAMLIT_PORT}",
@@ -117,17 +133,18 @@ def start_streamlit():
          "--server.enableXsrfProtection=false"],
         env={**os.environ, "STREAMLIT_SERVER_HEADLESS": "true"},
     )
-    for i in range(30):
+    # Poll until Streamlit responds
+    for i in range(40):
         time.sleep(1)
         try:
             import urllib.request
             urllib.request.urlopen(
                 f"http://127.0.0.1:{STREAMLIT_PORT}/healthz", timeout=2)
-            print("Streamlit is ready!")
+            print(f"Streamlit ready after {i+1}s")
             return proc
         except Exception:
-            print(f"Waiting for Streamlit... ({i+1}/30)")
-    print("Streamlit started (continuing anyway)")
+            print(f"  waiting... {i+1}/40")
+    print("Streamlit did not respond in 40s, continuing anyway")
     return proc
 
 
