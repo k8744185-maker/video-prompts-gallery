@@ -1,5 +1,5 @@
 """
-Simple Flask app that serves static files and proxies to Streamlit
+WSGI application for Render deployment
 """
 import os
 import subprocess
@@ -10,6 +10,9 @@ from flask import Flask, send_from_directory, Response, request
 from pathlib import Path
 
 app = Flask(__name__)
+
+# Global variable to track Streamlit process
+streamlit_process = None
 
 # Serve verification files
 @app.route('/google<filename>.html')
@@ -53,23 +56,26 @@ def proxy_to_streamlit(path):
     except Exception as e:
         return f"Proxy error: {str(e)}", 502
 
-if __name__ == '__main__':
-    # Start Streamlit in background
-    print("Starting Streamlit...")
-    streamlit_process = subprocess.Popen([
-        sys.executable, '-m', 'streamlit', 'run', 'app.py',
-        '--server.port=8501',
-        '--server.address=127.0.0.1',
-        '--server.enableCORS=false',
-        '--server.headless=true',
-        '--client.showErrorDetails=false'
-    ], env={**os.environ, 'STREAMLIT_SERVER_HEADLESS': 'true'})
+def start_streamlit():
+    """Start Streamlit in background"""
+    global streamlit_process
+    if streamlit_process is None:
+        print("Starting Streamlit...")
+        streamlit_process = subprocess.Popen([
+            sys.executable, '-m', 'streamlit', 'run', 'app.py',
+            '--server.port=8501',
+            '--server.address=127.0.0.1',
+            '--server.enableCORS=false',
+            '--server.headless=true',
+            '--client.showErrorDetails=false'
+        ], env={**os.environ, 'STREAMLIT_SERVER_HEADLESS': 'true'})
+        print("Streamlit started")
 
-    # Wait a bit for Streamlit to start
-    print("Waiting for Streamlit to start...")
-    time.sleep(5)
+# Start Streamlit when module is imported
+start_streamlit()
 
-    # Start Flask
-    port = int(os.getenv('PORT', 8000))
-    print(f"Starting Flask on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
+# Give Streamlit time to start
+time.sleep(3)
+
+# For Render - export the Flask app
+application = app

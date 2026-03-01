@@ -1,4 +1,4 @@
 #!/bin/bash
-# Render.com start script with Flask wrapper
+# Render.com start script with Gunicorn WSGI server
 
-python wsgi.py
+gunicorn --bind 0.0.0.0:$PORT wsgi:application --workers 1 --threads 2 --timeout 30
