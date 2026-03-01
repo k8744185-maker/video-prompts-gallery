@@ -52,6 +52,7 @@ st.markdown("""
     <meta name="keywords" content="video prompts, AI video generation, Tamil cinema prompts, cinematic prompts, filmmaking, Runway ML, Pika Labs">
     <meta name="author" content="K. Venkadesan">
     <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="ca-pub-5050768956635718">
     <meta property="og:title" content="Video Prompts Gallery - AI Video Prompt Collection">
     <meta property="og:description" content="30+ curated video prompts for AI video generation tools">
     <meta property="og:type" content="website">
@@ -59,11 +60,11 @@ st.markdown("""
     <link rel="canonical" href="https://video-prompts-gallery.onrender.com">
 """, unsafe_allow_html=True)
 
-# Google AdSense Verification - Using components.html() for proper injection
+# Google AdSense Verification - Make visible for crawler
 components.html("""
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718"
          crossorigin="anonymous"></script>
-""", height=0)
+""", height=1)
 
 # Custom CSS - Ultra minimal for speed
 st.markdown("""
