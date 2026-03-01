@@ -46,26 +46,55 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# SEO Meta Tags for AdSense Approval
+# Inject SEO meta tags + AdSense + verification into actual <head> using JavaScript
 st.markdown("""
-    <meta name="description" content="Curated collection of high-quality AI video prompts for filmmakers and creators. Tamil cinema inspired prompts, nature scenes, urban cinematography and more.">
-    <meta name="keywords" content="video prompts, AI video generation, Tamil cinema prompts, cinematic prompts, filmmaking, Runway ML, Pika Labs">
-    <meta name="author" content="K. Venkadesan">
-    <meta name="robots" content="index, follow">
-    <meta name="google-site-verification" content="8MpJT70JgoawSi-Z8yz-ZOHphQiFAsmJTq2622M41Us">
-    <meta name="google-adsense-account" content="ca-pub-5050768956635718">
-    <meta property="og:title" content="Video Prompts Gallery - AI Video Prompt Collection">
-    <meta property="og:description" content="30+ curated video prompts for AI video generation tools">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://video-prompts-gallery.onrender.com">
-    <link rel="canonical" href="https://video-prompts-gallery.onrender.com">
-""", unsafe_allow_html=True)
+<script>
+(function() {
+    // Helper to add meta tag to <head>
+    function addMeta(attrs) {
+        var m = document.createElement('meta');
+        for (var k in attrs) m.setAttribute(k, attrs[k]);
+        document.head.appendChild(m);
+    }
+    function addLink(attrs) {
+        var l = document.createElement('link');
+        for (var k in attrs) l.setAttribute(k, attrs[k]);
+        document.head.appendChild(l);
+    }
 
-# Google AdSense Verification - Make visible for crawler
-components.html("""
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718"
-         crossorigin="anonymous"></script>
-""", height=1)
+    // SEO meta tags
+    addMeta({"name": "description", "content": "Curated collection of high-quality AI video prompts for filmmakers and creators. Tamil cinema inspired prompts, nature scenes, urban cinematography and more."});
+    addMeta({"name": "keywords", "content": "video prompts, AI video generation, Tamil cinema prompts, cinematic prompts, filmmaking, Runway ML, Pika Labs"});
+    addMeta({"name": "author", "content": "K. Venkadesan"});
+    addMeta({"name": "robots", "content": "index, follow"});
+
+    // Google Search Console verification
+    addMeta({"name": "google-site-verification", "content": "8MpJT70JgoawSi-Z8yz-ZOHphQiFAsmJTq2622M41Us"});
+
+    // Google AdSense publisher ID verification
+    addMeta({"name": "google-adsense-account", "content": "ca-pub-5050768956635718"});
+
+    // Open Graph
+    addMeta({"property": "og:title", "content": "Video Prompts Gallery - AI Video Prompt Collection"});
+    addMeta({"property": "og:description", "content": "30+ curated video prompts for AI video generation tools"});
+    addMeta({"property": "og:type", "content": "website"});
+    addMeta({"property": "og:url", "content": "https://video-prompts-gallery.onrender.com"});
+
+    // Canonical
+    addLink({"rel": "canonical", "href": "https://video-prompts-gallery.onrender.com"});
+
+    // Update page title
+    document.title = "Video Prompts Gallery - AI Video Prompt Collection";
+
+    // Load Google AdSense script into <head>
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718";
+    s.crossOrigin = "anonymous";
+    document.head.appendChild(s);
+})();
+</script>
+""", unsafe_allow_html=True)
 
 # Enhanced CSS with animations, dark mode, and better UI
 st.markdown("""
