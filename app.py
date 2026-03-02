@@ -1070,6 +1070,14 @@ def main():
                         with cols[0]:
                             if st.session_state.current_page > 1:
                                 if st.button("⬅️ Previous", use_container_width=True, key=f"prev_{st.session_state.get('pagination_location', 'top')}"):
+                                    components.html(
+                                        """
+                                        <script>
+                                        window.scrollTo(0, 0);
+                                        </script>
+                                        """,
+                                        height=0
+                                    )
                                     st.session_state.current_page -= 1
                                     st.rerun()
                         
@@ -1094,12 +1102,28 @@ def main():
                                         st.markdown(f"<div style='text-align: center; padding: 0.5rem; background: #667eea; color: white; border-radius: 8px; font-weight: bold;'>{page_num}</div>", unsafe_allow_html=True)
                                     else:
                                         if st.button(str(page_num), key=f"page_{page_num}_{st.session_state.get('pagination_location', 'top')}", use_container_width=True):
+                                            components.html(
+                                                """
+                                                <script>
+                                                window.scrollTo(0, 0);
+                                                </script>
+                                                """,
+                                                height=0
+                                            )
                                             st.session_state.current_page = page_num
                                             st.rerun()
                         
                         with cols[4]:
                             if st.session_state.current_page < total_pages:
                                 if st.button("Next ➡️", use_container_width=True, key=f"next_{st.session_state.get('pagination_location', 'top')}"):
+                                    components.html(
+                                        """
+                                        <script>
+                                        window.scrollTo(0, 0);
+                                        </script>
+                                        """,
+                                        height=0
+                                    )
                                     st.session_state.current_page += 1
                                     st.rerun()
                 
@@ -2065,6 +2089,15 @@ def show_single_prompt(sheet, prompt_id):
                 </div>
                 """, unsafe_allow_html=True)
                 if st.button("📚 Browse All Prompts", type="primary"):
+                    # Scroll to top before navigating
+                    components.html(
+                        """
+                        <script>
+                        window.scrollTo(0, 0);
+                        </script>
+                        """,
+                        height=0
+                    )
                     st.query_params.clear()
                     st.rerun()
                 return
@@ -2105,10 +2138,7 @@ def show_single_prompt(sheet, prompt_id):
                 if st.button("📋 Copy Text", key="copy_single_prompt", use_container_width=True, type="primary"):
                     st.session_state["show_copy_single"] = True
             with col2:
-                if st.button("📚 View All Prompts", use_container_width=True, type="secondary"):
-                    with st.spinner('Loading...'):
-                        st.query_params.clear()
-                        st.rerun()
+                st.markdown("")
             
             # Show copy prompt if button clicked
             if st.session_state.get("show_copy_single", False):
