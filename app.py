@@ -24,7 +24,7 @@ MAX_NAME_LENGTH = 200
 
 # Error handling wrapper
 def handle_error(error_msg="Something went wrong", show_refresh=True):
-    """Display user-friendly error with refresh option"""
+    """Display user-friendly error with refresh option and publisher content"""
     st.error(f"⚠️ {error_msg}")
     if show_refresh:
         col1, col2 = st.columns([1, 3])
@@ -33,6 +33,15 @@ def handle_error(error_msg="Something went wrong", show_refresh=True):
                 st.rerun()
         with col2:
             st.caption("If the issue persists, try reloading your browser.")
+    # Publisher content on error pages for AdSense compliance
+    st.markdown("""
+    <div style="padding: 1.5rem; margin-top: 1rem; background: #f8f9fa; border-radius: 12px;">
+        <p style="color: #555; font-size: 0.95rem; line-height: 1.7;">
+            <strong>Video Prompts Gallery</strong> is a free collection of AI video generation prompts 
+            for tools like Runway ML, Pika Labs, and Stable Video Diffusion. Please refresh to try again.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Page configuration - Optimized for Render.com free tier
 st.set_page_config(
@@ -48,10 +57,10 @@ st.set_page_config(
 # Enhanced CSS with animations, dark mode, and better UI
 st.markdown("""
     <style>
-    /* Hide Streamlit branding */
+    /* Hide Streamlit branding but keep page functional */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* Keep header visible for navigation - AdSense requirement */
     
     /* Removed heavy animations - kept simple styling for better performance */
     
@@ -589,6 +598,19 @@ def check_admin_password(key_suffix=""):
         # Check rate limiting
         can_attempt, rate_msg = check_rate_limit(f"login_{key_suffix}")
         
+        # Publisher content above login form — ensures this screen has content for AdSense compliance
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border-left: 4px solid #667eea;">
+            <h4 style="color: #333; margin-bottom: 0.5rem;">🎬 Video Prompts Gallery — Admin Area</h4>
+            <p style="color: #555; font-size: 0.95rem; line-height: 1.7; margin: 0;">
+                This section is restricted to site administrators who manage the prompt collection. 
+                Administrators can add new prompts, edit existing content, and organize categories.
+                If you're looking for video prompts, please visit the <strong>Browse Prompts</strong> tab 
+                to explore our full collection of free, professional-grade AI video generation prompts.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
         with st.form(f"login_form_{key_suffix}"):
             st.markdown("### 🔐 Admin Login")
             st.info("🔒 Secure login with rate limiting and session timeout")
@@ -707,6 +729,23 @@ def main():
         
         if not sheet:
             st.error("⚠️ Unable to connect to database. Please check configuration.")
+            # Still show publisher content even on error pages
+            st.markdown("""
+            <div style="padding: 2rem; margin-top: 1rem;">
+                <h2 style="color: #333;">🎬 Video Prompts Gallery</h2>
+                <p style="color: #555; font-size: 1rem; line-height: 1.8;">
+                    Video Prompts Gallery is a free, curated collection of professional AI video generation prompts 
+                    designed for filmmakers and content creators. We're currently experiencing a temporary connection issue. 
+                    Please try refreshing the page in a moment.
+                </p>
+                <p style="color: #555; font-size: 1rem; line-height: 1.8;">
+                    Our gallery features prompts across 8+ categories including Nature, Urban, Cinematic, Sci-Fi, 
+                    Fantasy, Abstract, and Tamil Cinema. Each prompt is carefully crafted with cinematic detail 
+                    including camera angles, lighting, atmosphere, and motion descriptions.
+                </p>
+                <p style="color: #555;">For assistance, contact us at: k8744185@gmail.com</p>
+            </div>
+            """, unsafe_allow_html=True)
             return
     
     # Check if specific prompt is requested via URL
@@ -731,17 +770,11 @@ def main():
         show_single_prompt(sheet, query_params["prompt_id"])
         return
     
-    # Hero section (only for main page)
+    # Hero section (only for main page) - Rich publisher content for AdSense compliance
     col1, col2 = st.columns([5, 1])
     with col1:
         st.title("🎬 Video Prompts Gallery")
         st.subheader("Discover and share amazing AI video generation prompts")
-        st.markdown("""
-        Welcome to the ultimate collection of cinematic video prompts for AI video generation! 
-        Whether you're creating content with Runway, Pika Labs, or other AI video tools, find inspiration 
-        from our curated library of professional-grade prompts spanning Nature, Urban landscapes, 
-        Cinematic scenes, Sci-Fi adventures, and Tamil cinema aesthetics.
-        """)
     with col2:
         # Notification bell for admin only
         if st.session_state.get('authenticated', False):
@@ -751,6 +784,60 @@ def main():
                     st.session_state.show_notifications = True
             else:
                 st.markdown("<div style='padding: 0.5rem;'>🔕</div>", unsafe_allow_html=True)
+    
+    # Rich publisher content section - always visible to crawlers and users
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 2rem; border-radius: 16px; margin: 1rem 0 2rem 0; border: 1px solid rgba(102, 126, 234, 0.15);">
+        <h2 style="color: #333; margin-bottom: 1rem; font-size: 1.4rem;">🌟 Welcome to Video Prompts Gallery</h2>
+        <p style="color: #555; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1rem;">
+            Video Prompts Gallery is a <strong>free, curated collection of professional-grade AI video generation prompts</strong> 
+            designed for filmmakers, content creators, and AI enthusiasts. Our handcrafted prompts help you create 
+            stunning videos using tools like <strong>Runway ML, Pika Labs, Stable Video Diffusion</strong>, and more.
+        </p>
+        <p style="color: #555; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1rem;">
+            Each prompt in our gallery is carefully crafted with <strong>cinematic detail</strong> — including specific camera angles, 
+            lighting conditions, atmospheric elements, and motion descriptions — to produce the best possible results 
+            from AI video generation tools. Browse our categories including <strong>Nature, Urban, Cinematic, Sci-Fi, Fantasy, 
+            and Tamil Cinema</strong> aesthetics.
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+            <div style="background: white; padding: 1rem 1.5rem; border-radius: 12px; flex: 1; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <h4 style="color: #667eea; margin: 0 0 0.5rem 0;">🎯 Quality Prompts</h4>
+                <p style="color: #666; margin: 0; font-size: 0.95rem;">Every prompt is tested and refined for optimal AI video output with rich visual descriptions.</p>
+            </div>
+            <div style="background: white; padding: 1rem 1.5rem; border-radius: 12px; flex: 1; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <h4 style="color: #764ba2; margin: 0 0 0.5rem 0;">🏷️ 8+ Categories</h4>
+                <p style="color: #666; margin: 0; font-size: 0.95rem;">Organized across Nature, Urban, Cinematic, Sci-Fi, Fantasy, Abstract, Tamil Cinema, and more.</p>
+            </div>
+            <div style="background: white; padding: 1rem 1.5rem; border-radius: 12px; flex: 1; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <h4 style="color: #667eea; margin: 0 0 0.5rem 0;">🆓 100% Free</h4>
+                <p style="color: #666; margin: 0; font-size: 0.95rem;">All prompts are completely free to use for personal and commercial video projects.</p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Educational content section - provides value and satisfies "publisher content" requirement
+    st.markdown("""
+    <div style="padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="color: #333; margin-bottom: 1rem;">📖 How to Use AI Video Prompts Effectively</h3>
+        <p style="color: #555; font-size: 1rem; line-height: 1.8; margin-bottom: 1rem;">
+            Creating compelling AI-generated videos starts with a well-crafted prompt. Here are key principles 
+            that make our prompts stand out:
+        </p>
+        <ol style="color: #555; font-size: 1rem; line-height: 2;">
+            <li><strong>Be Specific About Visual Details</strong> — Include colors, textures, lighting, and atmospheric elements. Instead of "a sunset," describe "a golden sunset with warm amber tones casting long shadows across a misty lake."</li>
+            <li><strong>Describe Camera Movement</strong> — Specify dolly shots, pan movements, or aerial tracking for dynamic video output. Camera motion adds cinematic quality.</li>
+            <li><strong>Set the Mood and Atmosphere</strong> — Words like "serene," "dramatic," "mysterious," or "ethereal" guide the AI to generate the right emotional tone.</li>
+            <li><strong>Include Time and Season</strong> — "Dawn in autumn" produces very different results from "midnight in summer." These temporal details add depth.</li>
+            <li><strong>Reference Art Styles</strong> — Mentioning cinematic styles (e.g., "Wes Anderson color palette" or "film noir lighting") helps the AI understand your vision.</li>
+        </ol>
+        <p style="color: #555; font-size: 1rem; line-height: 1.8;">
+            Browse our gallery below to find inspiration. Each prompt has been crafted following these principles 
+            and tested with multiple AI video generation platforms for consistent, high-quality results.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Show notification panel if clicked
     if st.session_state.get('show_notifications', False) and st.session_state.get('authenticated', False):
@@ -780,8 +867,8 @@ def main():
     # Single ad placement after hero
     show_google_ad(ad_slot="1234567890", ad_format="auto")
     
-    # Create tabs - View All is now public
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📝 Add New", "📚 View All Prompts", "✏️ Manage", "❓ FAQ & Help", "ℹ️ Legal & Info", "💬 Feedback"])
+    # Create tabs - View All Prompts is the DEFAULT first tab (important for AdSense: crawlers see content first)
+    tab2, tab4, tab5, tab6, tab1, tab3 = st.tabs(["📚 Browse Prompts", "❓ FAQ & Help", "ℹ️ Legal & Info", "💬 Feedback", "📝 Add New", "✏️ Manage"])
     
     with tab1:
         st.markdown("### ✨ Create New Prompt")
@@ -840,9 +927,8 @@ def main():
                     else:
                         st.warning("⚠️ Please enter both prompt name and prompt text!")
     
-    # View All Prompts tab - Now public
+    # View All Prompts tab - Now public (DEFAULT TAB)
     with tab2:
-        with tab2:
             st.markdown("### 🌟 All Prompts")
 
             # Load engagement data (likes + comments) in 2 API calls instead of 20+
@@ -1212,8 +1298,54 @@ def main():
                 # Show no results message if filtered list is empty
                 if total_filtered == 0:
                     st.info("🔍 No prompts match your search/filter criteria. Try different keywords or select 'All' categories.")
+                
+                # Educational content below prompts (publisher content for AdSense)
+                st.markdown("---")
+                st.markdown("""
+                <div style="background: linear-gradient(135deg, #f0f2f6 0%, #e8eaf0 100%); padding: 2rem; border-radius: 16px; margin-top: 1.5rem;">
+                    <h3 style="color: #333; margin-bottom: 1rem;">🎯 Getting the Best Results from AI Video Prompts</h3>
+                    <p style="color: #555; font-size: 1rem; line-height: 1.8; margin-bottom: 1rem;">
+                        Our prompts are optimized for the latest AI video generation tools. Here's how to maximize your results:
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                        <div style="background: white; padding: 1.2rem; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                            <h4 style="color: #667eea; margin-bottom: 0.5rem;">🎥 For Runway ML</h4>
+                            <p style="color: #666; font-size: 0.9rem; line-height: 1.6;">
+                                Paste the prompt directly into the text field. Runway Gen-2 works best with descriptive, 
+                                cinematic language. Adjust the duration slider for longer scenes with our detailed prompts.
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 1.2rem; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                            <h4 style="color: #764ba2; margin-bottom: 0.5rem;">🎨 For Pika Labs</h4>
+                            <p style="color: #666; font-size: 0.9rem; line-height: 1.6;">
+                                Use the /create command in Discord with our prompts. Add motion parameters like -motion 2 
+                                for subtle movement or -motion 4 for dynamic scenes. Our prompts include motion cues.
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 1.2rem; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                            <h4 style="color: #667eea; margin-bottom: 0.5rem;">🌊 For Stable Video Diffusion</h4>
+                            <p style="color: #666; font-size: 0.9rem; line-height: 1.6;">
+                                Our visual descriptions translate well to image-to-video workflows. Use the prompt to generate 
+                                a reference frame first, then animate it for seamless results.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
             else:
-                st.info("📭 No prompts yet. Add your first prompt in the 'Add New' tab!")
+                st.info("📭 No prompts yet. Content is being added — check back soon!")
+                st.markdown("""
+                <div style="padding: 1.5rem; margin-top: 1rem;">
+                    <h3 style="color: #333;">🎬 What is Video Prompts Gallery?</h3>
+                    <p style="color: #555; font-size: 1rem; line-height: 1.8;">
+                        Video Prompts Gallery is a curated collection of professional-grade AI video generation prompts. 
+                        We provide detailed, cinematic prompts designed to work with tools like <strong>Runway ML</strong>, 
+                        <strong>Pika Labs</strong>, and <strong>Stable Video Diffusion</strong>. Our prompts cover 
+                        categories including Nature, Urban, Cinematic, Sci-Fi, Fantasy, and Tamil Cinema aesthetics. 
+                        New prompts are added regularly — check back soon for fresh inspiration!
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
     
     with tab3:
         st.markdown("### ⚙️ Manage Prompts")
@@ -1632,9 +1764,9 @@ def main():
             - Steps to reproduce the issue
             - Screenshots (if applicable)
             
-            ## 📱 Social Media
-            Stay updated with our latest prompts and features!
-            *(Add your social media links here when available)*
+            ## 📱 Stay Connected
+            Visit our website regularly for the latest prompts and updates!
+            **Website:** https://video-prompts-gallery.onrender.com
             
             ---
             
@@ -1917,24 +2049,49 @@ def show_single_prompt(sheet, prompt_id):
         if prompt_data:
             prompt_name = prompt_data.get('Prompt Name', 'Untitled Prompt')
             prompt_text = prompt_data.get('Prompt', 'N/A')
+            category = prompt_data.get('Category', 'General')
             
             # Skip empty prompts
             if not prompt_text or prompt_text.strip() == '' or prompt_text == 'N/A':
                 # Log error to analytics
                 log_analytics_event('error', prompt_id=prompt_id, error_msg='Prompt not found or empty', status='unread')
                 st.error("❌ Prompt not found!")
-                if st.button("📚 View All Prompts", type="primary"):
+                st.markdown("""
+                <div style="padding: 1.5rem; margin: 1rem 0; background: #f8f9fa; border-radius: 12px;">
+                    <h3 style="color: #333;">🎬 Video Prompts Gallery</h3>
+                    <p style="color: #555; line-height: 1.8;">This prompt may have been removed or the link may be incorrect. 
+                    Visit our gallery to browse hundreds of free, professional AI video generation prompts 
+                    for Runway ML, Pika Labs, Stable Video Diffusion, and other AI video tools.</p>
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button("📚 Browse All Prompts", type="primary"):
                     st.query_params.clear()
                     st.rerun()
                 return
             
-            # Single compact card - NO separate hero (NO ADS on shared page)
+            # Site header with branding
+            st.markdown("""
+                <div style="text-align: center; margin-bottom: 0.5rem;">
+                    <a href="/" style="text-decoration: none;">
+                        <h2 style="color: #667eea; margin: 0;">🎬 Video Prompts Gallery</h2>
+                        <p style="color: #888; font-size: 0.9rem; margin: 0;">Free AI Video Generation Prompts for Creators</p>
+                    </a>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Build category badges
+            category_list = [c.strip() for c in category.split(',')] if category else ["General"]
+            category_badges = ''.join([f'<span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; margin-right: 0.5rem;">🏷️ {cat}</span>' for cat in category_list])
+            
+            # Prompt card with rich content
             st.markdown(f"""
                 <div style="background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 1px solid rgba(102, 126, 234, 0.2); margin: 0.5rem auto; max-width: 900px;">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.2rem; text-align: center;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; text-align: center;">
                         <h1 style="margin: 0; font-size: 1.6rem; color: white; font-weight: 700;">🎬 {prompt_name}</h1>
+                        <div style="margin-top: 0.5rem;">{category_badges}</div>
                     </div>
                     <div style="padding: 1.5rem;">
+                        <h3 style="color: #333; margin-bottom: 0.8rem;">📝 Prompt Text</h3>
                         <div style="background: white; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #667eea; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                             <p style="color: #1a1a1a; font-size: 1.1rem; line-height: 1.8; margin: 0; font-weight: 500; white-space: pre-wrap;">{prompt_text}</p>
                         </div>
@@ -2034,18 +2191,86 @@ def show_single_prompt(sheet, prompt_id):
                         <span style="opacity: 0.9;">🕒 {prompt_data.get('Timestamp', 'N/A')}</span>
                     </div>
                 """, unsafe_allow_html=True)
+            
+            # Publisher content section - ensures every shared prompt page has substantial original content
+            st.markdown("---")
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 2rem; border-radius: 16px; margin: 1rem 0; border: 1px solid rgba(102, 126, 234, 0.1);">
+                <h3 style="color: #333; margin-bottom: 1rem;">🎬 About Video Prompts Gallery</h3>
+                <p style="color: #555; font-size: 1rem; line-height: 1.8; margin-bottom: 1rem;">
+                    <strong>Video Prompts Gallery</strong> is a free, curated collection of professional AI video generation prompts. 
+                    Our prompts are crafted by experienced creators and optimized for popular AI video tools including 
+                    <strong>Runway ML, Pika Labs, Stable Video Diffusion</strong>, and other text-to-video platforms.
+                </p>
+                <p style="color: #555; font-size: 1rem; line-height: 1.8; margin-bottom: 1rem;">
+                    Each prompt includes detailed cinematic descriptions — camera angles, lighting conditions, color palettes, 
+                    and atmospheric elements — to help you generate the best possible video output. We organize our collection 
+                    across <strong>8+ categories</strong> including Nature, Urban, Cinematic, Sci-Fi, Fantasy, Abstract, 
+                    and our unique Tamil Cinema collection celebrating South Indian film aesthetics.
+                </p>
+                <h4 style="color: #667eea; margin-bottom: 0.5rem;">💡 Tips for Using This Prompt</h4>
+                <ul style="color: #555; font-size: 0.95rem; line-height: 1.8;">
+                    <li>Copy the prompt text above and paste it directly into your AI video generation tool</li>
+                    <li>Feel free to modify specific details (colors, locations, camera movements) to match your vision</li>
+                    <li>Try combining elements from multiple prompts for unique results</li>
+                    <li>Experiment with different AI tools — each interprets prompts slightly differently</li>
+                    <li>Adjust duration and FPS settings in your tool for optimal output quality</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Navigation to browse more prompts
+            st.markdown("""
+            <div style="text-align: center; padding: 1.5rem; margin-top: 1rem;">
+                <p style="color: #555; font-size: 1rem;">Explore more professionally crafted prompts across all categories in our gallery.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            col_nav1, col_nav2, col_nav3 = st.columns(3)
+            with col_nav2:
+                if st.button("📚 Browse All Prompts", use_container_width=True, type="primary", key="browse_all_bottom"):
+                    st.query_params.clear()
+                    st.rerun()
+            
+            # Footer
+            st.markdown("---")
+            st.markdown("""
+                <div style="text-align: center; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+                    <p style="color: white; margin: 0; font-size: 0.9rem;">
+                        <strong>🎬 Video Prompts Gallery</strong> — Free AI Video Prompts for Creators<br>
+                        <span style="opacity: 0.8;">© 2026 Video Prompts Gallery | Made with ❤️ in India</span>
+                    </p>
+                </div>
+            """, unsafe_allow_html=True)
         else:
             # Log error to analytics
             log_analytics_event('error', prompt_id=prompt_id, error_msg='Prompt ID not found in database', status='unread')
             st.error("❌ Prompt not found!")
-            if st.button("📚 View All Prompts", type="primary"):
+            st.markdown("""
+            <div style="padding: 1.5rem; margin: 1rem 0; background: #f8f9fa; border-radius: 12px;">
+                <h3 style="color: #333;">🎬 Video Prompts Gallery</h3>
+                <p style="color: #555; line-height: 1.8;">This prompt could not be found. It may have been removed or the link may be incorrect. 
+                Visit our gallery to browse our full collection of free, professional AI video generation prompts 
+                crafted for Runway ML, Pika Labs, Stable Video Diffusion, and other AI video platforms.</p>
+                <p style="color: #555; line-height: 1.8;">Our gallery features prompts across 8+ categories including Nature, Urban, 
+                Cinematic, Sci-Fi, Fantasy, Abstract, and Tamil Cinema aesthetics.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("📚 Browse All Prompts", type="primary"):
                 st.query_params.clear()
                 st.rerun()
     except Exception as e:
         # Log error to analytics
         log_analytics_event('error', prompt_id=prompt_id, error_msg=str(e), status='unread')
         st.error(f"❌ Error loading prompt: {str(e)}")
-        if st.button("📚 View All Prompts", type="primary"):
+        st.markdown("""
+        <div style="padding: 1.5rem; margin: 1rem 0; background: #f8f9fa; border-radius: 12px;">
+            <h3 style="color: #333;">🎬 Video Prompts Gallery</h3>
+            <p style="color: #555; line-height: 1.8;">We encountered an error loading this prompt. Please try refreshing the page. 
+            You can also browse our full collection of free AI video generation prompts in the gallery.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("📚 Browse All Prompts", type="primary"):
             st.query_params.clear()
             st.rerun()
 
