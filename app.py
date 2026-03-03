@@ -596,6 +596,337 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# ── Enhanced UI v2: fonts, variables, animations, card polish ─────────────
+st.markdown("""
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+    /* ── CSS VARIABLES ─────────────────────────────────────────────── */
+    :root {
+        --clr-primary:      #667eea;
+        --clr-primary-dark: #764ba2;
+        --clr-primary-light:#a0b4ff;
+        --clr-bg:           #f0f2f8;
+        --clr-card:         #ffffff;
+        --clr-text:         #1a1a2e;
+        --clr-text-2:       #4a5568;
+        --clr-text-3:       #718096;
+        --clr-border:       rgba(102,126,234,0.13);
+        --shadow-xs: 0 1px 5px rgba(0,0,0,0.07);
+        --shadow-sm: 0 3px 12px rgba(0,0,0,0.08);
+        --shadow-md: 0 6px 26px rgba(102,126,234,0.15);
+        --shadow-lg: 0 16px 48px rgba(102,126,234,0.22);
+        --r-sm: 10px; --r-md: 16px; --r-lg: 24px;
+        --ease: cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── BASE ───────────────────────────────────────────────────────── */
+    .stApp, .block-container {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        background-color: var(--clr-bg) !important;
+    }
+    .block-container { padding-top: 0.4rem !important; }
+
+    /* ── KEYFRAMES ──────────────────────────────────────────────────── */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(26px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes gradientFlow {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    @keyframes floatOrb {
+        0%, 100% { transform: translateY(0)   scale(1);    }
+        50%       { transform: translateY(-14px) scale(1.04); }
+    }
+    @keyframes shimmer {
+        0%   { background-position: -200% 0; }
+        100% { background-position:  200% 0; }
+    }
+
+    /* ── NAVBAR ─────────────────────────────────────────────────────── */
+    .vpg-navbar {
+        backdrop-filter: blur(24px) saturate(200%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+        background: linear-gradient(135deg,
+            rgba(102,126,234,0.97) 0%,
+            rgba(118,75,162,0.97)  100%) !important;
+        border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+        box-shadow: 0 3px 22px rgba(102,126,234,0.28) !important;
+    }
+    .vpg-brand   { font-size:1.2rem !important; letter-spacing:-0.4px !important; }
+    .vpg-nav-link {
+        font-size:0.88rem !important; padding:0.42rem 0.95rem !important;
+        border-radius:8px !important; letter-spacing:0.01em !important;
+    }
+    .vpg-nav-link:hover {
+        background:rgba(255,255,255,0.26) !important;
+        box-shadow:0 4px 14px rgba(0,0,0,0.18) !important;
+    }
+
+    /* ── HERO ────────────────────────────────────────────────────────── */
+    .vpg-hero {
+        background: linear-gradient(-50deg,#667eea,#764ba2,#5e72e4,#8b3dcf) !important;
+        background-size: 300% 300% !important;
+        animation: gradientFlow 10s ease infinite !important;
+        padding: 4rem 2rem 3.5rem !important;
+        border-radius: var(--r-lg) !important;
+        box-shadow: var(--shadow-lg) !important;
+    }
+    .vpg-hero::before {
+        width:380px !important; height:380px !important;
+        top:-100px !important; right:-60px !important;
+        animation: floatOrb 10s ease-in-out infinite !important;
+    }
+    .vpg-hero::after {
+        width:260px !important; height:260px !important;
+        bottom:-70px !important; left:-30px !important;
+        animation: floatOrb 14s ease-in-out infinite reverse !important;
+    }
+    .vpg-hero h1 {
+        font-size:3rem !important; font-weight:900 !important;
+        letter-spacing:-1.5px !important; line-height:1.08 !important;
+        text-shadow:0 2px 24px rgba(0,0,0,0.18) !important;
+    }
+    .vpg-hero-subtitle {
+        font-size:1.2rem !important; font-weight:300 !important;
+        letter-spacing:0.02em !important;
+    }
+    .vpg-hero-content { animation: fadeInUp 0.9s var(--ease) both !important; }
+
+    /* Hero floating badges */
+    .vpg-hero-badges {
+        display:flex; justify-content:center; gap:0.6rem;
+        flex-wrap:wrap; margin:1.3rem 0 1.8rem;
+    }
+    .vpg-hero-badge {
+        background: rgba(255,255,255,0.16);
+        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.28);
+        padding: 0.3rem 0.95rem; border-radius: 18px;
+        font-size:0.82rem; font-weight:600; color:rgba(255,255,255,0.94);
+        letter-spacing:0.02em; transition: all 0.25s var(--ease);
+    }
+    .vpg-hero-badge:hover {
+        background:rgba(255,255,255,0.28); transform:translateY(-2px);
+    }
+
+    /* ── STATS ───────────────────────────────────────────────────────── */
+    .vpg-stats {
+        display:grid !important;
+        grid-template-columns: repeat(auto-fit,minmax(170px,1fr)) !important;
+        gap:1.2rem !important;
+        background:transparent !important;
+        padding:0 !important; box-shadow:none !important;
+    }
+    .vpg-stat-card {
+        background:var(--clr-card) !important;
+        border-radius:var(--r-md) !important;
+        border:1px solid var(--clr-border) !important;
+        box-shadow:var(--shadow-sm) !important;
+        position:relative !important; overflow:hidden !important;
+        transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease) !important;
+        animation: fadeInUp 0.6s var(--ease) both !important;
+    }
+    .vpg-stat-card::before {
+        content:'' !important; position:absolute !important;
+        top:0 !important; left:0 !important; right:0 !important; height:3px !important;
+        background:linear-gradient(90deg,var(--clr-primary),var(--clr-primary-dark)) !important;
+    }
+    .vpg-stat-card:hover { transform:translateY(-6px) !important; box-shadow:var(--shadow-md) !important; }
+    .vpg-stat-number {
+        font-size:2.5rem !important; font-weight:900 !important; letter-spacing:-1px !important;
+        background:linear-gradient(135deg,var(--clr-primary),var(--clr-primary-dark)) !important;
+        -webkit-background-clip:text !important; -webkit-text-fill-color:transparent !important;
+        background-clip:text !important; color:transparent !important;
+    }
+    .vpg-stat-label {
+        color:var(--clr-text-2) !important; font-size:0.87rem !important;
+        font-weight:600 !important; margin:0.4rem 0 0 !important;
+    }
+
+    /* ── PROMPT CARDS ───────────────────────────────────────────────── */
+    .prompt-container {
+        border-radius:var(--r-md) !important; overflow:hidden !important;
+        border:1px solid var(--clr-border) !important;
+        box-shadow:var(--shadow-xs) !important; margin-bottom:2rem !important;
+        transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease),
+                    border-color 0.35s var(--ease) !important;
+        animation: fadeInUp 0.55s var(--ease) both !important;
+    }
+    .prompt-container:hover {
+        transform:translateY(-6px) !important;
+        box-shadow:var(--shadow-lg) !important;
+        border-color:rgba(102,126,234,0.24) !important;
+    }
+    .prompt-header {
+        padding:1.75rem 1.75rem 1.5rem !important;
+        position:relative !important; overflow:hidden !important;
+    }
+    .prompt-header::after {
+        content:'' !important; position:absolute !important;
+        top:-40% !important; right:-5% !important;
+        width:200px !important; height:200px !important;
+        background:rgba(255,255,255,0.06) !important; border-radius:50% !important;
+    }
+    .prompt-body { padding:1.75rem !important; }
+    .prompt-container h2 {
+        font-size:1.5rem !important; font-weight:800 !important;
+        letter-spacing:-0.4px !important; line-height:1.25 !important;
+        color:white !important; margin:0 !important;
+    }
+
+    /* Prompt number pill */
+    .vpg-prompt-num {
+        display:inline-block;
+        background:rgba(0,0,0,0.18); padding:0.22rem 0.7rem;
+        border-radius:12px; font-size:0.78rem;
+        color:rgba(255,255,255,0.82); font-weight:600; margin-right:0.4rem;
+    }
+
+    /* Category badges */
+    .vpg-badge {
+        display:inline-flex; align-items:center; gap:0.22rem;
+        background:rgba(255,255,255,0.17);
+        backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+        border:1px solid rgba(255,255,255,0.22);
+        padding:0.24rem 0.75rem; border-radius:18px;
+        font-size:0.79rem; margin-right:0.35rem; margin-top:0.2rem;
+        font-weight:600; color:rgba(255,255,255,0.94);
+        transition: all 0.2s var(--ease);
+    }
+    .vpg-badge:hover { background:rgba(255,255,255,0.3); transform:translateY(-1px); }
+
+    /* Prompt text area */
+    .prompt-text-block {
+        background:#f7f8ff; padding:1.4rem 1.6rem;
+        border-radius:var(--r-sm); border-left:5px solid var(--clr-primary);
+        box-shadow:0 2px 10px rgba(102,126,234,0.07); margin:1rem 0;
+    }
+    .prompt-text-block p {
+        color:var(--clr-text) !important; font-size:1.08rem !important;
+        line-height:1.9 !important; margin:0 !important; font-weight:450 !important;
+    }
+
+    /* ── INFO BOX ────────────────────────────────────────────────────── */
+    .vpg-info-box {
+        background:var(--clr-card); padding:2.5rem 2rem;
+        border-radius:var(--r-lg); margin:1.5rem 0;
+        box-shadow:var(--shadow-sm); border-top:4px solid var(--clr-primary);
+    }
+
+    /* ── FEATURE CARDS ───────────────────────────────────────────────── */
+    .vpg-feature-card { animation: fadeInUp 0.6s var(--ease) both; }
+
+    /* ── CATEGORY CHIPS ──────────────────────────────────────────────── */
+    .vpg-cat-chips { display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.5rem 0 0.75rem; }
+    .vpg-cat-chip {
+        padding:0.32rem 0.85rem; border-radius:18px;
+        background:white; color:var(--clr-text-2);
+        font-size:0.82rem; font-weight:600;
+        border:1.5px solid var(--clr-border); cursor:pointer;
+        transition: all 0.22s var(--ease); white-space:nowrap;
+        box-shadow:var(--shadow-xs);
+    }
+    .vpg-cat-chip:hover, .vpg-cat-chip.active {
+        background:var(--clr-primary); color:white;
+        border-color:var(--clr-primary);
+        transform:translateY(-1px);
+        box-shadow:0 4px 12px rgba(102,126,234,0.3);
+    }
+
+    /* ── SECTION HEADER ──────────────────────────────────────────────── */
+    .vpg-section-hdr {
+        display:flex; align-items:center; gap:0.75rem; margin:0 0 1.5rem;
+    }
+    .vpg-section-hdr h2 {
+        font-size:1.65rem !important; font-weight:800 !important;
+        color:var(--clr-text) !important; letter-spacing:-0.5px !important; margin:0 !important;
+    }
+    .vpg-section-pill {
+        background:linear-gradient(135deg,var(--clr-primary),var(--clr-primary-dark));
+        color:white; font-size:0.74rem; font-weight:700;
+        padding:0.2rem 0.7rem; border-radius:12px; letter-spacing:0.03em;
+    }
+
+    /* ── BUTTONS ─────────────────────────────────────────────────────── */
+    .stButton > button {
+        border-radius:var(--r-sm) !important;
+        font-family:'Inter',sans-serif !important;
+        font-weight:700 !important; letter-spacing:0.01em !important;
+        transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease),
+                    opacity 0.22s var(--ease) !important;
+    }
+    .stButton > button:hover {
+        transform:translateY(-2px) !important;
+        box-shadow:0 6px 20px rgba(102,126,234,0.36) !important;
+    }
+
+    /* ── FORM INPUTS ─────────────────────────────────────────────────── */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {
+        border-radius:var(--r-sm) !important;
+        font-family:'Inter',sans-serif !important;
+        font-size:0.95rem !important;
+    }
+
+    /* ── TABS ────────────────────────────────────────────────────────── */
+    .stTabs [data-baseweb="tab"] {
+        font-family:'Inter',sans-serif !important;
+        font-size:0.88rem !important; font-weight:600 !important;
+        border-radius:10px 10px 0 0 !important;
+    }
+
+    /* ── EXPANDER ─────────────────────────────────────────────────────── */
+    [data-testid="stExpander"] {
+        border-radius:var(--r-sm) !important;
+        border:1px solid var(--clr-border) !important;
+        overflow:hidden !important;
+    }
+
+    /* ── DIVIDER ─────────────────────────────────────────────────────── */
+    hr { border:none !important; border-top:1.5px solid #e4e8f5 !important; margin:2.5rem 0 !important; }
+
+    /* ── SCROLL REVEAL ───────────────────────────────────────────────── */
+    .vpg-reveal { opacity:0; transform:translateY(20px); transition:opacity 0.65s var(--ease),transform 0.65s var(--ease); }
+    .vpg-reveal.visible { opacity:1; transform:translateY(0); }
+
+    /* ── MOBILE ──────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .vpg-hero h1       { font-size:2.1rem !important; }
+        .vpg-hero-subtitle { font-size:0.98rem !important; }
+        .vpg-hero          { padding:2.8rem 1.25rem !important; }
+        .vpg-stats         { grid-template-columns:repeat(2,1fr) !important; }
+        .vpg-navbar-content{ flex-direction:column; gap:0.7rem; }
+        .vpg-nav-links     { justify-content:center; width:100%; gap:0.4rem; }
+        .vpg-nav-link      { font-size:0.8rem !important; padding:0.38rem 0.7rem !important; }
+        .prompt-header     { padding:1.2rem !important; }
+        .prompt-body       { padding:1.2rem !important; }
+        .prompt-container h2 { font-size:1.2rem !important; }
+        .block-container   { padding-left:0.75rem !important; padding-right:0.75rem !important; }
+    }
+    @media (max-width: 480px) {
+        .vpg-hero h1 { font-size:1.8rem !important; }
+        .vpg-stats   { grid-template-columns:repeat(2,1fr) !important; gap:0.75rem !important; }
+    }
+
+    /* ── REDUCED MOTION ──────────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration:0.01ms !important; animation-iteration-count:1 !important;
+            transition-duration:0.01ms !important;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
+# ─────────────────────────────────────────────────────────────────────────────
+
 # Security Functions
 def sanitize_input(text):
     """Sanitize user input to prevent XSS and injection attacks"""
@@ -1246,6 +1577,30 @@ def main():
     })();
     </script>
     """, height=0)
+
+    # Scroll-reveal: fade-in cards as they enter viewport
+    components.html("""
+    <script>
+    (function() {
+        var doc = window.parent.document;
+        var io = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    io.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        function observe() {
+            doc.querySelectorAll('.vpg-reveal:not(.visible)').forEach(function(el) { io.observe(el); });
+        }
+        observe();
+        // Re-observe on DOM changes (Streamlit rerenders)
+        var mo = new MutationObserver(observe);
+        mo.observe(doc.body, { childList: true, subtree: true });
+    })();
+    </script>
+    """, height=0)
     
     # Check if specific prompt is requested via URL
     query_params = st.query_params
@@ -1276,10 +1631,14 @@ def main():
     <div class="vpg-hero">
         <div class="vpg-hero-content">
             <h1>🎬 Video Prompts Gallery</h1>
-            <p class="vpg-hero-subtitle">Discover & share professional AI video generation prompts</p>
-            <p style="font-size: 1.05rem; opacity: 0.9; margin-bottom: 1.5rem;">
-                100+ handcrafted prompts for Runway ML, Pika Labs, Stable Video Diffusion & more
-            </p>
+            <p class="vpg-hero-subtitle">Discover &amp; craft professional AI video generation prompts</p>
+            <div class="vpg-hero-badges">
+                <span class="vpg-hero-badge">✨ 100+ Prompts</span>
+                <span class="vpg-hero-badge">🎥 8+ Categories</span>
+                <span class="vpg-hero-badge">🆓 100% Free</span>
+                <span class="vpg-hero-badge">🚀 Runway · Pika · SVD</span>
+                <span class="vpg-hero-badge">🌍 Used Worldwide</span>
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1295,11 +1654,15 @@ def main():
     
     # Rich publisher content section - always visible to crawlers and users
     st.markdown("""
-    <div style="background: white; padding: 2.5rem 2rem; border-radius: 20px; margin-top: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-top: 4px solid #667eea;">
-        <h2 style="color: #1a1a1a; text-align: center; margin-bottom: 1rem; font-size: 2rem; font-weight: 800;">🌟 Welcome to Video Prompts Gallery</h2>
-        <div style="height: 3px; width: 80px; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); margin: 0 auto 1.5rem; border-radius: 3px;"></div>
-        <p style="color: #333; font-size: 1.15rem; line-height: 1.9; text-align: center; margin: 0;">
-            A <strong style="color: #667eea;">free, curated collection</strong> of professional AI video generation prompts designed for filmmakers, content creators, and AI enthusiasts worldwide.
+    <div class="vpg-info-box" style="text-align:center;">
+        <h2 style="color:#1a1a2e;margin-bottom:0.75rem;font-size:2rem;font-weight:900;letter-spacing:-0.5px;">
+            🌟 Welcome to Video Prompts Gallery
+        </h2>
+        <div style="height:3px;width:80px;background:linear-gradient(90deg,#667eea,#764ba2);margin:0 auto 1.5rem;border-radius:3px;"></div>
+        <p style="color:#4a5568;font-size:1.1rem;line-height:1.9;margin:0;">
+            A <strong style="color:#667eea;">free, curated collection</strong> of professional AI video generation prompts
+            for filmmakers, content creators, and AI enthusiasts worldwide.
+            Crafted for tools like Runway ML, Pika Labs, and Stable Video Diffusion.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1335,58 +1698,66 @@ def main():
     
     with col1:
         st.markdown("""
-        <div class="vpg-feature-card">
-            <h3 style="color: #667eea; margin-top: 0; font-size: 1.25rem; font-weight: 700;">🎯 Quality Over Quantity</h3>
-            <p style="color: #333; line-height: 1.7; font-size: 0.95rem;">Each prompt is tested and refined for optimal results with Runway ML, Pika Labs, and Stable Video Diffusion.</p>
+        <div class="vpg-feature-card vpg-reveal">
+            <h3 style="color:#667eea;margin-top:0;font-size:1.2rem;font-weight:800;">🎯 Quality Over Quantity</h3>
+            <p style="color:#4a5568;line-height:1.75;font-size:0.92rem;margin:0.5rem 0 0;">Each prompt is tested and refined for optimal results with Runway ML, Pika Labs, and Stable Video Diffusion.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div class="vpg-feature-card">
-            <h3 style="color: #764ba2; margin-top: 0; font-size: 1.25rem; font-weight: 700;">🎬 Cinematic Details</h3>
-            <p style="color: #333; line-height: 1.7; font-size: 0.95rem;">Professional-grade descriptions with camera angles, lighting, atmosphere, and motion for stunning visuals.</p>
+        <div class="vpg-feature-card vpg-reveal">
+            <h3 style="color:#764ba2;margin-top:0;font-size:1.2rem;font-weight:800;">🎬 Cinematic Details</h3>
+            <p style="color:#4a5568;line-height:1.75;font-size:0.92rem;margin:0.5rem 0 0;">Professional-grade descriptions with camera angles, lighting, atmosphere, and motion for stunning visuals.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        <div class="vpg-feature-card">
-            <h3 style="color: #667eea; margin-top: 0; font-size: 1.25rem; font-weight: 700;">🌍 Diverse Categories</h3>
-            <p style="color: #333; line-height: 1.7; font-size: 0.95rem;">Nature, Urban, Cinematic, Sci-Fi, Fantasy, Abstract, Tamil Cinema, and more creative categories.</p>
+        <div class="vpg-feature-card vpg-reveal">
+            <h3 style="color:#667eea;margin-top:0;font-size:1.2rem;font-weight:800;">🌍 Diverse Categories</h3>
+            <p style="color:#4a5568;line-height:1.75;font-size:0.92rem;margin:0.5rem 0 0;">Nature, Urban, Cinematic, Sci-Fi, Fantasy, Abstract, Tamil Cinema, and more creative categories to explore.</p>
         </div>
         """, unsafe_allow_html=True)
     
     
     # Educational content section - provides value and satisfies "publisher content" requirement
     st.markdown("""
-    <div style="margin-top: 3rem; background: white; padding: 2.5rem 2rem; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-        <h2 style="color: #1a1a1a; margin-bottom: 0.5rem; font-size: 1.8rem; font-weight: 800;">📖 How to Use AI Video Prompts Effectively</h2>
-        <p style="color: #555; font-size: 0.95rem; margin-bottom: 1.5rem;">Master the art of crafting perfect prompts with these proven techniques:</p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-            <div class="vpg-feature-card">
-                <h4 style="color: #667eea; margin-top: 0; font-size: 1.05rem; font-weight: 700;">🎨 Be Specific About Visual Details</h4>
-                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Include colors, textures, lighting, and atmospheric elements. Instead of "sunset," describe "golden sunset with amber tones casting shadows."</p>
+    <div style="margin-top:3rem;background:white;padding:2.5rem 2rem;border-radius:24px;
+                box-shadow:0 4px 16px rgba(0,0,0,0.07);border:1px solid rgba(102,126,234,0.1);">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+            <h2 style="color:#1a1a2e;margin:0;font-size:1.7rem;font-weight:900;letter-spacing:-0.5px;">
+                📖 How to Use AI Video Prompts
+            </h2>
+            <span style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;
+                font-size:0.73rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:12px;
+                letter-spacing:0.04em;white-space:nowrap;">TIPS &amp; TRICKS</span>
+        </div>
+        <p style="color:#718096;font-size:0.93rem;margin-bottom:1.5rem;">Master these techniques for stunning AI-generated videos:</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;">
+            <div class="vpg-feature-card vpg-reveal">
+                <h4 style="color:#667eea;margin-top:0;font-size:1rem;font-weight:700;">🎨 Specify Visual Details</h4>
+                <p style="color:#4a5568;line-height:1.7;margin:0;font-size:0.9rem;">Include colours, textures, lighting and atmosphere. &ldquo;Golden hour with amber rays&rdquo; beats just &ldquo;sunset&rdquo;.</p>
             </div>
-            <div class="vpg-feature-card">
-                <h4 style="color: #764ba2; margin-top: 0; font-size: 1.05rem; font-weight: 700;">🎥 Describe Camera Movement</h4>
-                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Specify dolly shots, pans, aerial tracking for dynamic output. Camera motion adds cinematic quality to AI-generated videos.</p>
+            <div class="vpg-feature-card vpg-reveal">
+                <h4 style="color:#764ba2;margin-top:0;font-size:1rem;font-weight:700;">🎥 Describe Camera Motion</h4>
+                <p style="color:#4a5568;line-height:1.7;margin:0;font-size:0.9rem;">Dolly, aerial tracking, crane shots &mdash; explicit camera direction adds cinematic depth automatically.</p>
             </div>
-            <div class="vpg-feature-card">
-                <h4 style="color: #667eea; margin-top: 0; font-size: 1.05rem; font-weight: 700;">🎭 Set the Mood & Atmosphere</h4>
-                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Use words like serene, dramatic, mysterious, ethereal to guide AI. Emotional tone direction produces more consistent results.</p>
+            <div class="vpg-feature-card vpg-reveal">
+                <h4 style="color:#667eea;margin-top:0;font-size:1rem;font-weight:700;">🎭 Set Mood &amp; Atmosphere</h4>
+                <p style="color:#4a5568;line-height:1.7;margin:0;font-size:0.9rem;">Words like <em>ethereal</em>, <em>brooding</em>, or <em>serene</em> guide the AI toward consistent emotional tone.</p>
             </div>
-            <div class="vpg-feature-card">
-                <h4 style="color: #764ba2; margin-top: 0; font-size: 1.05rem; font-weight: 700;">⏰ Include Time & Season</h4>
-                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">"Dawn in autumn" produces different results from "midnight in summer." Temporal details add depth to visual descriptions.</p>
+            <div class="vpg-feature-card vpg-reveal">
+                <h4 style="color:#764ba2;margin-top:0;font-size:1rem;font-weight:700;">⏰ Include Time &amp; Season</h4>
+                <p style="color:#4a5568;line-height:1.7;margin:0;font-size:0.9rem;">&ldquo;Dawn in autumn&rdquo; produces very different results from &ldquo;midnight in summer&rdquo; &mdash; temporal context matters.</p>
             </div>
-            <div class="vpg-feature-card">
-                <h4 style="color: #667eea; margin-top: 0; font-size: 1.05rem; font-weight: 700;">🎬 Reference Art Styles</h4>
-                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Mention cinematic styles like "Wes Anderson color palette" or "film noir lighting" helps AI understand creative vision.</p>
+            <div class="vpg-feature-card vpg-reveal">
+                <h4 style="color:#667eea;margin-top:0;font-size:1rem;font-weight:700;">🎬 Reference Art Styles</h4>
+                <p style="color:#4a5568;line-height:1.7;margin:0;font-size:0.9rem;">Citing &ldquo;Wes Anderson palette&rdquo; or &ldquo;film noir lighting&rdquo; immediately aligns the AI with a recognisable aesthetic.</p>
             </div>
-            <div class="vpg-feature-card">
-                <h4 style="color: #764ba2; margin-top: 0; font-size: 1.05rem; font-weight: 700;">✨ Combine Multiple Prompts</h4>
-                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Mix elements from our gallery to create unique prompts. Blend categories for original AI video generation results.</p>
+            <div class="vpg-feature-card vpg-reveal">
+                <h4 style="color:#764ba2;margin-top:0;font-size:1rem;font-weight:700;">✨ Combine &amp; Remix</h4>
+                <p style="color:#4a5568;line-height:1.7;margin:0;font-size:0.9rem;">Mix elements from multiple gallery prompts to build your own unique scene &mdash; creativity compounds.</p>
             </div>
         </div>
     </div>
@@ -1494,7 +1865,12 @@ def main():
                 )
                 st.session_state.should_scroll_to_top = False
             
-            st.markdown("### 🌟 All Prompts")
+            st.markdown("""
+                <div class="vpg-section-hdr">
+                    <h2>🌟 Browse Prompts</h2>
+                    <span class="vpg-section-pill">GALLERY</span>
+                </div>
+            """, unsafe_allow_html=True)
 
             # Load engagement data (likes + comments) in 2 API calls instead of 20+
             load_engagement_cache()
@@ -1556,7 +1932,7 @@ def main():
                 # Search box and category filter
                 col1, col2 = st.columns([3, 1])
                 with col1:
-                    search_query = st.text_input("🔍 Search prompts...", placeholder="Type to filter prompts", key="search_input")
+                    search_query = st.text_input("🔍 Search prompts", placeholder="Search by title, keyword, or category…", key="search_input")
                 with col2:
                     # Get unique categories from all prompts (split multi-categories)
                     all_categories = set()
@@ -1705,13 +2081,13 @@ def main():
                     # HEADER SECTION (Purple gradient) - Show Prompt Name with Category
                     # Create category badges
                     category_list = [c.strip() for c in category.split(',')] if category else ["General"]
-                    category_badges = ''.join([f'<span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; margin-right: 0.5rem;">🏷️ {cat}</span>' for cat in category_list])
+                    category_badges = ''.join([f'<span class="vpg-badge">🏷️ {cat}</span>' for cat in category_list])
                     
                     st.markdown(f'''
                         <div class="prompt-header">
-                            <h2 style="margin: 0; font-size: 1.8rem; color: white;">🎬 {prompt_name}</h2>
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                                <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">Prompt #{prompt_num}</p>
+                            <h2>🎬 {prompt_name}</h2>
+                            <div style="display:flex;align-items:center;gap:0.3rem;margin-top:0.6rem;flex-wrap:wrap;">
+                                <span class="vpg-prompt-num">#{prompt_num}</span>
                                 {category_badges}
                             </div>
                         </div>
@@ -1721,14 +2097,13 @@ def main():
                     st.markdown('<div class="prompt-body">', unsafe_allow_html=True)
                     
                     # Prompt Text Display
-                    st.markdown("### 📝 Prompt Text")
+                    st.markdown("""
+                        <p style="font-size:0.78rem;font-weight:700;color:#718096;
+                            text-transform:uppercase;letter-spacing:0.08em;margin:0 0 0.4rem;">📝 Prompt Text</p>
+                    """, unsafe_allow_html=True)
                     st.markdown(f"""
-                        <div style="background: white; padding: 2rem; border-radius: 15px; 
-                                    border-left: 6px solid #667eea; margin: 1rem 0; 
-                                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                            <p style="color: #1a1a1a; font-size: 1.2rem; line-height: 1.9; margin: 0; font-weight: 500;">
-                                {prompt_text}
-                            </p>
+                        <div class="prompt-text-block">
+                            <p>{prompt_text}</p>
                         </div>
                     """, unsafe_allow_html=True)
                     
