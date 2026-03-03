@@ -80,6 +80,7 @@ st.markdown("""
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 2rem !important;
+        background-color: #f4f6f9 !important;
     }
     
     /* ─────────────────────────────────────────────────────────── */
@@ -127,7 +128,13 @@ st.markdown("""
         padding: 0.5rem 1rem;
         border-radius: 8px;
         transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+        color: white !important;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
     }
     
     .vpg-nav-link:hover {
@@ -457,9 +464,93 @@ st.markdown("""
         }
     }
     
-    /* Main content wrapper background */
+    /* Main content wrapper background — soft gray instead of stark white */
     .stApp {
-        background-color: #ffffff !important;
+        background-color: #f4f6f9 !important;
+    }
+    
+    /* ─────────────────────────────────────────────────────────── */
+    /* GLOBAL TEXT VISIBILITY — force dark text on light gray bg  */
+    /* ─────────────────────────────────────────────────────────── */
+    
+    /* All paragraph and heading text */
+    .stMarkdown p, .stMarkdown li, .stMarkdown ol,
+    .element-container p, .element-container li {
+        color: #1a1a1a !important;
+    }
+    
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3,
+    .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: #111111 !important;
+    }
+    
+    /* Streamlit native label text (inputs, selects, etc.) */
+    label, .stTextInput label, .stTextArea label,
+    .stSelectbox label, .stMultiSelect label,
+    .stCheckbox label, .stRadio label,
+    [data-testid="stWidgetLabel"] {
+        color: #1a1a1a !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Tab labels */
+    .stTabs [data-baseweb="tab"] p,
+    .stTabs [data-baseweb="tab"] span,
+    .stTabs [data-baseweb="tab"] div {
+        color: #333 !important;
+        font-weight: 600 !important;
+    }
+    
+    .stTabs [aria-selected="true"] p,
+    .stTabs [aria-selected="true"] span,
+    .stTabs [aria-selected="true"] div {
+        color: #667eea !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Caption / small text */
+    .stCaption, [data-testid="stCaptionContainer"],
+    small, .caption {
+        color: #555 !important;
+    }
+    
+    /* Metric numbers and labels */
+    [data-testid="stMetricValue"] {
+        color: #667eea !important;
+        font-weight: 900 !important;
+    }
+    [data-testid="stMetricLabel"] {
+        color: #333 !important;
+    }
+    
+    /* Expander header text */
+    .streamlit-expanderHeader p,
+    .streamlit-expanderHeader span,
+    [data-testid="stExpander"] summary,
+    [data-testid="stExpander"] summary p {
+        color: #1a1a1a !important;
+        font-weight: 600 !important;
+    }
+    
+    /* All generic text within app */
+    .stApp div, .stApp span, .stApp p {
+        color: inherit;
+    }
+    
+    /* Selectbox dropdown text */
+    .stSelectbox div[data-baseweb="select"] span,
+    .stSelectbox div[data-baseweb="select"] div {
+        color: #1a1a1a !important;
+    }
+    
+    /* Form submit button text should be white */
+    .stButton > button, .stFormSubmitButton > button {
+        color: white !important;
+    }
+    
+    /* Info / success / warning / error box text */
+    .stAlert p, .stAlert div {
+        color: inherit !important;
     }
     
     /* Mobile responsiveness */
@@ -1082,19 +1173,32 @@ def main():
             return
     
     # ──────────────────────────────────────────────────────────────────
-    # PROFESSIONAL NAVBAR
+    # PROFESSIONAL NAVBAR  (buttons call JS to click Streamlit tabs)
     # ──────────────────────────────────────────────────────────────────
     st.markdown("""
     <div class="vpg-navbar">
         <div class="vpg-navbar-content">
             <div class="vpg-brand">🎬 Video Prompts Gallery</div>
             <div class="vpg-nav-links">
-                <span class="vpg-nav-link">📚 Browse Prompts</span>
-                <span class="vpg-nav-link">❓ FAQ & Help</span>
-                <span class="vpg-nav-link">📧 Contact</span>
+                <button class="vpg-nav-link" onclick="vpgNav(0)">📚 Browse Prompts</button>
+                <button class="vpg-nav-link" onclick="vpgNav(1)">❓ FAQ &amp; Help</button>
+                <button class="vpg-nav-link" onclick="vpgNav(3)">💬 Feedback</button>
             </div>
         </div>
     </div>
+    <script>
+    function vpgNav(tabIdx) {
+        var tabs = parent.document.querySelectorAll('[data-baseweb="tab"]');
+        if (!tabs.length) tabs = document.querySelectorAll('[data-baseweb="tab"]');
+        if (tabs && tabs[tabIdx]) {
+            tabs[tabIdx].click();
+            setTimeout(function() {
+                var el = (parent.document || document).querySelector('[data-testid="stTabs"]');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 150);
+        }
+    }
+    </script>
     """, unsafe_allow_html=True)
     
     # Check if specific prompt is requested via URL
