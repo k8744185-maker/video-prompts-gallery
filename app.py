@@ -48,8 +48,19 @@ st.set_page_config(
     page_title="Video Prompts Gallery - AI Video Prompt Collection",
     page_icon="🎬",
     layout="centered",  # Narrow layout uses less memory
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed",
+    menu_items={
+        'Get Help': 'https://video-prompts-gallery.onrender.com/?tab=Help',
+        'Report a bug': 'https://github.com/k8744185-maker/video-prompts-gallery/issues',
+        'About': '🎬 Video Prompts Gallery - Free AI Video Prompts'
+    }
 )
+
+# Custom theme and styling for light mode
+st.markdown("""
+    <meta name="theme-color" content="#667eea">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+""", unsafe_allow_html=True)
 
 # Note: Meta tags (google-site-verification, google-adsense-account) and AdSense script
 # are injected directly into Streamlit's index.html <head> via start.sh patch - no JS needed here.
@@ -202,35 +213,40 @@ st.markdown("""
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1.5rem;
         margin: 2rem 0;
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     }
     
     .vpg-stat-card {
         background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
-        padding: 1.5rem;
+        padding: 2rem 1.5rem;
         border-radius: 16px;
-        border: 2px solid rgba(102, 126, 234, 0.1);
+        border: 2px solid rgba(102, 126, 234, 0.15);
         text-align: center;
         transition: all 0.3s ease;
     }
     
     .vpg-stat-card:hover {
         transform: translateY(-4px);
-        border-color: rgba(102, 126, 234, 0.3);
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.1);
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
     }
     
     .vpg-stat-number {
-        font-size: 2rem;
-        font-weight: 800;
+        font-size: 2.5rem;
+        font-weight: 900;
         color: #667eea;
         margin: 0;
     }
     
     .vpg-stat-label {
-        color: #666;
-        font-size: 0.95rem;
-        margin: 0.5rem 0 0 0;
-        font-weight: 500;
+        color: #333;
+        font-size: 1rem;
+        margin: 0.8rem 0 0 0;
+        font-weight: 600;
     }
     
     /* ─────────────────────────────────────────────────────────── */
@@ -239,20 +255,21 @@ st.markdown("""
     .prompt-container {
         border-radius: 20px;
         overflow: hidden;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
-        border: 1px solid rgba(102, 126, 234, 0.05);
+        border: 1px solid rgba(102, 126, 234, 0.08);
+        background: white;
     }
     
     .prompt-container:hover {
-        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.15);
-        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.18);
+        transform: translateY(-6px);
     }
     
     .prompt-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1.8rem;
+        padding: 2rem;
         color: white;
         position: relative;
     }
@@ -267,28 +284,102 @@ st.markdown("""
         margin: 0;
         font-weight: 800;
         letter-spacing: -0.5px;
-        font-size: 1.6rem;
+        font-size: 1.8rem;
+        color: white;
+    }
+    
+    .prompt-container h3 {
+        color: #1a1a1a;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .prompt-container p {
+        color: #333;
+        font-size: 0.98rem;
+        line-height: 1.7;
     }
     
     /* Button improvements */
     .stButton > button {
         border-radius: 12px;
-        font-weight: 600;
+        font-weight: 700;
         border: none;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         cursor: pointer;
         transition: all 0.2s ease;
-        font-size: 0.95rem;
+        font-size: 1rem;
+        padding: 0.6rem 1.5rem;
     }
     
     .stButton > button:hover {
-        opacity: 0.8;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        opacity: 0.85;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
     }
     
     .stButton > button:active {
         opacity: 0.7;
+    }
+    
+    /* Text input styling */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {
+        border: 2px solid rgba(102, 126, 234, 0.2) !important;
+        border-radius: 12px !important;
+        padding: 0.8rem !important;
+        font-size: 1rem !important;
+        background-color: white !important;
+        color: #1a1a1a !important;
+    }
+    
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
+        border: 2px solid #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    /* Select box styling */
+    .stSelectbox,
+    .stMultiSelect {
+        color: #333 !important;
+    }
+    
+    /* Divider styling */
+    hr {
+        margin: 2rem 0 !important;
+        border: none;
+        border-top: 2px solid #e0e5ff !important;
+    }
+    
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1rem;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 12px 12px 0 0 !important;
+        background-color: #f5f7ff !important;
+        color: #667eea !important;
+        font-weight: 600;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+    }
+    
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        background-color: #f5f7ff !important;
+        border-radius: 12px !important;
+        padding: 1rem !important;
+    }
+    
+    /* Info/warning/error boxes */
+    .stAlert {
+        border-radius: 12px !important;
+        padding: 1.2rem !important;
     }
     
     /* Badge styling */
@@ -323,16 +414,21 @@ st.markdown("""
     
     /* Feature cards */
     .vpg-feature-card {
-        background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
-        padding: 1.5rem;
+        background: white;
+        padding: 1.8rem;
         border-radius: 16px;
-        border-left: 4px solid #667eea;
+        border-left: 5px solid #667eea;
+        border-top: 1px solid rgba(102, 126, 234, 0.1);
+        border-right: 1px solid rgba(102, 126, 234, 0.1);
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
     }
     
     .vpg-feature-card:hover {
-        transform: translateX(4px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        transform: translateY(-4px) translateX(4px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.12);
+        border-left-color: #764ba2;
     }
     
     /* Reduced motion for accessibility */
@@ -342,6 +438,11 @@ st.markdown("""
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
         }
+    }
+    
+    /* Main content wrapper background */
+    .stApp {
+        background-color: #f8f9fc !important;
     }
     
     /* Mobile responsiveness */
@@ -378,6 +479,10 @@ st.markdown("""
         
         .prompt-container h2 {
             font-size: 1.3rem;
+        }
+        
+        .vpg-stats {
+            padding: 1.5rem;
         }
     }
     </style>
@@ -1023,10 +1128,11 @@ def main():
     
     # Rich publisher content section - always visible to crawlers and users
     st.markdown("""
-    <div style="margin-top: 1rem;">
-        <h2 style="color: #333; text-align: center; margin-bottom: 2rem; font-size: 1.8rem;">🌟 Welcome to Video Prompts Gallery</h2>
-        <p style="color: #555; font-size: 1.1rem; line-height: 1.8; text-align: center; margin-bottom: 2rem;">
-            A <strong>free, curated collection</strong> of professional AI video generation prompts for filmmakers, creators, and AI enthusiasts.
+    <div style="background: white; padding: 2.5rem 2rem; border-radius: 20px; margin-top: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-top: 4px solid #667eea;">
+        <h2 style="color: #1a1a1a; text-align: center; margin-bottom: 1rem; font-size: 2rem; font-weight: 800;">🌟 Welcome to Video Prompts Gallery</h2>
+        <div style="height: 3px; width: 80px; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); margin: 0 auto 1.5rem; border-radius: 3px;"></div>
+        <p style="color: #333; font-size: 1.15rem; line-height: 1.9; text-align: center; margin: 0;">
+            A <strong style="color: #667eea;">free, curated collection</strong> of professional AI video generation prompts designed for filmmakers, content creators, and AI enthusiasts worldwide.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1053,7 +1159,9 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("""
+    <div style="height: 2px; background: linear-gradient(90deg, transparent 0%, #e0e5ff 20%, #e0e5ff 80%, transparent 100%); margin: 2.5rem 0;"></div>
+    """, unsafe_allow_html=True)
     
     # Feature cards
     col1, col2, col3 = st.columns(3)
@@ -1061,56 +1169,57 @@ def main():
     with col1:
         st.markdown("""
         <div class="vpg-feature-card">
-            <h3 style="color: #667eea; margin-top: 0; font-size: 1.2rem;">🎯 Quality Over Quantity</h3>
-            <p style="color: #666; line-height: 1.6;">Each prompt is tested and refined for optimal results with Runway ML, Pika Labs, and Stable Video Diffusion.</p>
+            <h3 style="color: #667eea; margin-top: 0; font-size: 1.25rem; font-weight: 700;">🎯 Quality Over Quantity</h3>
+            <p style="color: #333; line-height: 1.7; font-size: 0.95rem;">Each prompt is tested and refined for optimal results with Runway ML, Pika Labs, and Stable Video Diffusion.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
         <div class="vpg-feature-card">
-            <h3 style="color: #764ba2; margin-top: 0; font-size: 1.2rem;">🎬 Cinematic Details</h3>
-            <p style="color: #666; line-height: 1.6;">Professional-grade descriptions with camera angles, lighting, atmosphere, and motion for stunning visuals.</p>
+            <h3 style="color: #764ba2; margin-top: 0; font-size: 1.25rem; font-weight: 700;">🎬 Cinematic Details</h3>
+            <p style="color: #333; line-height: 1.7; font-size: 0.95rem;">Professional-grade descriptions with camera angles, lighting, atmosphere, and motion for stunning visuals.</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
         <div class="vpg-feature-card">
-            <h3 style="color: #667eea; margin-top: 0; font-size: 1.2rem;">🌍 Diverse Categories</h3>
-            <p style="color: #666; line-height: 1.6;">Nature, Urban, Cinematic, Sci-Fi, Fantasy, Abstract, Tamil Cinema, and more creative categories.</p>
+            <h3 style="color: #667eea; margin-top: 0; font-size: 1.25rem; font-weight: 700;">🌍 Diverse Categories</h3>
+            <p style="color: #333; line-height: 1.7; font-size: 0.95rem;">Nature, Urban, Cinematic, Sci-Fi, Fantasy, Abstract, Tamil Cinema, and more creative categories.</p>
         </div>
         """, unsafe_allow_html=True)
     
     
     # Educational content section - provides value and satisfies "publisher content" requirement
     st.markdown("""
-    <div style="margin-top: 2.5rem;">
-        <h2 style="color: #333; margin-bottom: 1.5rem; font-size: 1.5rem;">📖 How to Use AI Video Prompts Effectively</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+    <div style="margin-top: 3rem; background: white; padding: 2.5rem 2rem; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <h2 style="color: #1a1a1a; margin-bottom: 0.5rem; font-size: 1.8rem; font-weight: 800;">📖 How to Use AI Video Prompts Effectively</h2>
+        <p style="color: #555; font-size: 0.95rem; margin-bottom: 1.5rem;">Master the art of crafting perfect prompts with these proven techniques:</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
             <div class="vpg-feature-card">
-                <h4 style="color: #667eea; margin-top: 0;">🎨 Be Specific About Visual Details</h4>
-                <p style="color: #666; line-height: 1.6; margin: 0;">Include colors, textures, lighting, and atmospheric elements. Instead of "sunset," describe "golden sunset with amber tones casting shadows across a misty lake."</p>
+                <h4 style="color: #667eea; margin-top: 0; font-size: 1.05rem; font-weight: 700;">🎨 Be Specific About Visual Details</h4>
+                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Include colors, textures, lighting, and atmospheric elements. Instead of "sunset," describe "golden sunset with amber tones casting shadows."</p>
             </div>
             <div class="vpg-feature-card">
-                <h4 style="color: #764ba2; margin-top: 0;">🎥 Describe Camera Movement</h4>
-                <p style="color: #666; line-height: 1.6; margin: 0;">Specify dolly shots, pans, aerial tracking for dynamic output. Camera motion adds cinematic quality to AI-generated videos.</p>
+                <h4 style="color: #764ba2; margin-top: 0; font-size: 1.05rem; font-weight: 700;">🎥 Describe Camera Movement</h4>
+                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Specify dolly shots, pans, aerial tracking for dynamic output. Camera motion adds cinematic quality to AI-generated videos.</p>
             </div>
             <div class="vpg-feature-card">
-                <h4 style="color: #667eea; margin-top: 0;">🎭 Set the Mood & Atmosphere</h4>
-                <p style="color: #666; line-height: 1.6; margin: 0;">Use words like serene, dramatic, mysterious, ethereal to guide AI. Emotional tone direction produces more consistent results.</p>
+                <h4 style="color: #667eea; margin-top: 0; font-size: 1.05rem; font-weight: 700;">🎭 Set the Mood & Atmosphere</h4>
+                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Use words like serene, dramatic, mysterious, ethereal to guide AI. Emotional tone direction produces more consistent results.</p>
             </div>
             <div class="vpg-feature-card">
-                <h4 style="color: #764ba2; margin-top: 0;">⏰ Include Time & Season</h4>
-                <p style="color: #666; line-height: 1.6; margin: 0;">"Dawn in autumn" produces different results from "midnight in summer." Temporal details add depth to visual descriptions.</p>
+                <h4 style="color: #764ba2; margin-top: 0; font-size: 1.05rem; font-weight: 700;">⏰ Include Time & Season</h4>
+                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">"Dawn in autumn" produces different results from "midnight in summer." Temporal details add depth to visual descriptions.</p>
             </div>
             <div class="vpg-feature-card">
-                <h4 style="color: #667eea; margin-top: 0;">🎬 Reference Art Styles</h4>
-                <p style="color: #666; line-height: 1.6; margin: 0;">Mention cinematic styles like "Wes Anderson color palette" or "film noir lighting" helps AI understand creative vision.</p>
+                <h4 style="color: #667eea; margin-top: 0; font-size: 1.05rem; font-weight: 700;">🎬 Reference Art Styles</h4>
+                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Mention cinematic styles like "Wes Anderson color palette" or "film noir lighting" helps AI understand creative vision.</p>
             </div>
             <div class="vpg-feature-card">
-                <h4 style="color: #764ba2; margin-top: 0;">✨ Combine Multiple Prompts</h4>
-                <p style="color: #666; line-height: 1.6; margin: 0;">Mix elements from our gallery to create unique prompts. Blend categories for original AI video generation results.</p>
+                <h4 style="color: #764ba2; margin-top: 0; font-size: 1.05rem; font-weight: 700;">✨ Combine Multiple Prompts</h4>
+                <p style="color: #333; line-height: 1.6; margin: 0; font-size: 0.9rem;">Mix elements from our gallery to create unique prompts. Blend categories for original AI video generation results.</p>
             </div>
         </div>
     </div>
