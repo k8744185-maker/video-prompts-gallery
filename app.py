@@ -551,8 +551,8 @@ st.markdown("""
     /* Disabled buttons — pagination active page, already-liked, etc. */
     .stButton > button:disabled {
         opacity: 1 !important;
-        background: linear-gradient(135deg, #2d2d4e 0%, #1a1a2e 100%) !important;
-        color: rgba(255,255,255,0.7) !important;
+        background: linear-gradient(135deg, #6b5bd6 0%, #5547b8 100%) !important;
+        color: rgba(255,255,255,0.9) !important;
         cursor: default !important;
         border: none !important;
         box-shadow: none !important;
