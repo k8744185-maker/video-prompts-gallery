@@ -38,23 +38,28 @@ else:
         # Site verification & AdSense account claim
         '<meta name="google-site-verification" content="8MpJT70JgoawSi-Z8yz-ZOHphQiFAsmJTq2622M41Us"/>'
         '<meta name="google-adsense-account" content="ca-pub-5050768956635718"/>'
+        # Favicon — Google shows this icon next to the site name in search results
+        '<link rel="icon" type="image/svg+xml" href="/static/logo.svg"/>'
+        '<link rel="shortcut icon" href="/static/logo.svg"/>'
+        '<link rel="apple-touch-icon" href="/static/logo.svg"/>'
         # SEO meta tags
         '<meta name="description" content="Video Prompts Gallery - Free curated collection of professional AI video generation prompts for Runway ML, Pika Labs, and Stable Video Diffusion. Browse 100+ prompts across 8+ categories."/>'
         '<meta name="keywords" content="AI video prompts, video generation, Runway ML prompts, Pika Labs, Stable Video Diffusion, cinematic prompts, text to video"/>'
         '<meta name="robots" content="index, follow"/>'
         '<meta name="author" content="Video Prompts Gallery"/>'
-        # Open Graph — og:site_name overrides Streamlit branding in social previews
+        # Open Graph
         '<meta property="og:site_name" content="Video Prompts Gallery"/>'
         '<meta property="og:title" content="Video Prompts Gallery - AI Video Prompt Collection"/>'
         '<meta property="og:description" content="Free curated collection of professional AI video generation prompts for creators and filmmakers."/>'
         '<meta property="og:type" content="website"/>'
         '<meta property="og:url" content="https://video-prompts-gallery.onrender.com/"/>'
-        '<meta property="og:image" content="https://video-prompts-gallery.onrender.com/static/og-image.jpg"/>'
+        '<meta property="og:image" content="https://video-prompts-gallery.onrender.com/static/logo.svg"/>'
         # Twitter Card
         '<meta name="twitter:card" content="summary_large_image"/>'
         '<meta name="twitter:title" content="Video Prompts Gallery - AI Video Prompt Collection"/>'
         '<meta name="twitter:description" content="Free AI video generation prompts for Runway ML, Pika Labs, Stable Video Diffusion."/>'
-        # JSON-LD structured data — WebSite schema tells Google the real site name
+        '<meta name="twitter:image" content="https://video-prompts-gallery.onrender.com/static/logo.svg"/>'
+        # JSON-LD 1: WebSite schema
         '<script type="application/ld+json">{'
         '"@context":"https://schema.org",'
         '"@type":"WebSite",'
@@ -62,10 +67,62 @@ else:
         '"alternateName":"Video Prompts Gallery - AI Video Prompt Collection",'
         '"url":"https://video-prompts-gallery.onrender.com/",'
         '"description":"Free curated AI video generation prompts for Runway ML, Pika Labs, and Stable Video Diffusion.",'
+        '"dateModified":"2026-03-03",'
         '"potentialAction":{"@type":"SearchAction","target":"https://video-prompts-gallery.onrender.com/?q={search_term_string}","query-input":"required name=search_term_string"}'
         '}</script>'
-        # AdSense Auto Ads — script in <head> enables automatic ad placement.
-        # No manual <ins> tags needed. Google places ads on its own.
+        # JSON-LD 2: Organization with logo — tells Google which image to show next to site name
+        '<script type="application/ld+json">{'
+        '"@context":"https://schema.org",'
+        '"@type":"Organization",'
+        '"name":"Video Prompts Gallery",'
+        '"url":"https://video-prompts-gallery.onrender.com/",'
+        '"logo":{'
+        '"@type":"ImageObject",'
+        '"url":"https://video-prompts-gallery.onrender.com/static/logo.svg",'
+        '"width":192,'
+        '"height":192'
+        '},'
+        '"sameAs":["https://github.com/k8744185-maker/video-prompts-gallery"],'
+        '"contactPoint":{"@type":"ContactPoint","email":"k8744185@gmail.com","contactType":"customer support"}'
+        '}</script>'
+        # JSON-LD 3: BreadcrumbList — makes Google show "site.com › Page" URL path
+        '<script type="application/ld+json">{'
+        '"@context":"https://schema.org",'
+        '"@type":"BreadcrumbList",'
+        '"itemListElement":['
+        '{"@type":"ListItem","position":1,"name":"Video Prompts Gallery","item":"https://video-prompts-gallery.onrender.com/"},'
+        '{"@type":"ListItem","position":2,"name":"Browse Prompts","item":"https://video-prompts-gallery.onrender.com/#browse"},'
+        '{"@type":"ListItem","position":3,"name":"FAQ","item":"https://video-prompts-gallery.onrender.com/#faq"}'
+        ']}</script>'
+        # JSON-LD 4: WebPage with datePublished/dateModified — makes date appear in snippet
+        '<script type="application/ld+json">{'
+        '"@context":"https://schema.org",'
+        '"@type":"WebPage",'
+        '"name":"Video Prompts Gallery - AI Video Prompt Collection",'
+        '"url":"https://video-prompts-gallery.onrender.com/",'
+        '"description":"Free curated collection of 100+ professional AI video generation prompts across Nature, Urban, Cinematic, Sci-Fi, Fantasy, and Tamil Cinema categories. Optimised for Runway ML, Pika Labs, and Stable Video Diffusion.",'
+        '"datePublished":"2024-01-01",'
+        '"dateModified":"2026-03-03",'
+        '"inLanguage":"en",'
+        '"isPartOf":{"@type":"WebSite","name":"Video Prompts Gallery","url":"https://video-prompts-gallery.onrender.com/"},'
+        '"publisher":{"@type":"Organization","name":"Video Prompts Gallery","logo":{"@type":"ImageObject","url":"https://video-prompts-gallery.onrender.com/static/logo.svg"}}'
+        '}</script>'
+        # JSON-LD 5: ItemList of categories — helps Google understand site structure
+        '<script type="application/ld+json">{'
+        '"@context":"https://schema.org",'
+        '"@type":"ItemList",'
+        '"name":"AI Video Prompt Categories",'
+        '"description":"Browse AI video generation prompts by category",'
+        '"url":"https://video-prompts-gallery.onrender.com/",'
+        '"itemListElement":['
+        '{"@type":"ListItem","position":1,"name":"Nature Prompts","description":"AI video prompts for forests, oceans, and landscapes"},'
+        '{"@type":"ListItem","position":2,"name":"Urban Prompts","description":"City life, streets, and architecture prompts"},'
+        '{"@type":"ListItem","position":3,"name":"Cinematic Prompts","description":"Film-quality dramatic scene prompts"},'
+        '{"@type":"ListItem","position":4,"name":"Sci-Fi Prompts","description":"Futuristic worlds and space exploration prompts"},'
+        '{"@type":"ListItem","position":5,"name":"Fantasy Prompts","description":"Magical realms and epic fantasy prompts"},'
+        '{"@type":"ListItem","position":6,"name":"Tamil Cinema Prompts","description":"South Indian aesthetic and Tamil cinema style prompts"}'
+        ']}</script>'
+        # AdSense Auto Ads
         '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718" crossorigin="anonymous"></script>'
     )
     content = content.replace('<head>', '<head>' + head_inject, 1)
@@ -175,10 +232,13 @@ else:
 
 PYEOF
 
-# Copy ads.txt so it's served at /ads.txt
+# Copy static files to Streamlit's static directory
 STREAMLIT_STATIC=$(python -c "import streamlit, os; print(os.path.join(os.path.dirname(streamlit.__file__), 'static'))")
 cp static/ads.txt "$STREAMLIT_STATIC/ads.txt"
 cp static/google7b16d249e9588da5.html "$STREAMLIT_STATIC/google7b16d249e9588da5.html" 2>/dev/null || true
+cp static/logo.svg "$STREAMLIT_STATIC/logo.svg" 2>/dev/null || true
+cp static/sitemap.xml "$STREAMLIT_STATIC/sitemap.xml" 2>/dev/null || true
+cp robots.txt "$STREAMLIT_STATIC/robots.txt" 2>/dev/null || true
 
 echo "All patches applied. Starting Streamlit..."
 streamlit run app.py --server.port=$PORT --server.address=0.0.0.0
