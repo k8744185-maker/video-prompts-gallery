@@ -220,7 +220,7 @@ st.markdown("""
     }
     
     .vpg-stat-card {
-        background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+        background: #ffffff;
         padding: 2rem 1.5rem;
         border-radius: 16px;
         border: 2px solid rgba(102, 126, 234, 0.15);
@@ -232,7 +232,7 @@ st.markdown("""
         transform: translateY(-4px);
         border-color: rgba(102, 126, 234, 0.4);
         box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
-        background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
+        background: #ffffff;
     }
     
     .vpg-stat-number {
@@ -359,7 +359,7 @@ st.markdown("""
     
     .stTabs [data-baseweb="tab"] {
         border-radius: 12px 12px 0 0 !important;
-        background-color: #f5f7ff !important;
+        background-color: #ffffff !important;
         color: #667eea !important;
         font-weight: 600;
     }
@@ -371,7 +371,7 @@ st.markdown("""
     
     /* Expander styling */
     .streamlit-expanderHeader {
-        background-color: #f5f7ff !important;
+        background-color: #ffffff !important;
         border-radius: 12px !important;
         padding: 1rem !important;
     }
@@ -442,7 +442,7 @@ st.markdown("""
     
     /* Main content wrapper background */
     .stApp {
-        background-color: #f8f9fc !important;
+        background-color: #ffffff !important;
     }
     
     /* Mobile responsiveness */
