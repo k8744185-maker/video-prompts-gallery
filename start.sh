@@ -35,28 +35,32 @@ else:
     # Auto Ads: just the script in <head> is enough — Google places ads automatically.
     head_inject = (
         PATCH_MARKER +
-        # Site verification & AdSense account claim
+        # ── Site verification & AdSense ──
         '<meta name="google-site-verification" content="8MpJT70JgoawSi-Z8yz-ZOHphQiFAsmJTq2622M41Us"/>'
         '<meta name="google-adsense-account" content="ca-pub-5050768956635718"/>'
-        # Favicon — Google shows this icon next to the site name in search results
+        # ── Canonical URL — prevents duplicate content issues ──
+        '<link rel="canonical" href="https://video-prompts-gallery.onrender.com/"/>'
+        # ── Favicon — browsers check <link> tags; also copying as favicon.ico for fallback ──
         '<link rel="icon" type="image/svg+xml" href="/static/logo.svg"/>'
         '<link rel="shortcut icon" href="/static/logo.svg"/>'
         '<link rel="apple-touch-icon" href="/static/logo.svg"/>'
-        # SEO meta tags
-        '<meta name="description" content="Video Prompts Gallery - Free curated collection of professional AI video generation prompts for Runway ML, Pika Labs, and Stable Video Diffusion. Browse 100+ prompts across 8+ categories."/>'
-        '<meta name="keywords" content="AI video prompts, video generation, Runway ML prompts, Pika Labs, Stable Video Diffusion, cinematic prompts, text to video"/>'
-        '<meta name="robots" content="index, follow"/>'
+        # ── SEO meta ──
+        '<meta name="description" content="Video Prompts Gallery — free curated AI video generation prompts for Runway ML, Pika Labs, and Stable Video Diffusion. Browse 100+ cinematic prompts across 8+ categories including Nature, Sci-Fi, Fantasy, and Tamil Cinema."/>'
+        '<meta name="keywords" content="AI video prompts, video generation prompts, Runway ML prompts, Pika Labs prompts, Stable Video Diffusion, cinematic prompts, text to video"/>'
         '<meta name="author" content="Video Prompts Gallery"/>'
-        # Open Graph
+        # ── Googlebot directives — allow full snippet, image, video preview ──
+        '<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>'
+        '<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>'
+        # ── Open Graph ──
         '<meta property="og:site_name" content="Video Prompts Gallery"/>'
-        '<meta property="og:title" content="Video Prompts Gallery - AI Video Prompt Collection"/>'
-        '<meta property="og:description" content="Free curated collection of professional AI video generation prompts for creators and filmmakers."/>'
+        '<meta property="og:title" content="Video Prompts Gallery - Free AI Video Prompts"/>'
+        '<meta property="og:description" content="Free curated collection of 100+ professional AI video generation prompts for Runway ML, Pika Labs, and Stable Video Diffusion."/>'
         '<meta property="og:type" content="website"/>'
         '<meta property="og:url" content="https://video-prompts-gallery.onrender.com/"/>'
         '<meta property="og:image" content="https://video-prompts-gallery.onrender.com/static/logo.svg"/>'
-        # Twitter Card
+        # ── Twitter Card ──
         '<meta name="twitter:card" content="summary_large_image"/>'
-        '<meta name="twitter:title" content="Video Prompts Gallery - AI Video Prompt Collection"/>'
+        '<meta name="twitter:title" content="Video Prompts Gallery - Free AI Video Prompts"/>'
         '<meta name="twitter:description" content="Free AI video generation prompts for Runway ML, Pika Labs, Stable Video Diffusion."/>'
         '<meta name="twitter:image" content="https://video-prompts-gallery.onrender.com/static/logo.svg"/>'
         # JSON-LD 1: WebSite schema
@@ -237,6 +241,7 @@ STREAMLIT_STATIC=$(python -c "import streamlit, os; print(os.path.join(os.path.d
 cp static/ads.txt "$STREAMLIT_STATIC/ads.txt"
 cp static/google7b16d249e9588da5.html "$STREAMLIT_STATIC/google7b16d249e9588da5.html" 2>/dev/null || true
 cp static/logo.svg "$STREAMLIT_STATIC/logo.svg" 2>/dev/null || true
+cp static/logo.svg "$STREAMLIT_STATIC/favicon.ico" 2>/dev/null || true   # fallback for /static/favicon.ico requests
 cp static/sitemap.xml "$STREAMLIT_STATIC/sitemap.xml" 2>/dev/null || true
 cp robots.txt "$STREAMLIT_STATIC/robots.txt" 2>/dev/null || true
 
