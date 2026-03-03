@@ -1146,12 +1146,10 @@ def main():
     # Add JSON-LD structured data
     add_structured_data()
     
-    # Show loading indicator
-    with st.spinner('⏳ Please wait, loading...'):
-        # Connect to Google Sheets
-        sheet = get_google_sheet()
-        
-        if not sheet:
+    # Connect to Google Sheets silently (no spinner on initial load)
+    sheet = get_google_sheet()
+    
+    if not sheet:
             st.error("⚠️ Unable to connect to database. Please check configuration.")
             # Still show publisher content even on error pages
             st.markdown("""
@@ -1171,35 +1169,83 @@ def main():
             </div>
             """, unsafe_allow_html=True)
             return
-    
     # ──────────────────────────────────────────────────────────────────
-    # PROFESSIONAL NAVBAR  (buttons call JS to click Streamlit tabs)
+    # PROFESSIONAL NAVBAR
     # ──────────────────────────────────────────────────────────────────
     st.markdown("""
     <div class="vpg-navbar">
         <div class="vpg-navbar-content">
             <div class="vpg-brand">🎬 Video Prompts Gallery</div>
             <div class="vpg-nav-links">
-                <button class="vpg-nav-link" onclick="vpgNav(0)">📚 Browse Prompts</button>
-                <button class="vpg-nav-link" onclick="vpgNav(1)">❓ FAQ &amp; Help</button>
-                <button class="vpg-nav-link" onclick="vpgNav(3)">💬 Feedback</button>
+                <button class="vpg-nav-link" id="vpg-btn-browse" onclick="vpgNav(0)">📚 Browse</button>
+                <button class="vpg-nav-link" id="vpg-btn-faq" onclick="vpgNav(1)">❓ FAQ</button>
+                <button class="vpg-nav-link" id="vpg-btn-legal" onclick="vpgNav(2)">📌 Legal</button>
+                <button class="vpg-nav-link" id="vpg-btn-feedback" onclick="vpgNav(3)">💬 Feedback</button>
             </div>
         </div>
     </div>
+    """, unsafe_allow_html=True)
+    # Cookie consent banner — lightweight, required for AdSense/GDPR
+    components.html("""
+    <style>
+    #vpg-cookie-bar {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        background: #1a1a2e; color: #fff;
+        padding: 0.8rem 1.5rem;
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: 0.8rem;
+        z-index: 99999; font-family: -apple-system, sans-serif;
+        font-size: 0.88rem; box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+    }
+    #vpg-cookie-bar a { color: #a0b4ff; }
+    #vpg-cookie-accept {
+        background: #667eea; color: white; border: none;
+        padding: 0.45rem 1.2rem; border-radius: 8px;
+        cursor: pointer; font-weight: 700; font-size: 0.88rem;
+        white-space: nowrap;
+    }
+    #vpg-cookie-accept:hover { background: #764ba2; }
+    </style>
+    <div id="vpg-cookie-bar">
+        <span>
+            🍪 This site uses cookies (Google AdSense &amp; Analytics) to personalise ads and improve your experience.
+            By continuing, you agree to our
+            <a href="javascript:void(0)" onclick="window.parent.postMessage('open-legal', '*')" style="color:#a0b4ff;">Privacy Policy</a>.
+        </span>
+        <button id="vpg-cookie-accept" onclick="
+            document.getElementById('vpg-cookie-bar').style.display='none';
+            localStorage.setItem('vpg_cookie_ok','1');
+        ">Got it ✓</button>
+    </div>
     <script>
+    if (localStorage.getItem('vpg_cookie_ok')) {
+        document.getElementById('vpg-cookie-bar').style.display = 'none';
+    }
     function vpgNav(tabIdx) {
-        var tabs = parent.document.querySelectorAll('[data-baseweb="tab"]');
-        if (!tabs.length) tabs = document.querySelectorAll('[data-baseweb="tab"]');
+        var doc = window.parent.document;
+        var tabs = doc.querySelectorAll('[data-baseweb="tab"]');
         if (tabs && tabs[tabIdx]) {
             tabs[tabIdx].click();
             setTimeout(function() {
-                var el = (parent.document || document).querySelector('[data-testid="stTabs"]');
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 150);
+                window.parent.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 200);
         }
     }
+    window.vpgNav = vpgNav;
+    (function() {
+        var btnIds = ['vpg-btn-browse','vpg-btn-faq','vpg-btn-legal','vpg-btn-feedback'];
+        var tabIdxs = [0, 1, 2, 3];
+        btnIds.forEach(function(id, i) {
+            var btn = window.parent.document.getElementById(id);
+            if (btn) { btn.onclick = function() { vpgNav(tabIdxs[i]); }; }
+        });
+        // Listen for cookie bar's legal link message
+        window.addEventListener('message', function(e) {
+            if (e.data === 'open-legal') vpgNav(2);
+        });
+    })();
     </script>
-    """, unsafe_allow_html=True)
+    """, height=0)
     
     # Check if specific prompt is requested via URL
     query_params = st.query_params
@@ -1441,7 +1487,7 @@ def main():
                 components.html(
                     """
                     <script>
-                    window.scrollTo({top: 0, behavior: 'smooth'});
+                    window.parent.scrollTo({top: 0, behavior: 'smooth'});
                     </script>
                     """,
                     height=0
@@ -1583,46 +1629,53 @@ def main():
                 # Pagination controls function
                 def render_pagination():
                     if total_pages > 1:
-                        # Create pagination buttons
-                        cols = st.columns([1, 1, 2, 1, 1])
+                        loc = st.session_state.get('pagination_location', 'top')
+                        # Build button list: [Prev] page_numbers [Next]
+                        current = st.session_state.current_page
+                        if total_pages <= 7:
+                            page_buttons = list(range(1, total_pages + 1))
+                        else:
+                            if current <= 4:
+                                page_buttons = list(range(1, 6))
+                            elif current >= total_pages - 3:
+                                page_buttons = list(range(total_pages - 4, total_pages + 1))
+                            else:
+                                page_buttons = list(range(current - 2, current + 3))
                         
+                        # Total columns: Prev + page_buttons + Next
+                        n_cols = len(page_buttons) + 2
+                        cols = st.columns(n_cols)
+                        
+                        # Previous button
                         with cols[0]:
-                            if st.session_state.current_page > 1:
-                                if st.button("⬅️ Previous", use_container_width=True, key=f"prev_{st.session_state.get('pagination_location', 'top')}"):
-                                    st.session_state.should_scroll_to_top = True
+                            if current > 1:
+                                if st.button("⬅️ Prev", use_container_width=True, key=f"prev_{loc}"):
                                     st.session_state.current_page -= 1
+                                    st.session_state.should_scroll_to_top = True
                                     st.rerun()
                         
-                        with cols[2]:
-                            # Page number buttons (show max 5 pages)
-                            page_buttons = []
-                            if total_pages <= 5:
-                                page_buttons = list(range(1, total_pages + 1))
-                            else:
-                                current = st.session_state.current_page
-                                if current <= 3:
-                                    page_buttons = [1, 2, 3, 4, 5]
-                                elif current >= total_pages - 2:
-                                    page_buttons = list(range(total_pages - 4, total_pages + 1))
+                        # Page number buttons
+                        for i, page_num in enumerate(page_buttons):
+                            with cols[i + 1]:
+                                if page_num == current:
+                                    st.markdown(
+                                        f"<div style='text-align:center;padding:0.45rem 0.2rem;"
+                                        f"background:#667eea;color:white;border-radius:8px;"
+                                        f"font-weight:800;font-size:0.95rem;'>{page_num}</div>",
+                                        unsafe_allow_html=True
+                                    )
                                 else:
-                                    page_buttons = list(range(current - 2, current + 3))
-                            
-                            page_cols = st.columns(len(page_buttons))
-                            for i, page_num in enumerate(page_buttons):
-                                with page_cols[i]:
-                                    if page_num == st.session_state.current_page:
-                                        st.markdown(f"<div style='text-align: center; padding: 0.5rem; background: #667eea; color: white; border-radius: 8px; font-weight: bold;'>{page_num}</div>", unsafe_allow_html=True)
-                                    else:
-                                        if st.button(str(page_num), key=f"page_{page_num}_{st.session_state.get('pagination_location', 'top')}", use_container_width=True):
-                                            st.session_state.should_scroll_to_top = True
-                                            st.session_state.current_page = page_num
-                                            st.rerun()
+                                    if st.button(str(page_num), key=f"page_{page_num}_{loc}", use_container_width=True):
+                                        st.session_state.current_page = page_num
+                                        st.session_state.should_scroll_to_top = True
+                                        st.rerun()
                         
-                        with cols[4]:
-                            if st.session_state.current_page < total_pages:
-                                if st.button("Next ➡️", use_container_width=True, key=f"next_{st.session_state.get('pagination_location', 'top')}"):
-                                    st.session_state.should_scroll_to_top = True
+                        # Next button
+                        with cols[-1]:
+                            if current < total_pages:
+                                if st.button("Next ➡️", use_container_width=True, key=f"next_{loc}"):
                                     st.session_state.current_page += 1
+                                    st.session_state.should_scroll_to_top = True
                                     st.rerun()
                 
                 # Show pagination info and controls at TOP
@@ -2185,8 +2238,23 @@ def main():
             - **Usage Data:** IP address, browser type, pages visited, time spent
             - **Cookies:** We use cookies to track activity on our Site
             
-            ## Google AdSense
-            We use Google AdSense to display advertisements. Google may use cookies to serve ads based on your prior visits to our Site or other websites. You can opt out of personalized advertising by visiting [Google Ads Settings](https://www.google.com/settings/ads).
+            ## Google AdSense & Advertising Cookies
+            We use **Google AdSense** to display advertisements on this Site. Google and its partners
+            may use cookies, web beacons, and similar tracking technologies to show you ads based on
+            your interests and prior visits to this or other websites, including use of the
+            **DoubleClick cookie**.
+            
+            You can:
+            - **Opt out of personalized ads:** [Google Ads Settings](https://www.google.com/settings/ads)
+            - **Opt out via NAI:** [Network Advertising Initiative](http://www.networkadvertising.org/choices/)
+            - **Manage cookies:** Through your browser settings
+            
+            By continuing to use this Site, you consent to our use of cookies as described herein.
+            See Google's Privacy Policy: https://policies.google.com/privacy
+            
+            ## Google Analytics
+            We use Google Analytics to understand how visitors use the Site. Analytics data is
+            anonymised and aggregated. You can opt out at: https://tools.google.com/dlpage/gaoptout
             
             ## Google Sheets Integration
             We use Google Sheets to store prompt data. Only administrators with proper authentication can modify this data.
@@ -2217,13 +2285,14 @@ def main():
             By accessing Video Prompts Gallery, you agree to be bound by these Terms of Service and all applicable laws and regulations.
             
             ## 2. Use License
-            Permission is granted to temporarily view and use the prompts on this site for personal, non-commercial use only.
+            Permission is granted to view, copy, and use the prompts on this site for
+            **personal and commercial creative projects**, including AI-generated video production.
             
             ### You May NOT:
-            - Modify or copy the materials without permission
-            - Use the materials for commercial purposes
-            - Remove any copyright or proprietary notations
-            - Transfer the materials to another person
+            - Claim ownership of our original site content or codebase
+            - Scrape or republish our entire prompt database as a competing service
+            - Remove any copyright or proprietary notations from the site itself
+            - Attempt to reverse-engineer or circumvent our admin systems
             
             ## 3. Disclaimer
             The materials on Video Prompts Gallery are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim all other warranties.
@@ -2255,46 +2324,61 @@ def main():
         
         with legal_tab3:
             st.markdown("""
-            # Contact Us
+            # 📧 Contact Us
             
-            We'd love to hear from you! Whether you have questions, feedback, or need support, feel free to reach out.
+            We’d love to hear from you! Use the options below to reach us.
             
-            ## 📧 Email
-            **General Inquiries:** k8744185@gmail.com
+            ## General Enquiries
+            For questions, feedback, bug reports, or partnership enquiries:
+            
+            **Email:** k8744185@gmail.com  
+            **Response time:** Within 24–48 hours on business days  
+            **Location:** India (IST — UTC+5:30)
+            
+            ## 📝 Send Us a Message
+            Fill out the details below and email us directly:
+            """)
+            
+            with st.form("contact_form", clear_on_submit=True):
+                contact_name = st.text_input("👤 Your Name", placeholder="John Doe")
+                contact_email = st.text_input("📧 Your Email", placeholder="you@example.com")
+                contact_subject = st.selectbox("📌 Subject", [
+                    "General Enquiry",
+                    "Bug Report / Technical Issue",
+                    "Content Suggestion / New Prompt",
+                    "Partnership / Collaboration",
+                    "Privacy / Data Request",
+                    "Other"
+                ])
+                contact_message = st.text_area("💬 Message", placeholder="Tell us how we can help...", height=150)
+                submitted = st.form_submit_button("🚀 Send Message", use_container_width=True, type="primary")
+                if submitted:
+                    if contact_name.strip() and contact_email.strip() and contact_message.strip():
+                        # Build mailto link and show it
+                        import urllib.parse
+                        subject_enc = urllib.parse.quote(f"[VPG] {contact_subject}")
+                        body_enc = urllib.parse.quote(f"Name: {contact_name}\nEmail: {contact_email}\n\nMessage:\n{contact_message}")
+                        mailto = f"mailto:k8744185@gmail.com?subject={subject_enc}&body={body_enc}"
+                        st.success("✅ Ready to send! Click the link below to open your email client:")
+                        st.markdown(f"[**📧 Open Email Client to Send**]({mailto})")
+                    else:
+                        st.warning("⚠️ Please fill in your name, email, and message.")
+            
+            st.markdown("""
+            ---
+            ## 🐛 Report a Bug
+            Found something broken? Please include:
+            - Your browser and version
+            - Steps to reproduce the issue
+            - Screenshot (if possible)
             
             ## 🌐 Website
             **Live Site:** https://video-prompts-gallery.onrender.com
             
-            ## 💬 Feedback & Suggestions
-            We're always looking to improve! If you have:
-            - Feature requests
-            - Bug reports
-            - Content suggestions
-            - Partnership inquiries
-            
-            Please email us with the subject line indicating your inquiry type.
-            
-            ## ⏰ Response Time
-            We typically respond within 24-48 hours during business days.
-            
-            ## 🔒 Privacy
-            All communications are kept confidential and handled in accordance with our Privacy Policy.
-            
-            ## 🐛 Report Issues
-            Found a technical issue? Please include:
-            - Your browser and version
-            - Steps to reproduce the issue
-            - Screenshots (if applicable)
-            
-            ## 📱 Stay Connected
-            Visit our website regularly for the latest prompts and updates!
-            **Website:** https://video-prompts-gallery.onrender.com
-            
             ---
-            
             **Administrator:** K. Venkadesan  
             **Email:** k8744185@gmail.com  
-            **Location:** India (IST Timezone)
+            **Location:** Tamil Nadu, India
             """)
         
         with legal_tab4:
@@ -2530,25 +2614,78 @@ def main():
 
     # Footer - appears on all pages
     st.markdown("---")
-    st.markdown("""
+    current_year = datetime.now().year
+    st.markdown(f"""
         <div style="text-align: center; padding: 2rem 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; margin-top: 3rem;">
             <h3 style="color: white; margin-bottom: 1rem;">🎬 Video Prompts Gallery</h3>
             <p style="color: rgba(255,255,255,0.9); margin-bottom: 1.5rem;">Your source for cinematic AI video prompts</p>
-            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-                <a href="?tab=FAQ+%26+Help" style="color: white; text-decoration: none;">❓ FAQ</a>
-                <a href="?tab=Legal+%26+Info" style="color: white; text-decoration: none;">📋 Legal</a>
-                <a href="mailto:k8744185@gmail.com" style="color: white; text-decoration: none;">📧 Contact</a>
-                <a href="https://github.com" style="color: white; text-decoration: none;" target="_blank">💻 GitHub</a>
+            <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <button id="footer-faq-btn" style="background:none;border:none;color:white;cursor:pointer;font-size:0.95rem;padding:0.3rem 0.5rem;">❓ FAQ</button>
+                <button id="footer-legal-btn" style="background:none;border:none;color:white;cursor:pointer;font-size:0.95rem;padding:0.3rem 0.5rem;">📋 Privacy Policy</button>
+                <button id="footer-terms-btn" style="background:none;border:none;color:white;cursor:pointer;font-size:0.95rem;padding:0.3rem 0.5rem;">📝 Terms</button>
+                <button id="footer-contact-btn" style="background:none;border:none;color:white;cursor:pointer;font-size:0.95rem;padding:0.3rem 0.5rem;">📧 Contact</button>
+                <button id="footer-about-btn" style="background:none;border:none;color:white;cursor:pointer;font-size:0.95rem;padding:0.3rem 0.5rem;">ℹ️ About</button>
             </div>
             <p style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin: 0;">
-                © 2026 Video Prompts Gallery | Made with ❤️ in India<br>
-                <span style="font-size: 0.8rem;">Celebrating Cinema, Technology & Creativity</span>
+                &copy; {current_year} Video Prompts Gallery | Made with ❤️ in India<br>
+                <span style="font-size: 0.8rem;">Celebrating Cinema, Technology &amp; Creativity</span>
             </p>
         </div>
     """, unsafe_allow_html=True)
+    components.html("""
+    <script>
+    (function() {
+        var doc = window.parent.document;
+        function navTo(idx) {
+            var tabs = doc.querySelectorAll('[data-baseweb="tab"]');
+            if (tabs && tabs[idx]) {
+                tabs[idx].click();
+                setTimeout(function() { window.parent.scrollTo({top:0,behavior:'smooth'}); }, 200);
+            }
+        }
+        // FAQ=1, Legal=2 (all footer links go to tab 1 or 2)
+        var map = {
+            'footer-faq-btn': 1,
+            'footer-legal-btn': 2,
+            'footer-terms-btn': 2,
+            'footer-contact-btn': 2,
+            'footer-about-btn': 2
+        };
+        Object.keys(map).forEach(function(id) {
+            var el = doc.getElementById(id);
+            if (el) el.onclick = function() { navTo(map[id]); };
+        });
+    })();
+    </script>
+    """, height=0)
 
 def show_single_prompt(sheet, prompt_id):
     """Show a single prompt page - Ultra compact with no hero section"""
+    # Navbar (same as main page — CSS already loaded globally)
+    st.markdown("""
+    <div class="vpg-navbar">
+        <div class="vpg-navbar-content">
+            <div class="vpg-brand">🎬 Video Prompts Gallery</div>
+            <div class="vpg-nav-links">
+                <button class="vpg-nav-link" id="vpg-browse-btn">📚 Browse Prompts</button>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    components.html("""
+    <script>
+    // Wire the Browse Prompts button to navigate back to home
+    (function() {
+        var btn = window.parent.document.getElementById('vpg-browse-btn');
+        if (btn) {
+            btn.onclick = function() {
+                window.parent.location.href = window.parent.location.pathname;
+            };
+        }
+    })();
+    </script>
+    """, height=0)
+
     try:
         # Ensure engagement cache is loaded (likes + comments)
         load_engagement_cache()
@@ -2591,16 +2728,6 @@ def show_single_prompt(sheet, prompt_id):
                     st.query_params.clear()
                     st.rerun()
                 return
-            
-            # Site header with branding
-            st.markdown("""
-                <div style="text-align: center; margin-bottom: 0.5rem;">
-                    <a href="/" style="text-decoration: none;">
-                        <h2 style="color: #667eea; margin: 0;">🎬 Video Prompts Gallery</h2>
-                        <p style="color: #888; font-size: 0.9rem; margin: 0;">Free AI Video Generation Prompts for Creators</p>
-                    </a>
-                </div>
-            """, unsafe_allow_html=True)
             
             # Build category badges
             category_list = [c.strip() for c in category.split(',')] if category else ["General"]
@@ -2749,6 +2876,7 @@ def show_single_prompt(sheet, prompt_id):
             col_nav1, col_nav2, col_nav3 = st.columns(3)
             with col_nav2:
                 if st.button("📚 Browse All Prompts", use_container_width=True, type="primary", key="browse_all_bottom"):
+                    st.session_state.should_scroll_to_top = True
                     st.query_params.clear()
                     st.rerun()
             
@@ -2776,7 +2904,8 @@ def show_single_prompt(sheet, prompt_id):
                 Cinematic, Sci-Fi, Fantasy, Abstract, and Tamil Cinema aesthetics.</p>
             </div>
             """, unsafe_allow_html=True)
-            if st.button("📚 Browse All Prompts", type="primary"):
+            if st.button("📚 Browse All Prompts", type="primary", key="browse_not_found"):
+                st.session_state.should_scroll_to_top = True
                 st.query_params.clear()
                 st.rerun()
     except Exception as e:
@@ -2790,7 +2919,8 @@ def show_single_prompt(sheet, prompt_id):
             You can also browse our full collection of free AI video generation prompts in the gallery.</p>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("📚 Browse All Prompts", type="primary"):
+        if st.button("📚 Browse All Prompts", type="primary", key="browse_error"):
+            st.session_state.should_scroll_to_top = True
             st.query_params.clear()
             st.rerun()
 
