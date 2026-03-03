@@ -2602,9 +2602,9 @@ def show_single_prompt(sheet, prompt_id):
             # Metadata footer
             if prompt_data.get('Video ID') or prompt_data.get('Timestamp'):
                 st.markdown(f"""
-                    <div style="background: rgba(255, 255, 255, 0.15); padding: 0.6rem 1rem; border-radius: 12px; margin-top: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.2); font-size: 0.85rem; color: white; display: flex; justify-content: space-between; flex-wrap: wrap;">
+                    <div style="background: #f0f4ff; padding: 0.6rem 1rem; border-radius: 12px; margin-top: 0.8rem; border: 1px solid rgba(102, 126, 234, 0.2); font-size: 0.85rem; color: #333; display: flex; justify-content: space-between; flex-wrap: wrap;">
                         <span>📹 <strong>{prompt_data.get('Video ID', 'N/A')}</strong></span>
-                        <span style="opacity: 0.9;">🕒 {prompt_data.get('Timestamp', 'N/A')}</span>
+                        <span style="color: #555;">🕒 {prompt_data.get('Timestamp', 'N/A')}</span>
                     </div>
                 """, unsafe_allow_html=True)
             
