@@ -54,92 +54,285 @@ st.set_page_config(
 # Note: Meta tags (google-site-verification, google-adsense-account) and AdSense script
 # are injected directly into Streamlit's index.html <head> via start.sh patch - no JS needed here.
 
-# Enhanced CSS with animations, dark mode, and better UI
+# Enhanced CSS with professional header, animations, and better UI
 st.markdown("""
     <style>
     /* Hide Streamlit branding but keep page functional */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    /* Keep header visible for navigation - AdSense requirement */
     
-    /* Removed heavy animations - kept simple styling for better performance */
+    /* ─────────────────────────────────────────────────────────── */
+    /* MODERN HEADER & NAVBAR                                      */
+    /* ─────────────────────────────────────────────────────────── */
+    .vpg-navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+        z-index: 10000;
+        padding: 1rem 2rem;
+    }
     
-    /* Prompt cards with minimal effects */
-    .prompt-container {
-        border-radius: 16px;
+    .vpg-navbar-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+    }
+    
+    .vpg-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+        font-weight: 700;
+        font-size: 1.3rem;
+        text-decoration: none;
+    }
+    
+    .vpg-nav-links {
+        display: flex;
+        gap: 1rem;
+        color: white;
+        font-size: 0.95rem;
+        flex-wrap: wrap;
+    }
+    
+    .vpg-nav-link {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .vpg-nav-link:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
+    
+    /* Add padding to main content to offset fixed navbar */
+    .main {
+        padding-top: 80px !important;
+    }
+    
+    /* ─────────────────────────────────────────────────────────── */
+    /* HERO SECTION                                                 */
+    /* ─────────────────────────────────────────────────────────── */
+    .vpg-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 24px;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+        position: relative;
         overflow: hidden;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .vpg-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+    
+    .vpg-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -5%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 50%;
+    }
+    
+    .vpg-hero-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .vpg-hero h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -1px;
+    }
+    
+    .vpg-hero-subtitle {
+        font-size: 1.3rem;
+        font-weight: 300;
+        margin: 0 0 1.5rem 0;
+        opacity: 0.95;
+    }
+    
+    .vpg-hero-cta {
+        display: inline-block;
+        background: white;
+        color: #667eea;
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .vpg-hero-cta:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+        background: #f8f9fb;
+    }
+    
+    /* ─────────────────────────────────────────────────────────── */
+    /* STATS SECTION                                                */
+    /* ─────────────────────────────────────────────────────────── */
+    .vpg-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .vpg-stat-card {
+        background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 2px solid rgba(102, 126, 234, 0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .vpg-stat-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.1);
+    }
+    
+    .vpg-stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #667eea;
+        margin: 0;
+    }
+    
+    .vpg-stat-label {
+        color: #666;
+        font-size: 0.95rem;
+        margin: 0.5rem 0 0 0;
+        font-weight: 500;
+    }
+    
+    /* ─────────────────────────────────────────────────────────── */
+    /* PROMPT CARDS                                                 */
+    /* ─────────────────────────────────────────────────────────── */
+    .prompt-container {
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(102, 126, 234, 0.05);
     }
     
     .prompt-container:hover {
-        box-shadow: 0 6px 18px rgba(102, 126, 234, 0.2);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.15);
+        transform: translateY(-4px);
     }
     
     .prompt-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1.5rem;
+        padding: 1.8rem;
         color: white;
+        position: relative;
     }
     
     .prompt-body {
         background: white;
-        padding: 1.5rem;
+        padding: 2rem;
     }
     
     /* Better typography */
     .prompt-container h2 {
         margin: 0;
-        font-weight: 700;
+        font-weight: 800;
         letter-spacing: -0.5px;
+        font-size: 1.6rem;
     }
     
-    /* Button improvements - No animations to avoid lag */
+    /* Button improvements */
     .stButton > button {
-        border-radius: 10px;
+        border-radius: 12px;
         font-weight: 600;
         border: none;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
     }
     
     .stButton > button:hover {
-        opacity: 0.9;
+        opacity: 0.8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
     
     .stButton > button:active {
-        opacity: 0.8;
+        opacity: 0.7;
     }
     
-    /* Column styling */
-    .stColumn {
-        /* animation removed for performance */
-    }
-    
-    /* Badge styling - Minimal animations */
+    /* Badge styling */
     .category-badge {
         display: inline-block;
         background: rgba(255,255,255,0.2);
-        padding: 0.35rem 0.85rem;
-        border-radius: 15px;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
         font-size: 0.85rem;
         margin-right: 0.5rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
     }
     
     .category-badge:hover {
-        background: rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.35);
+        transform: translateY(-1px);
     }
     
     /* Better links */
     a {
         color: #667eea;
         text-decoration: none;
-        font-weight: 500;
+        font-weight: 600;
+        transition: all 0.2s ease;
     }
     
     a:hover {
         color: #764ba2;
         text-decoration: underline;
+    }
+    
+    /* Feature cards */
+    .vpg-feature-card {
+        background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border-left: 4px solid #667eea;
+        transition: all 0.3s ease;
+    }
+    
+    .vpg-feature-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
     }
     
     /* Reduced motion for accessibility */
@@ -152,21 +345,39 @@ st.markdown("""
     }
     
     /* Mobile responsiveness */
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
+        .vpg-hero h1 {
+            font-size: 2rem;
+        }
+        
+        .vpg-hero-subtitle {
+            font-size: 1rem;
+        }
+        
+        .vpg-navbar-content {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .vpg-nav-links {
+            justify-content: center;
+            width: 100%;
+        }
+        
         .prompt-container {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
         
         .prompt-header {
-            padding: 1rem;
+            padding: 1.2rem;
         }
         
         .prompt-body {
-            padding: 1rem;
+            padding: 1.2rem;
         }
         
         .prompt-container h2 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
     }
     </style>
@@ -748,6 +959,22 @@ def main():
             """, unsafe_allow_html=True)
             return
     
+    # ──────────────────────────────────────────────────────────────────
+    # PROFESSIONAL NAVBAR
+    # ──────────────────────────────────────────────────────────────────
+    st.markdown("""
+    <div class="vpg-navbar">
+        <div class="vpg-navbar-content">
+            <div class="vpg-brand">🎬 Video Prompts Gallery</div>
+            <div class="vpg-nav-links">
+                <span class="vpg-nav-link">📚 Browse Prompts</span>
+                <span class="vpg-nav-link">❓ FAQ & Help</span>
+                <span class="vpg-nav-link">📧 Contact</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     # Check if specific prompt is requested via URL
     query_params = st.query_params
     if "prompt_id" in query_params:
@@ -770,72 +997,122 @@ def main():
         show_single_prompt(sheet, query_params["prompt_id"])
         return
     
-    # Hero section (only for main page) - Rich publisher content for AdSense compliance
+    # ──────────────────────────────────────────────────────────────────
+    # ENHANCED HERO SECTION (only for main page)
+    # ──────────────────────────────────────────────────────────────────
+    st.markdown("""
+    <div class="vpg-hero">
+        <div class="vpg-hero-content">
+            <h1>🎬 Video Prompts Gallery</h1>
+            <p class="vpg-hero-subtitle">Discover & share professional AI video generation prompts</p>
+            <p style="font-size: 1.05rem; opacity: 0.9; margin-bottom: 1.5rem;">
+                100+ handcrafted prompts for Runway ML, Pika Labs, Stable Video Diffusion & more
+            </p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Admin notifications (optional)
     col1, col2 = st.columns([5, 1])
-    with col1:
-        st.title("🎬 Video Prompts Gallery")
-        st.subheader("Discover and share amazing AI video generation prompts")
     with col2:
-        # Notification bell for admin only
         if st.session_state.get('authenticated', False):
             error_count, errors = get_admin_notifications()
             if error_count > 0:
                 if st.button(f"🔔 {error_count}", key="notifications", help="View error notifications"):
                     st.session_state.show_notifications = True
-            else:
-                st.markdown("<div style='padding: 0.5rem;'>🔕</div>", unsafe_allow_html=True)
     
     # Rich publisher content section - always visible to crawlers and users
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 2rem; border-radius: 16px; margin: 1rem 0 2rem 0; border: 1px solid rgba(102, 126, 234, 0.15);">
-        <h2 style="color: #333; margin-bottom: 1rem; font-size: 1.4rem;">🌟 Welcome to Video Prompts Gallery</h2>
-        <p style="color: #555; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1rem;">
-            Video Prompts Gallery is a <strong>free, curated collection of professional-grade AI video generation prompts</strong> 
-            designed for filmmakers, content creators, and AI enthusiasts. Our handcrafted prompts help you create 
-            stunning videos using tools like <strong>Runway ML, Pika Labs, Stable Video Diffusion</strong>, and more.
+    <div style="margin-top: 1rem;">
+        <h2 style="color: #333; text-align: center; margin-bottom: 2rem; font-size: 1.8rem;">🌟 Welcome to Video Prompts Gallery</h2>
+        <p style="color: #555; font-size: 1.1rem; line-height: 1.8; text-align: center; margin-bottom: 2rem;">
+            A <strong>free, curated collection</strong> of professional AI video generation prompts for filmmakers, creators, and AI enthusiasts.
         </p>
-        <p style="color: #555; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1rem;">
-            Each prompt in our gallery is carefully crafted with <strong>cinematic detail</strong> — including specific camera angles, 
-            lighting conditions, atmospheric elements, and motion descriptions — to produce the best possible results 
-            from AI video generation tools. Browse our categories including <strong>Nature, Urban, Cinematic, Sci-Fi, Fantasy, 
-            and Tamil Cinema</strong> aesthetics.
-        </p>
-        <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
-            <div style="background: white; padding: 1rem 1.5rem; border-radius: 12px; flex: 1; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                <h4 style="color: #667eea; margin: 0 0 0.5rem 0;">🎯 Quality Prompts</h4>
-                <p style="color: #666; margin: 0; font-size: 0.95rem;">Every prompt is tested and refined for optimal AI video output with rich visual descriptions.</p>
-            </div>
-            <div style="background: white; padding: 1rem 1.5rem; border-radius: 12px; flex: 1; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                <h4 style="color: #764ba2; margin: 0 0 0.5rem 0;">🏷️ 8+ Categories</h4>
-                <p style="color: #666; margin: 0; font-size: 0.95rem;">Organized across Nature, Urban, Cinematic, Sci-Fi, Fantasy, Abstract, Tamil Cinema, and more.</p>
-            </div>
-            <div style="background: white; padding: 1rem 1.5rem; border-radius: 12px; flex: 1; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                <h4 style="color: #667eea; margin: 0 0 0.5rem 0;">🆓 100% Free</h4>
-                <p style="color: #666; margin: 0; font-size: 0.95rem;">All prompts are completely free to use for personal and commercial video projects.</p>
-            </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Stats section
+    st.markdown("""
+    <div class="vpg-stats">
+        <div class="vpg-stat-card">
+            <h3 class="vpg-stat-number">100+</h3>
+            <p class="vpg-stat-label">Professional Prompts</p>
+        </div>
+        <div class="vpg-stat-card">
+            <h3 class="vpg-stat-number">8+</h3>
+            <p class="vpg-stat-label">Content Categories</p>
+        </div>
+        <div class="vpg-stat-card">
+            <h3 class="vpg-stat-number">100%</h3>
+            <p class="vpg-stat-label">Free to Use</p>
+        </div>
+        <div class="vpg-stat-card">
+            <h3 class="vpg-stat-number">24/7</h3>
+            <p class="vpg-stat-label">Always Available</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
+    st.markdown("---")
+    
+    # Feature cards
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="vpg-feature-card">
+            <h3 style="color: #667eea; margin-top: 0; font-size: 1.2rem;">🎯 Quality Over Quantity</h3>
+            <p style="color: #666; line-height: 1.6;">Each prompt is tested and refined for optimal results with Runway ML, Pika Labs, and Stable Video Diffusion.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="vpg-feature-card">
+            <h3 style="color: #764ba2; margin-top: 0; font-size: 1.2rem;">🎬 Cinematic Details</h3>
+            <p style="color: #666; line-height: 1.6;">Professional-grade descriptions with camera angles, lighting, atmosphere, and motion for stunning visuals.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class="vpg-feature-card">
+            <h3 style="color: #667eea; margin-top: 0; font-size: 1.2rem;">🌍 Diverse Categories</h3>
+            <p style="color: #666; line-height: 1.6;">Nature, Urban, Cinematic, Sci-Fi, Fantasy, Abstract, Tamil Cinema, and more creative categories.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    
     # Educational content section - provides value and satisfies "publisher content" requirement
     st.markdown("""
-    <div style="padding: 1.5rem; margin-bottom: 1.5rem;">
-        <h3 style="color: #333; margin-bottom: 1rem;">📖 How to Use AI Video Prompts Effectively</h3>
-        <p style="color: #555; font-size: 1rem; line-height: 1.8; margin-bottom: 1rem;">
-            Creating compelling AI-generated videos starts with a well-crafted prompt. Here are key principles 
-            that make our prompts stand out:
-        </p>
-        <ol style="color: #555; font-size: 1rem; line-height: 2;">
-            <li><strong>Be Specific About Visual Details</strong> — Include colors, textures, lighting, and atmospheric elements. Instead of "a sunset," describe "a golden sunset with warm amber tones casting long shadows across a misty lake."</li>
-            <li><strong>Describe Camera Movement</strong> — Specify dolly shots, pan movements, or aerial tracking for dynamic video output. Camera motion adds cinematic quality.</li>
-            <li><strong>Set the Mood and Atmosphere</strong> — Words like "serene," "dramatic," "mysterious," or "ethereal" guide the AI to generate the right emotional tone.</li>
-            <li><strong>Include Time and Season</strong> — "Dawn in autumn" produces very different results from "midnight in summer." These temporal details add depth.</li>
-            <li><strong>Reference Art Styles</strong> — Mentioning cinematic styles (e.g., "Wes Anderson color palette" or "film noir lighting") helps the AI understand your vision.</li>
-        </ol>
-        <p style="color: #555; font-size: 1rem; line-height: 1.8;">
-            Browse our gallery below to find inspiration. Each prompt has been crafted following these principles 
-            and tested with multiple AI video generation platforms for consistent, high-quality results.
-        </p>
+    <div style="margin-top: 2.5rem;">
+        <h2 style="color: #333; margin-bottom: 1.5rem; font-size: 1.5rem;">📖 How to Use AI Video Prompts Effectively</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <div class="vpg-feature-card">
+                <h4 style="color: #667eea; margin-top: 0;">🎨 Be Specific About Visual Details</h4>
+                <p style="color: #666; line-height: 1.6; margin: 0;">Include colors, textures, lighting, and atmospheric elements. Instead of "sunset," describe "golden sunset with amber tones casting shadows across a misty lake."</p>
+            </div>
+            <div class="vpg-feature-card">
+                <h4 style="color: #764ba2; margin-top: 0;">🎥 Describe Camera Movement</h4>
+                <p style="color: #666; line-height: 1.6; margin: 0;">Specify dolly shots, pans, aerial tracking for dynamic output. Camera motion adds cinematic quality to AI-generated videos.</p>
+            </div>
+            <div class="vpg-feature-card">
+                <h4 style="color: #667eea; margin-top: 0;">🎭 Set the Mood & Atmosphere</h4>
+                <p style="color: #666; line-height: 1.6; margin: 0;">Use words like serene, dramatic, mysterious, ethereal to guide AI. Emotional tone direction produces more consistent results.</p>
+            </div>
+            <div class="vpg-feature-card">
+                <h4 style="color: #764ba2; margin-top: 0;">⏰ Include Time & Season</h4>
+                <p style="color: #666; line-height: 1.6; margin: 0;">"Dawn in autumn" produces different results from "midnight in summer." Temporal details add depth to visual descriptions.</p>
+            </div>
+            <div class="vpg-feature-card">
+                <h4 style="color: #667eea; margin-top: 0;">🎬 Reference Art Styles</h4>
+                <p style="color: #666; line-height: 1.6; margin: 0;">Mention cinematic styles like "Wes Anderson color palette" or "film noir lighting" helps AI understand creative vision.</p>
+            </div>
+            <div class="vpg-feature-card">
+                <h4 style="color: #764ba2; margin-top: 0;">✨ Combine Multiple Prompts</h4>
+                <p style="color: #666; line-height: 1.6; margin: 0;">Mix elements from our gallery to create unique prompts. Blend categories for original AI video generation results.</p>
+            </div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
