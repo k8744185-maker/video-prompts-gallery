@@ -548,6 +548,17 @@ st.markdown("""
         color: white !important;
     }
     
+    /* Disabled buttons — pagination active page, already-liked, etc. */
+    .stButton > button:disabled {
+        opacity: 1 !important;
+        background: linear-gradient(135deg, #2d2d4e 0%, #1a1a2e 100%) !important;
+        color: rgba(255,255,255,0.7) !important;
+        cursor: default !important;
+        border: none !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    
     /* Info / success / warning / error box text */
     .stAlert p, .stAlert div {
         color: inherit !important;
@@ -1649,20 +1660,22 @@ def main():
                         # Previous button
                         with cols[0]:
                             if current > 1:
-                                if st.button("⬅️ Prev", use_container_width=True, key=f"prev_{loc}"):
+                                if st.button("← Prev", use_container_width=True, key=f"prev_{loc}"):
                                     st.session_state.current_page -= 1
                                     st.session_state.should_scroll_to_top = True
                                     st.rerun()
+                            else:
+                                st.button("← Prev", use_container_width=True, key=f"prev_{loc}", disabled=True)
                         
                         # Page number buttons
                         for i, page_num in enumerate(page_buttons):
                             with cols[i + 1]:
                                 if page_num == current:
-                                    st.markdown(
-                                        f"<div style='text-align:center;padding:0.45rem 0.2rem;"
-                                        f"background:#667eea;color:white;border-radius:8px;"
-                                        f"font-weight:800;font-size:0.95rem;'>{page_num}</div>",
-                                        unsafe_allow_html=True
+                                    st.button(
+                                        str(page_num),
+                                        key=f"page_{page_num}_{loc}",
+                                        use_container_width=True,
+                                        disabled=True
                                     )
                                 else:
                                     if st.button(str(page_num), key=f"page_{page_num}_{loc}", use_container_width=True):
@@ -1673,10 +1686,12 @@ def main():
                         # Next button
                         with cols[-1]:
                             if current < total_pages:
-                                if st.button("Next ➡️", use_container_width=True, key=f"next_{loc}"):
+                                if st.button("Next →", use_container_width=True, key=f"next_{loc}"):
                                     st.session_state.current_page += 1
                                     st.session_state.should_scroll_to_top = True
                                     st.rerun()
+                            else:
+                                st.button("Next →", use_container_width=True, key=f"next_{loc}", disabled=True)
                 
                 # Show pagination info and controls at TOP
                 if total_filtered > 0:
