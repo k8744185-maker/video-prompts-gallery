@@ -68,9 +68,19 @@ st.markdown("""
 # Enhanced CSS with professional header, animations, and better UI
 st.markdown("""
     <style>
-    /* Hide Streamlit branding but keep page functional */
+    /* Hide Streamlit branding and toolbar */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+    header[data-testid="stHeader"] {display: none !important;}
+    [data-testid="stToolbar"] {display: none !important;}
+    [data-testid="stDecoration"] {display: none !important;}
+    [data-testid="stStatusWidget"] {display: none !important;}
+    
+    /* Remove Streamlit's default top padding from block-container */
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+    }
     
     /* ─────────────────────────────────────────────────────────── */
     /* MODERN HEADER & NAVBAR                                      */
@@ -127,7 +137,7 @@ st.markdown("""
     
     /* Add padding to main content to offset fixed navbar */
     .main {
-        padding-top: 80px !important;
+        padding-top: 70px !important;
     }
     
     /* ─────────────────────────────────────────────────────────── */
@@ -399,17 +409,24 @@ st.markdown("""
         transform: translateY(-1px);
     }
     
-    /* Better links */
-    a {
+    /* Better links — only apply to content, not navbar */
+    a:not(.vpg-brand):not(.vpg-nav-link) {
         color: #667eea;
         text-decoration: none;
         font-weight: 600;
         transition: all 0.2s ease;
     }
     
-    a:hover {
+    a:not(.vpg-brand):not(.vpg-nav-link):hover {
         color: #764ba2;
         text-decoration: underline;
+    }
+    
+    /* Ensure navbar links always stay white */
+    .vpg-brand, .vpg-brand:hover,
+    .vpg-nav-link, .vpg-nav-link:hover {
+        color: white !important;
+        text-decoration: none !important;
     }
     
     /* Feature cards */
@@ -1604,10 +1621,10 @@ def main():
                                 comment_disp = c.get('Comment', '')
                                 ts_disp = str(c.get('Timestamp', ''))[:10]
                                 st.markdown(f"""
-                                    <div style="background: rgba(255,255,255,0.1); padding: 0.6rem 1rem; border-radius: 8px; margin: 0.4rem 0; border-left: 3px solid #667eea;">
-                                        <strong style="color: white;">👤 {name_disp}</strong>
-                                        <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-left: 0.5rem;">{ts_disp}</span>
-                                        <p style="color: white; margin: 0.3rem 0 0 0; font-size: 0.95rem;">{comment_disp}</p>
+                                    <div style="background: #f0f4ff; padding: 0.6rem 1rem; border-radius: 8px; margin: 0.4rem 0; border-left: 3px solid #667eea;">
+                                        <strong style="color: #1a1a1a;">👤 {name_disp}</strong>
+                                        <span style="color: #888; font-size: 0.8rem; margin-left: 0.5rem;">{ts_disp}</span>
+                                        <p style="color: #333; margin: 0.3rem 0 0 0; font-size: 0.95rem;">{comment_disp}</p>
                                     </div>
                                 """, unsafe_allow_html=True)
                         else:
@@ -1769,7 +1786,7 @@ def main():
             
             if prompts:
                 # Select prompt to edit
-                st.markdown('<p style="color: white; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">Select a prompt to edit or delete:</p>', unsafe_allow_html=True)
+                st.markdown('<p style="color: #1a1a1a; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">Select a prompt to edit or delete:</p>', unsafe_allow_html=True)
                 prompt_options = [f"#{i+1} - {p.get('Prompt Name', 'Untitled')} - {p.get('Prompt', '')[:40]}..." for i, p in enumerate(prompts)]
                 selected_idx = st.selectbox(
                     "Choose prompt:",
@@ -2393,11 +2410,11 @@ def main():
                         r_ts = str(r.get('Timestamp', ''))[:10]
                         if r_comment:
                             st.markdown(f"""
-                                <div style="background: rgba(255,255,255,0.1); padding: 0.7rem 1.1rem; border-radius: 10px; margin: 0.5rem 0; border-left: 4px solid #764ba2;">
-                                    <strong style="color: white;">👤 {r_name}</strong>
+                                <div style="background: #f0f4ff; padding: 0.7rem 1.1rem; border-radius: 10px; margin: 0.5rem 0; border-left: 4px solid #764ba2;">
+                                    <strong style="color: #1a1a1a;">👤 {r_name}</strong>
                                     <span style="color: gold; margin-left: 0.5rem;">{"⭐" * r_rating}</span>
-                                    <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-left: 0.5rem;">{r_ts}</span>
-                                    <p style="color: white; margin: 0.3rem 0 0 0; font-size: 0.95rem;">{r_comment}</p>
+                                    <span style="color: #888; font-size: 0.8rem; margin-left: 0.5rem;">{r_ts}</span>
+                                    <p style="color: #333; margin: 0.3rem 0 0 0; font-size: 0.95rem;">{r_comment}</p>
                                 </div>
                             """, unsafe_allow_html=True)
                 else:
