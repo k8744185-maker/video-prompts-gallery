@@ -1,0 +1,38 @@
+# ─── SECRETS — NEVER COMMIT THESE ────────────────────────────
+.env
+.env.local
+.env.production
+.env.staging
+# .env.example is intentionally allowed (contains no real values)
+credentials.json
+service_account.json
+*_secret*
+*_credentials*
+
+# ─── Python ───────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ─── Virtual environments ─────────────────────────────────────
+venv/
+env/
+.venv/
+
+# ─── Uploads (ephemeral — use Cloudinary) ─────────────────────
+static/uploads/
+
+# ─── OS / editors ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+*.swp

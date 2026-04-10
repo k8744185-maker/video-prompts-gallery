@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Prompts Gallery - Cinematic AI Prompt Collection</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Free curated AI video generation prompts for Runway ML, Pika Labs, Kling AI, and Stable Video Diffusion. Explore cinematic prompts across Nature, Sci-Fi, People, Urban, and more.">
+    <meta name="keywords" content="AI video prompts, cinematic prompts, text to video, AI art, Runway ML, Pika Labs, Kling AI">
+    <meta name="author" content="Video Prompts Gallery">
+    <link rel="canonical" href="https://video-prompts-gallery.onrender.com/">
+
+    <!-- Open Graph (Facebook / LinkedIn sharing) -->
+    <meta property="og:title" content="Video Prompts Gallery - Cinematic AI Prompt Collection">
+    <meta property="og:description" content="Free curated cinematic AI video prompts for Runway, Pika Labs, Kling AI and more.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://video-prompts-gallery.onrender.com/">
+    <meta property="og:image" content="https://video-prompts-gallery.onrender.com/static/favicon.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Video Prompts Gallery">
+    <meta name="twitter:description" content="Free cinematic AI video prompts.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <link rel="apple-touch-icon" href="/static/favicon.png">
+    
+    <!-- Google AdSense & Verification -->
+    <meta name="google-site-verification" content="8MpJT70JgoawSi-Z8yz-ZOHphQiFAsmJTq2622M41Us">
+    <meta name="google-adsense-account" content="ca-pub-5050768956635718">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718" crossorigin="anonymous"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/style.css?v=2">
+</head>
+<body>
+    <!-- SSR Prompt Content (always visible to users AND crawlers) -->
+    <section id="vpg-ssr-content" class="vpg-ssr-section" aria-label="Featured AI Video Prompts">
+        <div class="vpg-ssr-inner">
+            <h2 class="vpg-ssr-heading">Featured AI Video Generation Prompts</h2>
+            <p class="vpg-ssr-subtext">Explore our curated collection of professional cinematic prompts for Runway ML, Pika Labs, Kling AI, and Stable Video Diffusion &mdash; free to use.</p>
+            <div class="vpg-ssr-grid">
+            {% if ssr_prompts %}
+            {% for p in ssr_prompts[:12] %}
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">{{ p.get('Category', 'General') }}</span>
+                    <h3 class="vpg-ssr-title">{{ p.get('Prompt Name', 'Cinematic Prompt') }}</h3>
+                    <p class="vpg-ssr-text">{{ p.get('Prompt', '')[:300] }}{% if p.get('Prompt', '')|length > 300 %}&hellip;{% endif %}</p>
+                </article>
+            {% endfor %}
+            {% else %}
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Cinematic</span>
+                    <h3 class="vpg-ssr-title">Golden Hour City Chase</h3>
+                    <p class="vpg-ssr-text">A low-angle tracking shot through narrow Tokyo alleyways at golden hour. Warm amber light reflects off rain-slicked cobblestones. The camera drifts around a corner revealing a bustling neon-lit street market. Cinematic 4K, anamorphic lens flare.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Fantasy</span>
+                    <h3 class="vpg-ssr-title">Ancient Forest Awakening</h3>
+                    <p class="vpg-ssr-text">Slow dolly shot through an ancient redwood forest at dawn. Shafts of golden light pierce a dense misty canopy. Luminescent fireflies drift upward as the camera rises. Ethereal orchestral mood, hyperrealistic bark texture detail. Studio Ghibli warmth.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Sci-Fi</span>
+                    <h3 class="vpg-ssr-title">Orbital Debris Field</h3>
+                    <p class="vpg-ssr-text">Top-down crane shot slowly rotating over a glittering debris field in low Earth orbit. Fragments of a destroyed satellite catch sunlight against the blue curvature of Earth below. Absolute silence. Ultra-wide anamorphic, photorealistic 8K render.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Nature</span>
+                    <h3 class="vpg-ssr-title">Bioluminescent Ocean Tide</h3>
+                    <p class="vpg-ssr-text">Drone shot descending over a dark tropical beach at midnight. Glowing bioluminescent plankton illuminates each breaking wave in electric blue. Camera glides inches above the waterline as foam traces neon patterns on black sand. Stars reflect in tidal pools. 8K cinematic, long exposure aesthetic.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Urban</span>
+                    <h3 class="vpg-ssr-title">Rainy Cyberpunk Rooftop</h3>
+                    <p class="vpg-ssr-text">Static wide shot from a rain-soaked rooftop in a futuristic megacity. Holographic billboards flicker in Mandarin and English. Steam rises from ventilation grates. A lone figure in a transparent raincoat stands at the edge, looking down at rivers of neon traffic 80 stories below. Blade Runner mood, anamorphic bokeh.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">People</span>
+                    <h3 class="vpg-ssr-title">Flamenco Dancer in Ruins</h3>
+                    <p class="vpg-ssr-text">Medium close-up of a flamenco dancer mid-spin inside a crumbling Spanish cathedral. Red dress fans outward in slow motion. Dust particles catch golden backlight streaming through broken stained glass. Camera orbits 180 degrees. Sound of clapping echoes. Cinematic 4K, shallow depth of field.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Cinematic</span>
+                    <h3 class="vpg-ssr-title">Venetian Gondola at Dusk</h3>
+                    <p class="vpg-ssr-text">Smooth steadicam following a gondola through narrow Venice canals as the last light fades. Warm lanterns reflect off rippling water creating dancing gold patterns on ancient stone walls. The gondolier sings softly. Camera slowly rises to reveal the Grand Canal bathed in purple twilight. Romantic, cinematic 4K, Cooke lens warmth.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Sci-Fi</span>
+                    <h3 class="vpg-ssr-title">Abandoned Space Station Corridor</h3>
+                    <p class="vpg-ssr-text">First-person POV floating through a derelict space station corridor. Emergency red lights pulse rhythmically. Zero-gravity water droplets drift past the camera catching light like rubies. Cables hang loose, sparking intermittently. The corridor curves ahead into darkness. Dead silence except for a distant metallic groan. Photorealistic 8K, ultra-wide 2.39:1 aspect ratio.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Fantasy</span>
+                    <h3 class="vpg-ssr-title">Crystal Cavern Discovery</h3>
+                    <p class="vpg-ssr-text">Slow push-in through a narrow cave opening that widens into an enormous crystal cavern. Massive amethyst and quartz formations tower like skyscrapers, refracting torchlight into prismatic rainbows across every surface. An underground lake mirrors the crystalline ceiling perfectly. Ethereal choir on the soundtrack. Hyperrealistic geological detail, IMAX format.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Nature</span>
+                    <h3 class="vpg-ssr-title">Arctic Fox in Blizzard</h3>
+                    <p class="vpg-ssr-text">Telephoto tracking shot of a pure white arctic fox trotting across vast tundra during a gentle snowfall. Wind ripples its thick fur. The fox pauses, tilts its head listening, then leaps vertically and dives headfirst into the snow. Camera holds on the fox-shaped hole. Minimalist composition, nature documentary style, 4K 120fps slow motion.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Cinematic</span>
+                    <h3 class="vpg-ssr-title">Sahara Desert Caravan at Sunrise</h3>
+                    <p class="vpg-ssr-text">Aerial establishing shot of a camel caravan crossing sweeping orange sand dunes at sunrise. Long shadows stretch across sculpted ridgelines. Heat shimmer distorts the distant horizon. Camera slowly descends to eye level as the lead camel passes frame. Lawrence of Arabia grandeur, golden hour warmth, IMAX 70mm grain texture.</p>
+                </article>
+                <article class="vpg-ssr-card">
+                    <span class="vpg-ssr-tag">Urban</span>
+                    <h3 class="vpg-ssr-title">Mumbai Local Train Rush Hour</h3>
+                    <p class="vpg-ssr-text">Handheld camera inside a packed Mumbai local train during monsoon rush hour. Rain streams sideways through open doors. Passengers hold ceiling handles, swaying in unison. Camera pushes through the crowd toward the open doorway revealing the city skyline under dramatic storm clouds. Vivid colours, documentary realism, Alexa Mini LF look.</p>
+                </article>
+            {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Cinematic Preloader -->
+    <div id="vpg-loader">
+        <div class="loader-percentage" id="loader-count">0</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="vpg-navbar">
+        <div class="vpg-navbar-content">
+            <div class="vpg-brand" onclick="showGallery()" style="cursor:pointer">Video Prompts Gallery</div>
+            <div class="vpg-nav-links">
+                <button class="vpg-nav-link" onclick="showGallery()">Gallery</button>
+                <a class="vpg-nav-link" href="/blog">Blog</a>
+                <a class="vpg-nav-link" href="/about">About</a>
+                <a class="vpg-nav-link" href="/contact">Contact</a>
+                <!-- User auth badge -->
+                <span id="vpg-user-badge" class="vpg-user-badge hidden">
+                    <span id="vpg-user-avatar" class="vpg-user-avatar"></span>
+                    <span id="vpg-user-name" class="vpg-user-name"></span>
+                    <button class="vpg-logout-btn" onclick="userLogout()" title="Logout">↪</button>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="vpg-hero" id="vpg-hero">
+        <h1>Cinematic Prompt Library</h1>
+        <p class="vpg-hero-subtitle">Professional AI video generation prompts. Curated for filmmakers, creators, and visionaries.</p>
+    </header>
+
+    <!-- Floating Generate AI Image Button -->
+    <div class="vpg-gen-fab-wrap hidden" id="vpg-gen-fab-wrap">
+        <button class="vpg-gen-fab" id="vpg-gen-fab" onclick="openImageGen()" title="Generate AI Image">
+            <span class="vpg-gen-fab-icon">✦</span>
+            <span class="vpg-gen-fab-label">Generate AI Image</span>
+        </button>
+    </div>
+
+    <!-- Search Section -->
+    <section class="vpg-search-container" id="vpg-search">
+        <div class="search-box">
+            <input type="text" id="vpg-search-input" placeholder="Search cinematic prompts..." oninput="debounceSearch()">
+            <span class="search-icon">🔍</span>
+        </div>
+    </section>
+
+    <!-- Gallery View -->
+    <main class="gallery-container" id="main-gallery">
+        
+        <!-- Filters -->
+        <div class="gallery-filters">
+            <div class="vpg-filter-dropdown-wrapper" id="category-filters">
+                <!-- Dropdown will be injected here -->
+            </div>
+        </div>
+
+        <!-- Prompt Grid -->
+        <div class="prompt-grid" id="prompt-grid">
+            <!-- Prompts and Ads will be injected here -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="vpg-pagination" id="vpg-pagination">
+            <!-- Pagination buttons will be injected here -->
+        </div>
+
+        <!-- Ad Unit — bottom of gallery -->
+        <div class="ad-unit-footer" style="margin: 4rem 0; text-align: center;">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-5050768956635718"
+                 data-ad-slot="4127739184"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </main>
+
+    <!-- Legal/Info Section (AdSense Compliance) -->
+    <main class="gallery-container hidden" id="main-legal">
+        <div class="legal-content" id="legal-content-area">
+            <!-- FAQ, Privacy, Terms content will show here -->
+        </div>
+    </main>
+
+    <!-- Prompt Detail Modal -->
+    <div id="vpg-modal" class="vpg-modal hidden">
+        <div class="modal-backdrop" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">Prompt Details</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Cookie Consent -->
+    <div id="vpg-cookie-consent" class="vpg-cookie-banner hidden">
+        <div class="cookie-content">
+            <p>🍪 We use cookies to enhance your experience and serve relevant ads via Google AdSense. By continuing to browse, you agree to our <span class="link" onclick="showLegal('privacy')">Privacy Policy</span>.</p>
+            <button class="btn-premium" onclick="acceptCookies()">Accept</button>
+        </div>
+    </div>
+
+    <!-- Back to Top -->
+    <button id="vpg-back-to-top" class="vpg-btt" onclick="scrollToTop()">↑</button>
+
+    <!-- Admin Action Bar (visible only when logged in) -->
+    <div id="vpg-admin-bar" class="vpg-admin-bar hidden">
+        <div class="admin-bar-content">
+            <span class="admin-bar-label">🔐 Admin Mode</span>
+            <button class="btn-admin-action" onclick="openCreatePrompt()">+ Create New Prompt</button>
+            <button class="btn-admin-action btn-flipper-toggle" onclick="toggleFlipperPanel()">⚙ Feature Flags</button>
+            <button class="btn-admin-logout" onclick="adminLogout()">Logout</button>
+        </div>
+        <!-- Flipper Panel -->
+        <div id="vpg-flipper-panel" class="vpg-flipper-panel hidden">
+            <div class="flipper-panel-header">
+                <span class="flipper-panel-title">🚦 Feature Flipper</span>
+                <span class="flipper-panel-hint">Toggle features on/off for all users</span>
+            </div>
+            <div id="flipper-flags-list" class="flipper-flags-list">
+                <!-- Feature checkboxes injected by JS -->
+            </div>
+            <div class="flipper-panel-footer">
+                <span id="flipper-save-status" class="flipper-save-status"></span>
+                <button class="btn-flipper-save" id="flipper-save-btn" onclick="saveFlipperSettings()">✔ Save &amp; Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── ADMIN LOGIN MODAL ─────────────────────────────── -->
+    <div id="vpg-admin-login-modal" class="vpg-modal hidden">
+        <div class="modal-backdrop" onclick="closeAdminLogin()"></div>
+        <div class="modal-content" style="max-width:420px;">
+            <button class="modal-close" onclick="closeAdminLogin()">&times;</button>
+            <div style="text-align:center;margin-bottom:2rem;">
+                <div style="font-size:2rem;margin-bottom:0.5rem;">🔐</div>
+                <h2 class="vpg-card-title" style="font-size:1.8rem;">Admin Login</h2>
+                <p style="color:var(--vpg-text-dim);font-size:0.9rem;">Enter your admin password to continue.</p>
+            </div>
+            <div id="admin-login-error" class="admin-error hidden"></div>
+            <div class="admin-form-group">
+                <input type="password" id="admin-password-input" class="admin-input"
+                       placeholder="Admin password"
+                       onkeydown="if(event.key==='Enter') submitAdminLogin()">
+            </div>
+            <button class="btn-premium" style="width:100%;margin-top:1rem;" onclick="submitAdminLogin()">
+                Login
+            </button>
+        </div>
+    </div>
+
+    <!-- ─── PROMPT CREATE / EDIT MODAL ───────────────────── -->
+    <div id="vpg-prompt-editor" class="vpg-modal hidden">
+        <div class="modal-backdrop" onclick="closePromptEditor()"></div>
+        <div class="modal-content" style="max-width:700px;">
+            <button class="modal-close" onclick="closePromptEditor()">&times;</button>
+            <h2 class="vpg-card-title" id="editor-title" style="margin-bottom:2rem;">Create New Prompt</h2>
+
+            <div class="admin-error hidden" id="editor-error"></div>
+
+            <div class="admin-form-group">
+                <label class="admin-label">Prompt Name *</label>
+                <input type="text" id="editor-name" class="admin-input" placeholder="e.g. Cinematic Sunset Drive">
+            </div>
+            <div class="admin-form-group">
+                <label class="admin-label">Category</label>
+                <input type="text" id="editor-category" class="admin-input" placeholder="e.g. Nature, People, Sci-Fi">
+            </div>
+            <div class="admin-form-group">
+                <label class="admin-label">Prompt Text *</label>
+                <textarea id="editor-prompt" class="admin-textarea" rows="8"
+                          placeholder="Enter the full cinematic prompt here..."></textarea>
+            </div>
+            <div class="admin-form-group">
+                <label class="admin-label">Video ID (optional)</label>
+                <input type="text" id="editor-video-id" class="admin-input" placeholder="e.g. Video_042">
+            </div>
+            <div class="admin-form-group">
+                <label class="admin-label">Image (Upload from Device)</label>
+                <input type="file" id="editor-image-file" class="admin-input" accept="image/*" style="padding: 0.8rem;">
+            </div>
+            <div class="admin-form-group">
+                <label class="admin-label">OR Image URL</label>
+                <input type="text" id="editor-image-url" class="admin-input" placeholder="e.g. https://example.com/image.jpg">
+            </div>
+
+            <input type="hidden" id="editor-prompt-id" value="">
+
+            <div class="vpg-card-actions" style="margin-top:2rem;">
+                <button class="btn-premium" onclick="closePromptEditor()">Cancel</button>
+                <button class="btn-premium" id="editor-save-btn" onclick="savePrompt()">💾 Save Prompt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <!-- Guide / Article Section (static content for AdSense content value) -->
+    <section class="vpg-guide-section" aria-label="Guide: How to Use AI Video Prompts">
+        <div class="vpg-guide-inner">
+            <h2 class="vpg-guide-heading">How to Use AI Video Generation Prompts</h2>
+            <p class="vpg-guide-lead">Crafting the perfect text-to-video prompt is an art. Here's a step-by-step guide to get stunning results from Runway ML, Pika Labs, Kling AI, and Stable Video Diffusion.</p>
+
+            <div class="vpg-guide-grid">
+                <article class="vpg-guide-step">
+                    <div class="vpg-guide-num">01</div>
+                    <h3>Be Specific About Visuals</h3>
+                    <p>Describe exact colours, lighting, textures, and composition. Instead of "a forest", write "an ancient redwood forest at golden hour, shafts of amber light filtering through dense canopy, ground fog at knee level".</p>
+                </article>
+                <article class="vpg-guide-step">
+                    <div class="vpg-guide-num">02</div>
+                    <h3>Describe Camera Movement</h3>
+                    <p>AI video models respond to cinematographic language. Use terms like "slow dolly forward", "orbit shot", "handheld tracking", or "top-down crane view" to define motion. This transforms static images into cinematic scenes.</p>
+                </article>
+                <article class="vpg-guide-step">
+                    <div class="vpg-guide-num">03</div>
+                    <h3>Set the Mood &amp; Style</h3>
+                    <p>Reference cinematic benchmarks: "film noir shadows", "Studio Ghibli warmth", "hyper-realistic 8K", or "dreamlike watercolour animation". Mood keywords dramatically influence the AI's output style.</p>
+                </article>
+                <article class="vpg-guide-step">
+                    <div class="vpg-guide-num">04</div>
+                    <h3>Specify Duration &amp; Pacing</h3>
+                    <p>Guide the tempo with phrases like "slow-motion water droplets", "time-lapse sunrise over 10 seconds", or "rapid montage of urban life". Pacing affects how the AI renders motion between frames.</p>
+                </article>
+                <article class="vpg-guide-step">
+                    <div class="vpg-guide-num">05</div>
+                    <h3>Layer Atmospheric Details</h3>
+                    <p>Add environmental richness with sound and weather contexts: "rain-soaked cobblestones reflecting neon signs", "dry heat shimmer over the Sahara", or "aurora borealis dancing above frozen tundra".</p>
+                </article>
+                <article class="vpg-guide-step">
+                    <div class="vpg-guide-num">06</div>
+                    <h3>Iterate and Refine</h3>
+                    <p>The best prompts are refined through iteration. Copy a prompt from our gallery, test it in your AI tool, then adjust specific elements. Small changes in wording can produce dramatically different results.</p>
+                </article>
+            </div>
+
+            <div class="vpg-guide-tools">
+                <h3>Compatible AI Video Tools</h3>
+                <ul class="vpg-tools-list">
+                    <li><strong>Runway ML Gen-3 Alpha</strong> &mdash; Industry-leading photorealistic video generation with advanced motion control.</li>
+                    <li><strong>Pika Labs</strong> &mdash; Fast generation with excellent style control; supports reference images.</li>
+                    <li><strong>Kling AI</strong> &mdash; Exceptional at long-form video (up to 2 minutes) with coherent motion.</li>
+                    <li><strong>Stable Video Diffusion</strong> &mdash; Open-source model ideal for fine-tuning and custom workflows.</li>
+                    <li><strong>Sora (OpenAI)</strong> &mdash; Advanced spatial reasoning and multi-scene storytelling capabilities.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer class="vpg-footer">
+        <div class="footer-brand">Video Prompts Gallery</div>
+        <div class="footer-links">
+            <button class="footer-link-btn" onclick="showLegal('faq')">FAQ</button>
+            <button class="footer-link-btn" onclick="showLegal('privacy')">Privacy</button>
+            <button class="footer-link-btn" onclick="showLegal('terms')">Terms</button>
+            <button class="footer-link-btn" onclick="showLegal('contact')">Contact</button>
+            <button class="footer-link-btn" onclick="showLegal('about')">About</button>
+        </div>
+        <!-- Triple-click on copyright to open admin login -->
+        <p style="color:var(--vpg-text-dim);font-size:0.75rem;letter-spacing:0.1em;opacity:0.5;cursor:default;"
+           ondblclick="openAdminLogin()" title="">&copy; 2026 DESIGNED FOR THE CINEMATIC EDGE.</p>
+    </footer>
+
+    <!-- ─── USER AUTH MODAL (Login / Register) ──────────────── -->
+    <div id="vpg-auth-modal" class="vpg-modal hidden" role="dialog" aria-modal="true" aria-label="Login or Register">
+        <div class="modal-backdrop" onclick="closeAuthModal()"></div>
+        <div class="modal-content auth-modal-content" style="max-width:440px;">
+            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" id="auth-tab-register" onclick="switchAuthTab('register')">Register</button>
+            </div>
+
+            <!-- Error/Success messages -->
+            <div id="auth-message" class="auth-message hidden"></div>
+
+            <!-- Login Form -->
+            <div id="auth-form-login" class="auth-form">
+                <div class="auth-form-group">
+                    <label class="auth-label">Email</label>
+                    <input type="email" id="auth-login-email" class="auth-input" placeholder="your@email.com"
+                           onkeydown="if(event.key==='Enter') submitLogin()">
+                    <div class="auth-form-error" id="auth-login-email-error"></div>
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label">Password</label>
+                    <div class="auth-password-wrapper">
+                        <input type="password" id="auth-login-password" class="auth-input" placeholder="Your password"
+                               onkeydown="if(event.key==='Enter') submitLogin()">
+                        <button type="button" class="auth-password-toggle" onclick="togglePasswordVisibility('auth-login-password')" title="Show/hide password">
+                            <span id="auth-login-password-icon">👁️</span>
+                        </button>
+                    </div>
+                    <div class="auth-form-error" id="auth-login-password-error"></div>
+                </div>
+                <button class="auth-submit-btn" onclick="submitLogin()">
+                    <span id="auth-login-label">Login</span>
+                </button>
+                <p class="auth-switch-text">Don't have an account? <span class="auth-switch-link" onclick="switchAuthTab('register')">Register here</span></p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="auth-form-register" class="auth-form hidden">
+                <div class="auth-form-group">
+                    <label class="auth-label">Full Name</label>
+                    <input type="text" id="auth-reg-name" class="auth-input" placeholder="Your name" maxlength="100">
+                    <div class="auth-form-error" id="auth-reg-name-error"></div>
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label">Email</label>
+                    <input type="email" id="auth-reg-email" class="auth-input" placeholder="your@email.com">
+                    <div class="auth-form-error" id="auth-reg-email-error"></div>
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label">Password</label>
+                    <div class="auth-password-wrapper">
+                        <input type="password" id="auth-reg-password" class="auth-input" placeholder="Min 6 characters">
+                        <button type="button" class="auth-password-toggle" onclick="togglePasswordVisibility('auth-reg-password')" title="Show/hide password">
+                            <span id="auth-reg-password-icon">👁️</span>
+                        </button>
+                    </div>
+                    <div class="auth-form-error" id="auth-reg-password-error"></div>
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label">Gemini API Key</label>
+                    <div class="auth-password-wrapper">
+                        <input type="password" id="auth-reg-apikey" class="auth-input" placeholder="Paste your API key here (starts with AIza...)">
+                        <button type="button" class="auth-password-toggle" onclick="togglePasswordVisibility('auth-reg-apikey')" title="Show/hide API key">
+                            <span id="auth-reg-apikey-icon">👁️</span>
+                        </button>
+                    </div>
+                    <div class="auth-form-error" id="auth-reg-apikey-error"></div>
+                    
+                    <!-- Expandable guide -->
+                    <div class="apikey-guide">
+                        <button type="button" class="apikey-guide-toggle" onclick="toggleApiKeyGuide()">
+                            <span class="apikey-guide-icon">🔑</span>
+                            <span>How do I get a free API key?</span>
+                            <span class="apikey-guide-arrow" id="apikey-guide-arrow">▼</span>
+                        </button>
+                        <div class="apikey-guide-steps hidden" id="apikey-guide-steps">
+                            <div class="apikey-step">
+                                <span class="apikey-step-num">1</span>
+                                <div class="apikey-step-body">
+                                    <strong>Open Google AI Studio</strong>
+                                    <p>Go to <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a></p>
+                                </div>
+                            </div>
+                            <div class="apikey-step">
+                                <span class="apikey-step-num">2</span>
+                                <div class="apikey-step-body">
+                                    <strong>Sign in with Google</strong>
+                                    <p>Use any Gmail account — no payment needed</p>
+                                </div>
+                            </div>
+                            <div class="apikey-step">
+                                <span class="apikey-step-num">3</span>
+                                <div class="apikey-step-body">
+                                    <strong>Click "Create API Key"</strong>
+                                    <p>Select "Create API key in new project" and click Create</p>
+                                </div>
+                            </div>
+                            <div class="apikey-step">
+                                <span class="apikey-step-num">4</span>
+                                <div class="apikey-step-body">
+                                    <strong>Copy your key</strong>
+                                    <p>Click the copy icon and paste it above. It starts with <code>AIza...</code></p>
+                                </div>
+                            </div>
+                            <p class="apikey-guide-note">🔒 Your key is encrypted and stored securely. We never display it back to you or share it.</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="auth-submit-btn" onclick="submitRegister()">
+                    <span id="auth-reg-label">Create Account</span>
+                </button>
+                <p class="auth-switch-text">Already have an account? <span class="auth-switch-link" onclick="switchAuthTab('login')">Login here</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── AI IMAGE GENERATOR MODAL ─────────────────────────── -->
+    <div id="vpg-imggen-modal" class="vpg-modal hidden" role="dialog" aria-modal="true" aria-label="AI Image Generator">
+        <div class="modal-backdrop" onclick="closeImageGen()"></div>
+        <div class="imggen-sheet">
+
+            <!-- Header -->
+            <div class="imggen-header">
+                <div class="imggen-title">
+                    <span class="imggen-title-icon">✦</span>
+                    <span>AI Image Generator</span>
+                </div>
+                <button class="imggen-close" onclick="closeImageGen()" aria-label="Close">&times;</button>
+            </div>
+
+            <!-- Generator Content (Unified View) -->
+            <div class="imggen-unified-panel">
+                
+                <!-- Prompt Section -->
+                <div class="imggen-section">
+                    <label class="imggen-label">1. The Prompt</label>
+                    
+                    <!-- Radio Toggle -->
+                    <div class="imggen-radio-group">
+                        <label class="imggen-radio">
+                            <input type="radio" name="prompt_mode" value="list" onchange="togglePromptMode()" checked>
+                            <span>Select prompt from list</span>
+                        </label>
+                        <label class="imggen-radio">
+                            <input type="radio" name="prompt_mode" value="manual" onchange="togglePromptMode()">
+                            <span>Manually enter prompt</span>
+                        </label>
+                    </div>
+
+                    <!-- Mode: Select from list -->
+                    <div id="imggen-mode-list" class="imggen-mode-panel">
+                        <select id="imggen-prompt-dropdown" class="imggen-select" onchange="selectDropdownPrompt()">
+                            <option value="">-- Choose a cinematic prompt --</option>
+                            <!-- Populated by JS -->
+                        </select>
+                        <div class="imggen-selected-preview" id="imggen-selected-preview"></div>
+                    </div>
+
+                    <!-- Mode: Manual entry -->
+                    <div id="imggen-mode-manual" class="imggen-mode-panel hidden">
+                        <textarea id="imggen-custom-prompt"
+                                  class="imggen-textarea"
+                                  placeholder="Describe the cinematic image you want to generate…"
+                                  rows="5"></textarea>
+                    </div>
+                </div>
+
+                <!-- Image Upload Section -->
+                <div class="imggen-section">
+                    <label class="imggen-label">2. Reference Image (Optional)</label>
+                    <div class="imggen-upload-zone" id="imggen-upload-zone"
+                         onclick="document.getElementById('imggen-file-input').click()"
+                         ondragover="imggenDragOver(event)"
+                         ondragleave="imggenDragLeave(event)"
+                         ondrop="imggenDrop(event)">
+                        <div class="imggen-upload-icon">📂</div>
+                        <p class="imggen-upload-text">Click or drag &amp; drop an image here</p>
+                        <p class="imggen-upload-hint">JPG, PNG, WEBP, GIF — max 10 MB</p>
+                        <input type="file" id="imggen-file-input" accept="image/*"
+                               style="display:none" onchange="imggenFileSelected(event)">
+                    </div>
+                    <!-- Preview -->
+                    <div class="imggen-preview-wrap hidden" id="imggen-preview-wrap">
+                        <img id="imggen-preview-img" src="" alt="Reference image preview" class="imggen-preview-img">
+                        <button class="imggen-remove-btn" onclick="imggenRemoveImage()" title="Remove image">✕ Remove Image</button>
+                    </div>
+                    <p class="imggen-upload-note">Guides the AI's composition and style.</p>
+                </div>
+
+                <!-- Output Settings Section -->
+                <div class="imggen-section">
+                    <label class="imggen-label">3. Output Settings</label>
+                    <div class="imggen-settings-row">
+                        <div class="imggen-setting-group">
+                            <label class="imggen-setting-label">Aspect Ratio</label>
+                            <select id="imggen-aspect-ratio" class="imggen-select" onchange="_imgGenUpdateSummary()">
+                                <option value="1:1">&#9643; Square (1:1)</option>
+                                <option value="16:9">&#9644; Landscape (16:9)</option>
+                                <option value="9:16">&#9646; Portrait (9:16)</option>
+                                <option value="4:3">&#9645; Standard (4:3)</option>
+                                <option value="3:4">&#9647; Tall (3:4)</option>
+                                <option value="3:2">&#128247; Photo (3:2)</option>
+                                <option value="2:3">&#128241; Tall Photo (2:3)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Area -->
+            <div class="imggen-result hidden" id="imggen-result">
+                <div class="imggen-result-header">
+                    <span class="imggen-result-label">Generated Image</span>
+                    <div class="imggen-result-actions">
+                        <button class="imggen-action-btn" id="imggen-retry-btn" onclick="imggenRetry()">
+                            🔄 Retry (<span id="imggen-retry-count">3</span> left)
+                        </button>
+                        <button class="imggen-action-btn" id="imggen-download-btn" onclick="imggenDownload()">
+                            ⬇ Download
+                        </button>
+                        <button class="imggen-action-btn imggen-minimize-btn" id="imggen-minimize-btn"
+                                onclick="imggenToggleMinimize()" title="Minimize result — go back to edit prompt">
+                            ▲ Minimize
+                        </button>
+                        <button class="imggen-action-btn imggen-close-result-btn"
+                                onclick="imggenCloseResult()" title="Dismiss result — clear and start fresh">
+                            ✕ Close
+                        </button>
+                    </div>
+                </div>
+                <div class="imggen-result-img-wrap" id="imggen-result-img-wrap">
+                    <img id="imggen-result-img" src="" alt="AI Generated Image" class="imggen-result-img">
+                </div>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="imggen-error hidden" id="imggen-error">
+                <div class="imggen-error-icon" id="imggen-error-icon">&#9888;&#65039;</div>
+                <div class="imggen-error-body">
+                    <div class="imggen-error-title" id="imggen-error-title">Generation failed</div>
+                    <div class="imggen-error-msg" id="imggen-error-msg"></div>
+                    <div class="imggen-error-tip" id="imggen-error-tip"></div>
+                </div>
+            </div>
+
+            <!-- Loading Progress -->
+            <div class="imggen-progress hidden" id="imggen-progress">
+                <div class="imggen-progress-track">
+                    <div class="imggen-progress-fill" id="imggen-progress-fill"></div>
+                </div>
+                <div class="imggen-progress-label" id="imggen-progress-label"></div>
+            </div>
+
+            <!-- Footer: Generate button -->
+            <div class="imggen-footer">
+                <div class="imggen-selection-summary" id="imggen-summary">No prompt selected</div>
+                <button class="imggen-generate-btn" id="imggen-generate-btn" onclick="imggenGenerate()">
+                    <span class="imggen-btn-icon">✦</span>
+                    <span id="imggen-btn-label">Generate Image</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/app.js?v=2.0"></script>
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Video Prompts Gallery",
+      "url": "https://video-prompts-gallery.onrender.com/",
+      "description": "Free curated AI video generation prompts for Runway ML, Pika Labs, and Stable Video Diffusion.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://video-prompts-gallery.onrender.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Write AI Video Prompts That Actually Work — Video Prompts Gallery</title>
+    <meta name="description" content="Learn the exact formula for writing AI video generation prompts that produce cinematic, professional results. Step-by-step guide covering camera movements, lighting, mood, and quality markers.">
+    <link rel="canonical" href="https://video-prompts-gallery.onrender.com/blog/how-to-write-ai-video-prompts">
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <meta name="google-adsense-account" content="ca-pub-5050768956635718">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        .article-hero { padding: 7rem 5% 4rem; background: linear-gradient(180deg, #111 0%, #0a0a0a 100%); border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .article-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; margin-bottom: 1rem; max-width: 800px; line-height: 1.2; }
+        .article-hero .meta { font-size: 0.9rem; color: rgba(255,255,255,0.4); }
+        .article-body { max-width: 780px; margin: 0 auto; padding: 4rem 5%; }
+        .article-body h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 3rem 0 1rem; }
+        .article-body h3 { font-size: 1.2rem; font-weight: 700; margin: 2rem 0 0.8rem; color: rgba(255,255,255,0.9); }
+        .article-body p { color: rgba(255,255,255,0.72); line-height: 1.95; margin-bottom: 1.5rem; font-size: 1.05rem; }
+        .article-body ul, .article-body ol { color: rgba(255,255,255,0.72); line-height: 2; font-size: 1.05rem; padding-left: 1.8rem; margin-bottom: 1.5rem; }
+        .article-body li { margin-bottom: 0.5rem; }
+        .prompt-example { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-left: 4px solid #10b981; border-radius: 8px; padding: 1.5rem; margin: 2rem 0; font-family: monospace; font-size: 0.95rem; color: rgba(255,255,255,0.85); line-height: 1.8; }
+        .tip-box { background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25); border-radius: 12px; padding: 1.5rem; margin: 2rem 0; }
+        .tip-box strong { color: #c4b5fd; }
+        .nav-back { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.9rem; margin-bottom: 2rem; transition: color 0.2s; }
+        .nav-back:hover { color: white; }
+        .tag { display: inline-block; background: rgba(16,185,129,0.15); color: #10b981; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.3rem 0.8rem; border-radius: 20px; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body>
+    <nav class="vpg-nav">
+        <div class="vpg-nav-inner">
+            <a href="/" class="vpg-brand">Video Prompts Gallery</a>
+            <div class="vpg-nav-links">
+                <a href="/" class="vpg-nav-link">Gallery</a>
+                <a href="/blog" class="vpg-nav-link">Blog</a>
+                <a href="/about" class="vpg-nav-link">About</a>
+                <a href="/contact" class="vpg-nav-link">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="article-hero">
+        <div style="max-width:780px; margin:0 auto;">
+            <a href="/blog" class="nav-back">← Back to Blog</a>
+            <span class="tag">Beginner Guide</span>
+            <h1>How to Write AI Video Prompts That Actually Work</h1>
+            <p class="meta">10 min read &middot; April 2026 &middot; By the Video Prompts Gallery team</p>
+        </div>
+    </div>
+
+    <div class="article-body">
+        <p>Getting great results from AI video generators is harder than it looks. Tools like Runway ML, Pika Labs, and Kling AI can produce cinematic masterpieces — or blurry, incoherent nonsense — depending almost entirely on how well your prompt is written.</p>
+        <p>After testing hundreds of prompts across every major AI video platform, we have identified a reliable formula that consistently produces stunning, professional-quality results. This guide will teach you exactly how to apply it.</p>
+
+        <h2>The Anatomy of a Great AI Video Prompt</h2>
+        <p>A high-performing AI video prompt typically contains six key components, arranged in a specific order. Think of it as writing a shot list for a film director who has never seen the real world:</p>
+        <ol>
+            <li><strong>Camera Shot Type</strong> — What kind of shot is it?</li>
+            <li><strong>Camera Movement</strong> — How does the camera move through space?</li>
+            <li><strong>Subject &amp; Action</strong> — What is the main subject doing?</li>
+            <li><strong>Environment &amp; Setting</strong> — Where is this happening?</li>
+            <li><strong>Lighting &amp; Atmosphere</strong> — What does it feel like visually?</li>
+            <li><strong>Quality &amp; Style Markers</strong> — What is the target aesthetic and resolution?</li>
+        </ol>
+
+        <p>Here is an example of how these six elements combine into a finished prompt:</p>
+
+        <div class="prompt-example">
+            Low-angle tracking shot [1] slowly pushing forward [2] following a lone astronaut walking across a field of black volcanic rock [3] on the surface of Io, Jupiter looming enormous in the sky above [4]. Long shadows stretch across the alien terrain, pale blue Jupiter-light illuminating the scene with an eerie, otherworldly glow [5]. Ultra-wide anamorphic, photorealistic 8K, Interstellar visual style [6].
+        </div>
+
+        <h2>1. Nail the Camera Shot Type</h2>
+        <p>The shot type is the foundation of any prompt. AI video models respond strongly to cinematic terminology. Using vague language like "a video of" or "show me" gives the model too much freedom, usually resulting in inconsistent, drifting compositions.</p>
+        <p>Instead, use precise cinematography terms:</p>
+        <ul>
+            <li><strong>Extreme close-up (ECU):</strong> Just the eyes, a hand, a detail. Intimate and intense.</li>
+            <li><strong>Close-up (CU):</strong> Face and upper shoulders. Great for emotional scenes.</li>
+            <li><strong>Medium shot (MS):</strong> Waist-up. The most natural conversational framing.</li>
+            <li><strong>Wide shot (WS):</strong> Full body visible with environment context.</li>
+            <li><strong>Establishing shot:</strong> Sweeping view of a location to set the scene.</li>
+            <li><strong>Low-angle shot:</strong> Camera below the subject — feels powerful and heroic.</li>
+            <li><strong>Bird's-eye / overhead shot:</strong> Camera directly above — abstract and dramatic.</li>
+        </ul>
+
+        <h2>2. Specify Camera Movement</h2>
+        <p>Camera movement is the single most effective way to communicate dynamism and cinematic quality. Static shots are fine for close-ups, but movement makes a scene feel alive.</p>
+        <ul>
+            <li><strong>Dolly shot:</strong> The camera physically moves toward or away from the subject on a track.</li>
+            <li><strong>Tracking shot:</strong> Camera follows the subject from the side or behind as it moves.</li>
+            <li><strong>Pan:</strong> Camera pivots left or right from a fixed position.</li>
+            <li><strong>Tilt:</strong> Camera pivots up or down from a fixed position.</li>
+            <li><strong>Crane / jib shot:</strong> Camera rises or descends — great for reveal moments.</li>
+            <li><strong>Drone shot:</strong> Aerial movement — sweeping, grand, spatial.</li>
+            <li><strong>Handheld:</strong> Subtle, organic shake — feels documentary and raw.</li>
+        </ul>
+
+        <div class="tip-box">
+            <strong>💡 Pro Tip:</strong> Combine shot type and movement for maximum specificity. "Low-angle crane shot slowly rising" is far more powerful than "camera looks up". The more precise your language, the more controlled your output.
+        </div>
+
+        <h2>3. Describe Your Subject With Specificity</h2>
+        <p>AI models work best when given specific, concrete subjects rather than abstract ones. "A woman walking" is weak. "A young South Asian woman in a saffron silk saree walking slowly through a crowded Mumbai train station at rush hour" is strong.</p>
+        <p>Key attributes to specify for your subject:</p>
+        <ul>
+            <li>Physical appearance (age, build, distinctive features)</li>
+            <li>Clothing and accessories</li>
+            <li>Specific action or motion</li>
+            <li>Emotional state or expression</li>
+            <li>Relationship to the environment</li>
+        </ul>
+
+        <h2>4. Build a Vivid Environment</h2>
+        <p>The environment and setting anchor the entire scene. AI models draw from their training data, so referencing real places, architectural styles, or well-known visual references dramatically improves output quality.</p>
+        <p>Compare:</p>
+        <ul>
+            <li><em>Weak:</em> "A city street at night"</li>
+            <li><em>Strong:</em> "A rain-slicked narrow alley in Shibuya, Tokyo, at 2am, neon signs in Japanese reflecting in puddles, vending machine light casting orange warmth across wet cobblestones"</li>
+        </ul>
+        <p>The second version is 5x longer — and will produce dramatically better results because it leaves almost nothing to chance.</p>
+
+        <h2>5. Master Lighting Description</h2>
+        <p>Lighting is the language of cinema. It sets mood, time of day, genre, and emotional tone all at once. AI video models respond exceptionally well to specific lighting descriptions:</p>
+        <ul>
+            <li><strong>Golden hour:</strong> Warm, amber, directional sunlight just after sunrise or before sunset</li>
+            <li><strong>Blue hour:</strong> The soft, cool twilight just after sunset or before sunrise</li>
+            <li><strong>Chiaroscuro:</strong> High-contrast light and shadow, Renaissance painting style</li>
+            <li><strong>Neon-lit:</strong> Vibrant, coloured light sources — great for cyberpunk, nightlife scenes</li>
+            <li><strong>Overcast diffused:</strong> Soft, even natural light with no harsh shadows</li>
+            <li><strong>Candle-lit / firelight:</strong> Warm, flickering, low-contrast interior light</li>
+            <li><strong>Practical lighting:</strong> Light from sources visible in the scene (lamps, screens, windows)</li>
+        </ul>
+
+        <h2>6. Add Quality and Style Markers</h2>
+        <p>The final component signals your target aesthetic. These markers help the AI understand the benchmark of quality you are aiming for:</p>
+        <ul>
+            <li><strong>Resolution:</strong> 4K, 8K, ultra-high resolution</li>
+            <li><strong>Lens type:</strong> Anamorphic, wide-angle, telephoto, macro</li>
+            <li><strong>Film references:</strong> "Christopher Nolan visual style", "Studio Ghibli warmth", "Blade Runner aesthetic"</li>
+            <li><strong>Photography terms:</strong> "shallow depth of field", "long exposure", "bokeh"</li>
+            <li><strong>Render quality:</strong> "photorealistic", "hyperrealistic", "cinematic grade"</li>
+        </ul>
+
+        <div class="tip-box">
+            <strong>🎬 Complete Example Prompt:</strong>
+            <div style="margin-top:1rem; font-family:monospace; font-size:0.9rem; line-height:1.8;">
+                "Slow dolly shot moving backward through an ancient Japanese maple forest in peak autumn, trees exploding in crimson and orange. A lone elderly monk in grey robes walks slowly away from camera toward a red torii gate in the distance, mist swirling at ankle height. Shafts of late afternoon golden light pierce the canopy. Sound of wind through leaves. Ultra-wide anamorphic, Studio Ghibli warmth blended with hyperrealistic 8K quality."
+            </div>
+        </div>
+
+        <h2>Common Mistakes to Avoid</h2>
+        <ul>
+            <li><strong>Being too vague:</strong> "A cool sci-fi scene" gives the AI nowhere to go.</li>
+            <li><strong>Contradicting yourself:</strong> Asking for "dramatic dark lighting" and "bright sunny day" in the same prompt confuses the model.</li>
+            <li><strong>Overloading with unrelated details:</strong> Every detail should serve the visual. Random information creates noise.</li>
+            <li><strong>Ignoring aspect ratio:</strong> Specify "horizontal widescreen 16:9" or "vertical 9:16 portrait" for social media.</li>
+            <li><strong>Forgetting motion:</strong> AI video is a motion medium — always include movement in the scene or camera, or both.</li>
+        </ul>
+
+        <h2>Start Exploring Our Prompt Library</h2>
+        <p>The fastest way to improve your AI video prompt writing is to study examples that actually work. Our gallery contains hundreds of tested, refined prompts across every major category — completely free to use and adapt.</p>
+        <p><a href="/" style="color:#10b981; font-weight:700;">← Explore the full prompt gallery</a></p>
+    </div>
+
+    <footer style="border-top:1px solid rgba(255,255,255,0.06); padding:2rem 5%; text-align:center; color:rgba(255,255,255,0.35); font-size:0.85rem;">
+        &copy; 2026 Video Prompts Gallery &mdash; All prompts are free under CC0 licence.
+        &nbsp;|&nbsp; <a href="/" style="color:rgba(255,255,255,0.5);">Home</a>
+        &nbsp;|&nbsp; <a href="/blog" style="color:rgba(255,255,255,0.5);">Blog</a>
+        &nbsp;|&nbsp; <a href="/about" style="color:rgba(255,255,255,0.5);">About</a>
+    </footer>
+</body>
+</html>

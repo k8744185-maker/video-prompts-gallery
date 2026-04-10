@@ -1,0 +1,59 @@
+# robots.txt for Video Prompts Gallery
+# SEO Optimized - Allows all search engines to crawl the site
+
+# Default rules for all bots
+User-agent: *
+Allow: /
+Allow: /?prompt_id=
+Allow: /?search=
+Allow: /?category=
+# Block tab navigation URLs — they are client-side UI tabs sharing the same canonical
+# URL (/). Without this, Google lists them as "Alternative page with proper canonical tag".
+Disallow: /?tab=
+Disallow: /.git/
+Disallow: /__pycache__/
+Disallow: /admin/
+Crawl-delay: 0.5
+Request-rate: 30/60
+
+# Sitemap location for search engines
+Sitemap: https://video-prompts-gallery.onrender.com/sitemap.xml
+
+# Google-specific rules
+User-agent: Googlebot
+Allow: /
+Disallow: /?tab=
+Crawl-delay: 0
+Request-rate: unlimited
+
+# Google AdSense bot (critical for ad serving)
+User-agent: Mediapartners-Google
+Allow: /
+
+# Bing search engine
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+Request-rate: 30/60
+
+# Other search engines
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baidu
+Allow: /
+
+# Block bad bots
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+# Cache rules
+User-agent: *
+Allow: /?prompt_id=*
+Allow: /?search=*
