@@ -363,16 +363,7 @@ def admin_required(f):
 # ─────────────────────────────────────────────────────────────
 @app.route('/')
 def index():
-    # Pass server-side prompt data for SEO/AdSense crawlers
-    ssr_prompts = []
-    try:
-        data = fetch_data()
-        raw = data.get('prompts') or []
-        # Only pass first 24 prompts for SSR (enough for crawler value)
-        ssr_prompts = raw[:24]
-    except Exception:
-        ssr_prompts = []
-    return render_template('index.html', ssr_prompts=ssr_prompts)
+    return render_template('index.html')
 
 
 
