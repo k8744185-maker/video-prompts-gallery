@@ -180,14 +180,15 @@
                 <p style="color:var(--vpg-text-dim);font-size:0.9rem;">Enter your admin password to continue.</p>
             </div>
             <div id="admin-login-error" class="admin-error hidden"></div>
-            <div class="admin-form-group">
-                <input type="password" id="admin-password-input" class="admin-input"
-                       placeholder="Admin password"
-                       onkeydown="if(event.key==='Enter') submitAdminLogin()">
-            </div>
-            <button class="btn-premium" style="width:100%;margin-top:1rem;" onclick="submitAdminLogin()">
-                Login
-            </button>
+            <form onsubmit="event.preventDefault(); submitAdminLogin();">
+                <div class="admin-form-group">
+                    <input type="password" id="admin-password-input" class="admin-input"
+                           placeholder="Admin password" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-premium" style="width:100%;margin-top:1rem;">
+                    Login
+                </button>
+            </form>
         </div>
     </div>
 

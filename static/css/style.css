@@ -85,14 +85,14 @@ body {
 /* HERO SECTION                                                */
 /* ─────────────────────────────────────────────────────────── */
 .vpg-hero {
-    min-height: 60vh;
+    min-height: auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 8rem 2rem;
-    margin-bottom: 4rem;
+    padding: 7rem 2rem 1rem 2rem;
+    margin-bottom: 2rem;
     background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
 }
 
@@ -223,9 +223,9 @@ body {
 
     /* Hero */
     .vpg-hero {
-        min-height: 40vh;
-        padding: 5rem 1.2rem 3rem;
-        margin-bottom: 2rem;
+        min-height: auto;
+        padding: 5rem 1.2rem 1rem;
+        margin-bottom: 1rem;
     }
 
     .vpg-hero-subtitle {
@@ -258,20 +258,18 @@ body {
     cursor: pointer;
     break-inside: avoid-column;
     transition: transform 0.2s ease;
-    animation: skeletonShimmer 2s infinite linear;
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: skeletonSweep 1.5s infinite linear;
 }
 
-@keyframes skeletonShimmer {
+@keyframes skeletonSweep {
     0% {
-        background-color: #1a1a1a;
-    }
-
-    50% {
-        background-color: #242424;
+        background-position: 200% 0;
     }
 
     100% {
-        background-color: #1a1a1a;
+        background-position: -200% 0;
     }
 }
 
