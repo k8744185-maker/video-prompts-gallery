@@ -428,7 +428,7 @@ function showDetail(id) {
     const aiToolRaw = (prompt[F_AI_TOOL] || 'gemini').toLowerCase();
     let toolName = 'Gemini';
     let toolUrl = 'https://gemini.google.com';
-    let toolColor = 'var(--vpg-primary)';
+    let toolColor = '#8b5cf6'; // Solid purple/blue instead of invalid css var
 
     if (aiToolRaw.includes('chatgpt')) {
         toolName = 'ChatGPT';
@@ -500,6 +500,9 @@ function showDetail(id) {
         body.appendChild(editModalBtn);
     }
 
+    // Related Prompts Section
+    renderRelatedPrompts(body, id, category);
+
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     document.title = `${title} — Video Prompts Gallery`;
@@ -508,6 +511,70 @@ function showDetail(id) {
     _setCanonical(`https://video-prompts-gallery.onrender.com/?prompt_id=${id}`);
 
     logVisit(id);
+}
+
+function renderRelatedPrompts(container, currentId, currentCategory) {
+    const mainCategory = currentCategory.split(',')[0].trim();
+    
+    // Find up to 3 prompts in the same category, excluding the current one
+    let related = appState.prompts.filter(p => 
+        p[F_ID] !== currentId && 
+        p[F_CATEGORY] && 
+        p[F_CATEGORY].includes(mainCategory)
+    ).slice(0, 3);
+
+    // If we couldn't find enough, grab a few random ones
+    if (related.length < 3) {
+        const others = appState.prompts.filter(p => p[F_ID] !== currentId && !related.includes(p));
+        const needed = 3 - related.length;
+        related = related.concat(others.slice(0, needed));
+    }
+
+    if (related.length === 0) return;
+
+    const relatedWrapper = el('div', 'modal-related-wrapper');
+    relatedWrapper.innerHTML = `
+        <h4 style="margin-top: 2.5rem; margin-bottom: 1rem; font-family: 'Playfair Display', serif; font-size: 1.2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">You might also like</h4>
+        <div class="modal-related-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;"></div>
+    `;
+    
+    const gridEl = relatedWrapper.querySelector('.modal-related-grid');
+    
+    related.forEach(prompt => {
+        const card = el('div', 'modal-related-card');
+        card.style.cursor = 'pointer';
+        card.style.background = 'rgba(255,255,255,0.03)';
+        card.style.border = '1px solid rgba(255,255,255,0.08)';
+        card.style.borderRadius = '8px';
+        card.style.overflow = 'hidden';
+        card.style.transition = 'background 0.2s, transform 0.2s';
+        
+        card.onclick = () => {
+            // Scroll to top of modal when clicking a related prompt
+            const modalBody = document.querySelector('.modal-content');
+            if (modalBody) modalBody.scrollTop = 0;
+            showDetail(prompt[F_ID]);
+        };
+
+        // Hover effects inline for simplicity, or we can just rely on pure CSS classes.
+        // Let's use simple HTML content.
+        const imgUrl = prompt['Image URL'] || 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80';
+        
+        card.innerHTML = `
+            <img src="${imgUrl}" alt="Related prompt" style="width: 100%; height: 120px; object-fit: cover;">
+            <div style="padding: 0.8rem;">
+                <div style="font-size: 0.65rem; color: #a855f7; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem;">${prompt[F_CATEGORY].split(',')[0]}</div>
+                <div style="font-family: 'Playfair Display', serif; font-size: 0.95rem; line-height: 1.3; margin-bottom: 0;">${prompt[F_TITLE].substring(0, 40)}${prompt[F_TITLE].length > 40 ? '...' : ''}</div>
+            </div>
+        `;
+        
+        card.onmouseover = () => card.style.background = 'rgba(255,255,255,0.07)';
+        card.onmouseout = () => card.style.background = 'rgba(255,255,255,0.03)';
+
+        gridEl.appendChild(card);
+    });
+
+    container.appendChild(relatedWrapper);
 }
 
 function closeModal() {

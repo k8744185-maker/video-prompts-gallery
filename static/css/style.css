@@ -1251,6 +1251,11 @@ body {
     background: rgba(255, 255, 255, 0.08);
 }
 
+select.admin-input option {
+    background-color: #1a1a1a;
+    color: white;
+}
+
 .admin-textarea {
     width: 100%;
     background: rgba(255, 255, 255, 0.05);
