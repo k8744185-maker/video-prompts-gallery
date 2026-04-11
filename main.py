@@ -1033,7 +1033,8 @@ def ads_txt():
     })
 
 @app.route('/robots.txt')
-def robots_txt(): return send_from_directory('static', 'robots.txt')
+def robots_txt():
+    return send_from_directory(app.root_path, 'robots.txt')
 
 @app.route('/sitemap.xml')
 def sitemap_xml():

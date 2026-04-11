@@ -10,7 +10,7 @@ let appState = {
     activeCategory: 'all',
     searchQuery: '',
     currentPage: 1,
-    itemsPerPage: 12
+    itemsPerPage: 24
 };
 
 // ─────────────────────────────────────────────────────────────
