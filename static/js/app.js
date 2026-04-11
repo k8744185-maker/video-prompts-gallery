@@ -22,6 +22,7 @@ const F_TITLE = 'Prompt Name';
 const F_CATEGORY = 'Category';
 const F_PROMPT = 'Prompt';
 const F_VIDEO_ID = 'Video ID';
+const F_AI_TOOL = 'AI Tool';
 
 // ─────────────────────────────────────────────────────────────
 // LEGAL CONTENT  (all pages for AdSense compliance)
@@ -424,10 +425,33 @@ function showDetail(id) {
         body.appendChild(img);
     }
 
+    const aiToolRaw = (prompt[F_AI_TOOL] || 'gemini').toLowerCase();
+    let toolName = 'Gemini';
+    let toolUrl = 'https://gemini.google.com';
+    let toolColor = 'var(--vpg-primary)';
+
+    if (aiToolRaw.includes('chatgpt')) {
+        toolName = 'ChatGPT';
+        toolUrl = 'https://chatgpt.com';
+        toolColor = '#10a37f'; // ChatGPT green
+    } else if (aiToolRaw.includes('runway')) {
+        toolName = 'Runway ML';
+        toolUrl = 'https://runwayml.com';
+    } else if (aiToolRaw.includes('pika')) {
+        toolName = 'Pika Labs';
+        toolUrl = 'https://pika.art';
+    } else if (aiToolRaw.includes('kling')) {
+        toolName = 'Kling AI';
+        toolUrl = 'https://klingai.com';
+    } else if (aiToolRaw.includes('midjourney')) {
+        toolName = 'Midjourney';
+        toolUrl = 'https://midjourney.com';
+    }
+
     // Tags Row
     const tagsRow = el('div', 'modal-tag-row');
     tagsRow.innerHTML = `
-        <div class="modal-tag-pill">✨ Gemini</div>
+        <div class="modal-tag-pill" style="color: ${toolColor}; border-color: ${toolColor}40;">✨ ${toolName}</div>
         <div class="modal-tag-pill">🏷️ ${category.split(',')[0]}</div>
     `;
     body.appendChild(tagsRow);
@@ -449,10 +473,11 @@ function showDetail(id) {
 
     // Main Copy & Open button
     const copyOpenBtn = el('button', 'btn-detail-copy');
-    copyOpenBtn.innerHTML = `✨ COPY & OPEN GEMINI`;
+    copyOpenBtn.innerHTML = `✨ COPY & OPEN ${toolName.toUpperCase()}`;
+    copyOpenBtn.style.backgroundColor = toolColor;
     copyOpenBtn.onclick = () => {
         copyPrompt(id, false);
-        showCopyOverlay(id);
+        showCopyOverlay(toolName, toolUrl);
     };
     body.appendChild(copyOpenBtn);
 
@@ -549,22 +574,24 @@ function copyPrompt(id, showUserToast = true) {
     }
 }
 
-function showCopyOverlay(id) {
+function showCopyOverlay(toolName, toolUrl) {
     let overlay = document.getElementById('vpg-copy-overlay');
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'vpg-copy-overlay';
-        overlay.innerHTML = `
-            <div class="copy-overlay-card">
-                <div class="copy-overlay-icon">✨</div>
-                <div class="copy-overlay-title">You got your prompt!</div>
-                <div class="copy-overlay-text">Add your image with the copied prompt to get the result.</div>
-                <button class="btn-overlay-open" onclick="window.open('https://gemini.google.com', '_blank'); hideCopyOverlay()">✨ OPEN GEMINI</button>
-                <button class="btn-overlay-later" onclick="hideCopyOverlay()">Maybe Later</button>
-            </div>
-        `;
         document.body.appendChild(overlay);
     }
+    
+    // Always rebuild inner HTML so tool Name & URL updates dynamically
+    overlay.innerHTML = `
+        <div class="copy-overlay-card">
+            <div class="copy-overlay-icon">✨</div>
+            <div class="copy-overlay-title">You got your prompt!</div>
+            <div class="copy-overlay-text">Add your image with the copied prompt to get the result.</div>
+            <button class="btn-overlay-open" onclick="window.open('${toolUrl}', '_blank'); hideCopyOverlay()">✨ OPEN ${toolName.toUpperCase()}</button>
+            <button class="btn-overlay-later" onclick="hideCopyOverlay()">Maybe Later</button>
+        </div>
+    `;
     overlay.classList.add('show');
 }
 
@@ -994,6 +1021,14 @@ function openEditPrompt(id) {
     document.getElementById('editor-category').value = prompt[F_CATEGORY] || '';
     document.getElementById('editor-prompt').value = prompt[F_PROMPT] || '';
     document.getElementById('editor-video-id').value = prompt['Video ID'] || '';
+    
+    // Set AI Tool drop-down or default to Gemini
+    const aiToolStr = (prompt['AI Tool'] || '').toLowerCase();
+    const toolSelect = document.getElementById('editor-ai-tool');
+    if (toolSelect) {
+        toolSelect.value = aiToolStr;
+    }
+
     if (document.getElementById('editor-image-url')) {
         document.getElementById('editor-image-url').value = prompt['Image URL'] || '';
     }
@@ -1036,6 +1071,8 @@ async function savePrompt() {
     const category = (document.getElementById('editor-category').value || '').trim();
     const prompt = (document.getElementById('editor-prompt').value || '').trim();
     const videoId = (document.getElementById('editor-video-id').value || '').trim();
+    const aiToolSelect = document.getElementById('editor-ai-tool');
+    const aiTool = aiToolSelect ? aiToolSelect.value : '';
     const btnUrlEl = document.getElementById('editor-image-url');
     let imageUrl = btnUrlEl ? btnUrlEl.value.trim() : '';
     const errEl = document.getElementById('editor-error');
@@ -1090,7 +1127,7 @@ async function savePrompt() {
         const res = await fetch(url, {
             method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, category, prompt, video_id: videoId, image_url: imageUrl })
+            body: JSON.stringify({ name, category, prompt, video_id: videoId, ai_tool: aiTool, image_url: imageUrl })
         });
         const data = await res.json();
 

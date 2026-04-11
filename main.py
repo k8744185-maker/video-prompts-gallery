@@ -695,6 +695,7 @@ def create_prompt():
     category = body.get('category', '').strip()
     prompt   = body.get('prompt', '').strip()
     video_id = body.get('video_id', '').strip()
+    ai_tool  = body.get('ai_tool', 'Gemini').strip()
     image_url = body.get('image_url', '').strip()
 
     if not name or not prompt:
@@ -708,10 +709,17 @@ def create_prompt():
         # Determine column order dynamically
         headers = sheet.row_values(1)
         
-        # Ensure 'Image URL' column exists
+        # Ensure 'Image URL' and 'AI Tool' columns exist dynamically
+        added_cols = False
         if 'Image URL' not in headers:
-            sheet.update_cell(1, len(headers) + 1, 'Image URL')
             headers.append('Image URL')
+            added_cols = True
+        if 'AI Tool' not in headers:
+            headers.append('AI Tool')
+            added_cols = True
+            
+        if added_cols:
+            sheet.update('A1', [headers])
 
         # Required columns: Category, Prompt, Prompt Name, Timestamp, Unique ID
         def get_idx(name):
@@ -724,6 +732,7 @@ def create_prompt():
         ts_idx     = get_idx('Timestamp')
         id_idx     = get_idx('Unique ID')
         vid_idx    = get_idx('Video ID')
+        tool_idx   = get_idx('AI Tool')
         img_idx    = get_idx('Image URL')
 
         new_id    = _generate_id()
@@ -737,6 +746,7 @@ def create_prompt():
         if ts_idx != -1:     row_data[ts_idx]     = timestamp
         if id_idx != -1:     row_data[id_idx]     = new_id
         if vid_idx != -1:    row_data[vid_idx]    = video_id
+        if tool_idx != -1:   row_data[tool_idx]   = ai_tool
         if img_idx != -1:    row_data[img_idx]    = image_url
 
         sheet.append_row(row_data)
@@ -755,6 +765,7 @@ def update_prompt(prompt_id):
     category = body.get('category', '').strip()
     prompt   = body.get('prompt', '').strip()
     video_id = body.get('video_id', '').strip()
+    ai_tool  = body.get('ai_tool', 'Gemini').strip()
     image_url = body.get('image_url', '').strip()
 
     if not name or not prompt:
@@ -767,16 +778,24 @@ def update_prompt(prompt_id):
         data   = sheet.get_all_records()
         headers = sheet.row_values(1)
 
-        # Ensure 'Image URL' column exists
+        # Ensure dynamic columns exist
+        added_cols = False
         if 'Image URL' not in headers:
-            sheet.update_cell(1, len(headers) + 1, 'Image URL')
             headers.append('Image URL')
+            added_cols = True
+        if 'AI Tool' not in headers:
+            headers.append('AI Tool')
+            added_cols = True
+            
+        if added_cols:
+            sheet.update('A1', [headers])
 
         id_col     = headers.index('Unique ID') + 1
         name_col   = headers.index('Prompt Name') + 1
         cat_col    = headers.index('Category') + 1
         prompt_col = headers.index('Prompt') + 1
         vid_col    = (headers.index('Video ID') + 1) if 'Video ID' in headers else None
+        tool_col   = (headers.index('AI Tool') + 1) if 'AI Tool' in headers else None
         img_col    = (headers.index('Image URL') + 1) if 'Image URL' in headers else None
 
         row_num = None
@@ -793,6 +812,8 @@ def update_prompt(prompt_id):
         sheet.update_cell(row_num, prompt_col, prompt)
         if vid_col and video_id:
             sheet.update_cell(row_num, vid_col, video_id)
+        if tool_col and ai_tool:
+            sheet.update_cell(row_num, tool_col, ai_tool)
         if img_col is not None:
             sheet.update_cell(row_num, img_col, image_url)
 

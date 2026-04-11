@@ -218,6 +218,18 @@
                 <input type="text" id="editor-video-id" class="admin-input" placeholder="e.g. Video_042">
             </div>
             <div class="admin-form-group">
+                <label class="admin-label">AI Tool</label>
+                <select id="editor-ai-tool" class="admin-input" style="cursor:pointer;">
+                    <option value="">— Select AI Tool —</option>
+                    <option value="chatgpt">ChatGPT</option>
+                    <option value="gemini">Gemini</option>
+                    <option value="runway">Runway ML</option>
+                    <option value="pika">Pika Labs</option>
+                    <option value="kling">Kling AI</option>
+                    <option value="midjourney">Midjourney</option>
+                </select>
+            </div>
+            <div class="admin-form-group">
                 <label class="admin-label">Image (Upload from Device)</label>
                 <input type="file" id="editor-image-file" class="admin-input" accept="image/*" style="padding: 0.8rem;">
             </div>
