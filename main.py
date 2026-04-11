@@ -1085,8 +1085,7 @@ def sitemap_xml():
   </url>
 </urlset>'''
     return Response(sitemap, mimetype='application/xml', headers={
-        'Cache-Control': 'public, max-age=3600',
-        'X-Robots-Tag': 'noindex',
+        'Cache-Control': 'public, max-age=3600'
     })
 
 @app.route('/favicon.png')
