@@ -420,6 +420,18 @@ def blog_runway_vs_pika():
 def blog_cinematic_lighting():
     return render_template('blog_cinematic_lighting.html')
 
+@app.route('/blog/ai-video-prompts-for-social-media')
+def blog_social_media():
+    return render_template('blog_social_media.html')
+
+@app.route('/blog/nature-landscape-prompts')
+def blog_nature_landscape():
+    return render_template('blog_nature_landscape.html')
+
+@app.route('/blog/scifi-cinematic-prompts')
+def blog_scifi():
+    return render_template('blog_scifi.html')
+
 
 
 # ─────────────────────────────────────────────────────────────
@@ -1078,6 +1090,9 @@ def sitemap_xml():
         f'<url><loc>{BASE}/blog/how-to-write-ai-video-prompts</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>{TODAY}</lastmod></url>',
         f'<url><loc>{BASE}/blog/runway-ml-vs-pika-labs</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>{TODAY}</lastmod></url>',
         f'<url><loc>{BASE}/blog/cinematic-lighting-prompts</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>{TODAY}</lastmod></url>',
+        f'<url><loc>{BASE}/blog/ai-video-prompts-for-social-media</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>{TODAY}</lastmod></url>',
+        f'<url><loc>{BASE}/blog/nature-landscape-prompts</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>{TODAY}</lastmod></url>',
+        f'<url><loc>{BASE}/blog/scifi-cinematic-prompts</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>{TODAY}</lastmod></url>',
     ]
     
     # Add individual prompt deep-link URLs for SEO
