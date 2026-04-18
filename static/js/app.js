@@ -592,7 +592,7 @@ function showDetail(id) {
     renderRelatedPrompts(body, id, category);
 
     // Final footer row in body
-    const promptInsightHTML = generatePromptInsights(promptText);
+    const promptInsightHTML = generatePromptInsights(text);
     const insightWrap = el('div');
     insightWrap.innerHTML = promptInsightHTML;
     body.appendChild(insightWrap);
