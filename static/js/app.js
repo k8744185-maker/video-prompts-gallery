@@ -188,6 +188,9 @@ function generatePromptInsights(promptText) {
 
 // ── JSON-LD Structured Data Generator ────────────────────────────
 function injectStructuredData(prompt) {
+    // Guard: document.head is null inside Google Sites sandboxed iframes
+    if (!document.head) return;
+    
     const existing = document.getElementById('vpg-jsonld');
     if (existing) existing.remove();
     
@@ -854,6 +857,8 @@ function showLegal(page) {
 
 /** Update or create the <link rel="canonical"> tag */
 function _setCanonical(url) {
+    // Guard: document.head is null inside Google Sites sandboxed iframes
+    if (!document.head) return;
     let link = document.querySelector('link[rel="canonical"]');
     if (!link) {
         link = document.createElement('link');
