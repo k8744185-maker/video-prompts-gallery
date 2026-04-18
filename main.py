@@ -1113,27 +1113,6 @@ def sitemap_xml():
     })
 
 
-@app.route('/robots.txt')
-def robots_txt():
-    from flask import Response
-    content = """User-agent: *
-Allow: /
-Allow: /ads.txt
-Allow: /sitemap.xml
-Disallow: /api/
-Disallow: /admin/
-
-User-agent: Mediapartners-Google
-Allow: /
-
-User-agent: AdsBot-Google
-Allow: /
-
-Sitemap: https://video-prompts-gallery.onrender.com/sitemap.xml
-"""
-    return Response(content, mimetype='text/plain', headers={'Cache-Control': 'public, max-age=86400'})
-
-
 @app.route('/ads.txt')
 def ads_txt():
     """Serve ads.txt directly — Google AdSense crawler MUST be able to fetch this."""
