@@ -113,18 +113,17 @@ def check_rate_limit():
 def apply_security_headers(response):
     """Applies strict HTTP headers and enables CORS for Google Sites embeds."""
     response.headers['X-Content-Type-Options'] = 'nosniff'
-    # Relaxing X-Frame-Options to allow embedding on specific domains
-    # response.headers['X-Frame-Options'] = 'SAMEORIGIN' 
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     
-    # Dynamic CORS handling for Google Sites
-    origin = request.headers.get('Origin')
-    if origin and ('.googleusercontent.com' in origin or 'sites.google.com' in origin or 'render.com' in origin):
-        response.headers['Access-Control-Allow-Origin'] = origin
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+    # Only apply CORS to API endpoints, never to sitemap/ads.txt/robots.txt
+    if request.path.startswith('/api/'):
+        origin = request.headers.get('Origin')
+        if origin and ('.googleusercontent.com' in origin or 'sites.google.com' in origin or 'render.com' in origin):
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
     
     return response
 
@@ -1061,54 +1060,75 @@ def robots_txt():
 @app.route('/sitemap.xml')
 def sitemap_xml():
     from flask import Response
-    sitemap = '''<?xml version="1.0" encoding="UTF-8"?>
+    # Get current prompts for dynamic sitemap entries
+    try:
+        data = fetch_data()
+        prompts = data.get('prompts', []) or []
+    except Exception:
+        prompts = []
+    
+    BASE = 'https://video-prompts-gallery.onrender.com'
+    TODAY = '2026-04-18'
+    
+    urls = [
+        f'<url><loc>{BASE}/</loc><changefreq>daily</changefreq><priority>1.0</priority><lastmod>{TODAY}</lastmod></url>',
+        f'<url><loc>{BASE}/about</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>{TODAY}</lastmod></url>',
+        f'<url><loc>{BASE}/contact</loc><changefreq>monthly</changefreq><priority>0.7</priority><lastmod>{TODAY}</lastmod></url>',
+        f'<url><loc>{BASE}/blog</loc><changefreq>weekly</changefreq><priority>0.9</priority><lastmod>{TODAY}</lastmod></url>',
+        f'<url><loc>{BASE}/blog/how-to-write-ai-video-prompts</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>{TODAY}</lastmod></url>',
+        f'<url><loc>{BASE}/blog/runway-ml-vs-pika-labs</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>{TODAY}</lastmod></url>',
+        f'<url><loc>{BASE}/blog/cinematic-lighting-prompts</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>{TODAY}</lastmod></url>',
+    ]
+    
+    # Add individual prompt deep-link URLs for SEO
+    for p in prompts:
+        pid = p.get('Unique ID', '')
+        if pid:
+            urls.append(f'<url><loc>{BASE}/?prompt_id={pid}</loc><changefreq>monthly</changefreq><priority>0.7</priority><lastmod>{TODAY}</lastmod></url>')
+
+    sitemap_body = '\n'.join(urls)
+    sitemap = f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://video-prompts-gallery.onrender.com/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <lastmod>2026-04-10</lastmod>
-  </url>
-  <url>
-    <loc>https://video-prompts-gallery.onrender.com/about</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <lastmod>2026-04-10</lastmod>
-  </url>
-  <url>
-    <loc>https://video-prompts-gallery.onrender.com/contact</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <lastmod>2026-04-10</lastmod>
-  </url>
-  <url>
-    <loc>https://video-prompts-gallery.onrender.com/blog</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <lastmod>2026-04-10</lastmod>
-  </url>
-  <url>
-    <loc>https://video-prompts-gallery.onrender.com/blog/how-to-write-ai-video-prompts</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-    <lastmod>2026-04-10</lastmod>
-  </url>
-  <url>
-    <loc>https://video-prompts-gallery.onrender.com/blog/runway-ml-vs-pika-labs</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <lastmod>2026-04-10</lastmod>
-  </url>
-  <url>
-    <loc>https://video-prompts-gallery.onrender.com/blog/cinematic-lighting-prompts</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <lastmod>2026-04-10</lastmod>
-  </url>
+{sitemap_body}
 </urlset>'''
+    
     return Response(sitemap, mimetype='application/xml', headers={
-        'Cache-Control': 'public, max-age=3600'
+        'Cache-Control': 'public, max-age=3600',
+        'X-Robots-Tag': 'noindex'  # Don't index the sitemap itself
     })
+
+
+@app.route('/robots.txt')
+def robots_txt():
+    from flask import Response
+    content = """User-agent: *
+Allow: /
+Allow: /ads.txt
+Allow: /sitemap.xml
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: AdsBot-Google
+Allow: /
+
+Sitemap: https://video-prompts-gallery.onrender.com/sitemap.xml
+"""
+    return Response(content, mimetype='text/plain', headers={'Cache-Control': 'public, max-age=86400'})
+
+
+@app.route('/ads.txt')
+def ads_txt():
+    """Serve ads.txt directly — Google AdSense crawler MUST be able to fetch this."""
+    from flask import Response
+    content = "google.com, pub-5050768956635718, DIRECT, f08c47fec0942fa0\n"
+    return Response(content, mimetype='text/plain', headers={
+        'Cache-Control': 'public, max-age=86400',
+        'X-Content-Type-Options': 'nosniff'
+    })
+
 
 @app.route('/favicon.png')
 @app.route('/favicon.ico')
