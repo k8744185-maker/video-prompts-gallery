@@ -49,10 +49,10 @@ app = Flask(__name__)
 # ─────────────────────────────────────────────────────────────
 app.secret_key = os.getenv('SECRET_KEY', secrets.token_hex(32))
 
-# Secure Session Configurations (Protects Session Hijacking / MitM)
+# Secure Session Configurations (Updated for Cross-Site Embed support)
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SAMESITE'] = 'None' # Required for Google Sites iframe support
 
 GOOGLE_SHEET_ID   = os.getenv('GOOGLE_SHEET_ID')
 GOOGLE_CREDENTIALS = os.getenv('GOOGLE_CREDENTIALS')
@@ -111,11 +111,33 @@ def check_rate_limit():
 
 @app.after_request
 def apply_security_headers(response):
-    """Applies strict HTTP headers to block Clickjacking, MIME sniffing, & downgrade attacks."""
+    """Applies strict HTTP headers and enables CORS for Google Sites embeds."""
     response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    # Relaxing X-Frame-Options to allow embedding on specific domains
+    # response.headers['X-Frame-Options'] = 'SAMEORIGIN' 
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    
+    # Dynamic CORS handling for Google Sites
+    origin = request.headers.get('Origin')
+    if origin and ('.googleusercontent.com' in origin or 'sites.google.com' in origin or 'render.com' in origin):
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+    
+    return response
+
+@app.route('/api/<path:path>', methods=['OPTIONS'])
+def handle_options(path):
+    """Explicit preflight handler for API calls."""
+    response = jsonify({'status': 'ok'})
+    origin = request.headers.get('Origin')
+    if origin and ('.googleusercontent.com' in origin or 'sites.google.com' in origin or 'render.com' in origin):
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
     return response
 
 # ─────────────────────────────────────────────────────────────

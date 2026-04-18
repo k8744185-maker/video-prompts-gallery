@@ -13,6 +13,26 @@ let appState = {
     itemsPerPage: 24
 };
 
+// Auto-detect if we're running in a Google Site embed or locally
+const API_BASE = (window.location.hostname.includes('googleusercontent.com') || window.location.hostname === '') 
+    ? 'https://video-prompts-gallery.onrender.com' 
+    : '';
+
+/**
+ * FETCH WRAPPER FOR GOOGLE SITES
+ * When embedded, we MUST include credentials: 'include' for sessions/login to work.
+ * This global wrapper ensures all API calls include the necessary cookie-handling flags.
+ */
+if (window.location.hostname.includes('googleusercontent.com')) {
+    const _orgFetch = window.fetch;
+    window.fetch = function(url, opts = {}) {
+        if (url.toString().startsWith(API_BASE) || url.toString().includes('/api/')) {
+            opts.credentials = 'include';
+        }
+        return _orgFetch(url, opts);
+    };
+}
+
 // ─────────────────────────────────────────────────────────────
 // FIELD MAP  (Google Sheet column names → what we use)
 // ─────────────────────────────────────────────────────────────
@@ -154,7 +174,7 @@ function initPreloader() {
 // ─────────────────────────────────────────────────────────────
 async function fetchData() {
     try {
-        const response = await fetch('/api/v1/prompts');
+        const response = await fetch(API_BASE + '/api/v1/prompts');
         const data = await response.json();
         appState.prompts = data.prompts || [];
         appState.analytics = data.analytics || [];
@@ -182,7 +202,7 @@ function showErrorState() {
 
 async function logVisit(promptId) {
     try {
-        await fetch('/api/v1/analytics', {
+        await fetch(API_BASE + '/api/v1/analytics', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ event_type: 'visit', prompt_id: promptId })
@@ -304,7 +324,7 @@ function makeAdCard() {
              data-ad-layout-key="-fb+5w+4e-db+86"
              data-ad-client="ca-pub-5050768956635718"
              data-ad-slot="4127739184"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
     `;
     return div;
 }
@@ -596,7 +616,7 @@ async function handleLike(id, btn) {
     btn.textContent = 'Liking…';
 
     try {
-        const res = await fetch('/api/v1/interaction', {
+        const res = await fetch(API_BASE + '/api/v1/interaction', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'like', prompt_id: id })
@@ -678,10 +698,25 @@ function fallbackCopy(text, cb) {
 }
 
 function sharePrompt(id) {
-    const url = `${location.origin}${location.pathname}?prompt_id=${encodeURIComponent(id)}`;
+    // Attempt to detect the parent page URL (Google Sites page) via document.referrer
+    // If not available or irrelevant, fall back to API_BASE or current location.
+    let base = window.SHARE_BASE_URL;
+    
+    if (!base) {
+        const referrer = document.referrer;
+        if (referrer && (referrer.includes('sites.google.com') || referrer.includes('googleusercontent.com'))) {
+            // Use the referrer but strip the path to just the page if needed? 
+            // Actually, referrer is the exact page URL.
+            base = referrer.split('?')[0].split('#')[0];
+        } else {
+            base = API_BASE ? 'https://video-prompts-gallery.onrender.com/' : (location.origin + location.pathname);
+        }
+    }
+    
+    const url = `${base.replace(/\/$/, '')}/?prompt_id=${encodeURIComponent(id)}`;
+    
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(() => {
-            const btn = document.querySelector('#modal-body .btn-premium:nth-child(2)');
             showToast('🔗 Share link copied to clipboard!');
         }).catch(() => fallbackCopy(url, () => showToast('🔗 Link copied!')));
     } else {
@@ -777,8 +812,14 @@ function handleRouting() {
 
     // Cookie consent
     const cookieEl = document.getElementById('vpg-cookie-consent');
-    if (cookieEl && !localStorage.getItem('vpg_cookies_accepted')) {
-        cookieEl.classList.remove('hidden');
+    if (cookieEl) {
+        try {
+            if (!localStorage.getItem('vpg_cookies_accepted')) {
+                cookieEl.classList.remove('hidden');
+            }
+        } catch (e) {
+            console.warn("localStorage blocked:", e);
+        }
     }
 }
 
@@ -786,7 +827,9 @@ function handleRouting() {
 // 10. COOKIE CONSENT & UTILS
 // ─────────────────────────────────────────────────────────────
 function acceptCookies() {
-    localStorage.setItem('vpg_cookies_accepted', '1');
+    try {
+        localStorage.setItem('vpg_cookies_accepted', '1');
+    } catch (e) {}
     const el = document.getElementById('vpg-cookie-consent');
     if (el) el.classList.add('hidden');
 }
@@ -798,18 +841,23 @@ function scrollToTop() {
 // ─────────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+function initializeVPG() {
     initPreloader();
     fetchData();
-    checkAdminSession(); // Check if already logged in
-    loadFeatureFlags();  // Load feature flags for all users
+    checkAdminSession();
+    loadFeatureFlags();
 
-    // Back-to-top button
     window.addEventListener('scroll', () => {
         const btt = document.getElementById('vpg-back-to-top');
         if (btt) btt.classList.toggle('visible', window.scrollY > 500);
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeVPG);
+} else {
+    initializeVPG();
+}
 
 
 // ═════════════════════════════════════════════════════════════
@@ -835,7 +883,7 @@ const FEATURE_FLAG_LABELS = {
  */
 async function loadFeatureFlags() {
     try {
-        const res = await fetch('/api/v1/feature-flags');
+        const res = await fetch(API_BASE + '/api/v1/feature-flags');
         if (!res.ok) {
             // Fetch failed — apply defaults (keep features enabled)
             applyFeatureFlags(Object.fromEntries(
@@ -896,7 +944,7 @@ async function loadFlipperPanel() {
     list.innerHTML = '<span class="flipper-loading">Loading…</span>';
     if (status) status.textContent = '';
     try {
-        const res = await fetch('/api/v1/admin/feature-flags');
+        const res = await fetch(API_BASE + '/api/v1/admin/feature-flags');
         if (!res.ok) { list.innerHTML = '<span class="flipper-error">Failed to load flags.</span>'; return; }
         const flags = await res.json();
         featureFlags = Object.fromEntries(Object.entries(flags).map(([k, v]) => [k, v.enabled]));
@@ -933,7 +981,7 @@ async function saveFlipperSettings() {
     if (status) status.textContent = '';
 
     try {
-        const res = await fetch('/api/v1/admin/feature-flags', {
+        const res = await fetch(API_BASE + '/api/v1/admin/feature-flags', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -960,7 +1008,7 @@ async function saveFlipperSettings() {
 // ─────────────────────────────────────────────────────────────
 async function checkAdminSession() {
     try {
-        const res = await fetch('/api/v1/admin/status');
+        const res = await fetch(API_BASE + '/api/v1/admin/status');
         const data = await res.json();
         if (data.is_admin) {
             setAdminMode(true);
@@ -1031,7 +1079,7 @@ async function submitAdminLogin() {
     try {
         // Hash the password client-side — raw password never leaves the browser
         const passwordHash = await _sha256Hex(password);
-        const res = await fetch('/api/v1/admin/login', {
+        const res = await fetch(API_BASE + '/api/v1/admin/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password: passwordHash })
@@ -1053,7 +1101,7 @@ async function submitAdminLogin() {
 
 async function adminLogout() {
     try {
-        await fetch('/api/v1/admin/logout', { method: 'POST' });
+        await fetch(API_BASE + '/api/v1/admin/logout', { method: 'POST' });
     } catch (e) { }
     setAdminMode(false);
     showToast('Logged out of admin mode');
@@ -1162,7 +1210,7 @@ async function savePrompt() {
             saveBtn.textContent = 'Uploading image...';
             let uploadRes, uploadData;
             try {
-                uploadRes = await fetch('/api/v1/admin/upload-image', {
+                uploadRes = await fetch(API_BASE + '/api/v1/admin/upload-image', {
                     method: 'POST',
                     body: formData
                 });
@@ -1188,8 +1236,8 @@ async function savePrompt() {
 
         const isEdit = Boolean(promptId);
         const url = isEdit
-            ? `/api/v1/admin/prompt/${encodeURIComponent(promptId)}`
-            : '/api/v1/admin/prompt';
+            ? `${API_BASE}/api/v1/admin/prompt/${encodeURIComponent(promptId)}`
+            : API_BASE + '/api/v1/admin/prompt';
         const method = isEdit ? 'PUT' : 'POST';
         const res = await fetch(url, {
             method,
@@ -1218,7 +1266,7 @@ async function savePrompt() {
 // Force a fresh data pull (busts cache)
 async function refreshData() {
     try {
-        const response = await fetch('/api/v1/prompts?_=' + Date.now());
+        const response = await fetch(API_BASE + '/api/v1/prompts?_=' + Date.now());
         const data = await response.json();
         appState.prompts = data.prompts || [];
         appState.analytics = data.analytics || [];
@@ -1244,7 +1292,7 @@ const authState = {
 // Check auth status on page load
 async function checkAuthStatus() {
     try {
-        const res = await fetch('/api/auth/status');
+        const res = await fetch(API_BASE + '/api/auth/status');
         const data = await res.json();
         if (data.logged_in) {
             authState.loggedIn = true;
@@ -1395,7 +1443,7 @@ async function submitLogin() {
     if (lbl) lbl.textContent = 'Logging in…';
 
     try {
-        const res = await fetch('/api/auth/login', {
+        const res = await fetch(API_BASE + '/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
@@ -1469,7 +1517,7 @@ async function submitRegister() {
     if (lbl) lbl.textContent = 'Creating account…';
 
     try {
-        const res = await fetch('/api/auth/register', {
+        const res = await fetch(API_BASE + '/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password, api_key: apiKey }),
@@ -1498,7 +1546,7 @@ async function submitRegister() {
 
 async function userLogout() {
     try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        await fetch(API_BASE + '/api/auth/logout', { method: 'POST' });
     } catch (e) { /* ignore */ }
     authState.loggedIn = false;
     authState.userName = '';
@@ -1816,7 +1864,7 @@ async function imggenRetry() {
 // ── API call ──────────────────────────────────────────────────
 async function _imgGenCallAPI(promptText) {
     try {
-        const res = await fetch('/api/v1/generate-image', {
+        const res = await fetch(API_BASE + '/api/v1/generate-image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
