@@ -786,7 +786,13 @@ function sharePrompt(id) {
             // Actually, referrer is the exact page URL.
             base = referrer.split('?')[0].split('#')[0];
         } else {
-            base = API_BASE ? 'https://video-prompts-gallery.onrender.com/' : (location.origin + location.pathname);
+            // Avoid hardcoding onrender unless we are literally on onrender
+            if (location.hostname.includes('onrender.com')) {
+                base = 'https://video-prompts-gallery.onrender.com/';
+            } else {
+                // This covers Vercel, Netlify, Custom Domains, or direct file access
+                base = location.origin !== 'null' ? (location.origin + location.pathname) : 'https://sites.google.com/'; 
+            }
         }
     }
     
