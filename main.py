@@ -1113,16 +1113,6 @@ def sitemap_xml():
     })
 
 
-@app.route('/ads.txt')
-def ads_txt():
-    """Serve ads.txt directly — Google AdSense crawler MUST be able to fetch this."""
-    from flask import Response
-    content = "google.com, pub-5050768956635718, DIRECT, f08c47fec0942fa0\n"
-    return Response(content, mimetype='text/plain', headers={
-        'Cache-Control': 'public, max-age=86400',
-        'X-Content-Type-Options': 'nosniff'
-    })
-
 
 @app.route('/favicon.png')
 @app.route('/favicon.ico')
