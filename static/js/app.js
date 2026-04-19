@@ -556,6 +556,14 @@ function showDetail(id) {
     shareBtn.innerHTML = `↗ Share`;
     shareBtn.onclick = () => sharePrompt(id);
 
+    const homeBtn = el('button', 'btn-detail-action');
+    homeBtn.innerHTML = `🏠 Home`;
+    homeBtn.onclick = () => {
+        closeModal();
+        window.history.pushState({}, '', '/');
+        if (typeof showGallery === 'function') showGallery();
+    };
+
     const installBtn = el('button', 'btn-detail-action');
     installBtn.innerHTML = `📲 Install App`;
     installBtn.className = 'btn-detail-action vpg-install-manual-btn';
@@ -563,7 +571,7 @@ function showDetail(id) {
     installBtn.style.fontWeight = 'bold';
     installBtn.onclick = () => installPwaManual();
 
-    actionRow.append(favBtn, shareBtn, installBtn);
+    actionRow.append(favBtn, shareBtn, homeBtn, installBtn);
     body.appendChild(actionRow);
 
     // Main Copy & Open button
