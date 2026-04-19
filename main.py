@@ -1077,6 +1077,7 @@ def robots_txt():
 @app.route('/sitemap.xml')
 def sitemap_xml():
     from flask import Response
+    from datetime import datetime
     # Get current prompts for dynamic sitemap entries
     try:
         data = fetch_data()
@@ -1085,7 +1086,7 @@ def sitemap_xml():
         prompts = []
     
     BASE = 'https://video-prompts-gallery.onrender.com'
-    TODAY = '2026-04-18'
+    TODAY = datetime.now().strftime('%Y-%m-%d')
     
     urls = [
         f'<url><loc>{BASE}/</loc><changefreq>daily</changefreq><priority>1.0</priority><lastmod>{TODAY}</lastmod></url>',
@@ -1107,14 +1108,11 @@ def sitemap_xml():
             urls.append(f'<url><loc>{BASE}/?prompt_id={pid}</loc><changefreq>monthly</changefreq><priority>0.7</priority><lastmod>{TODAY}</lastmod></url>')
 
     sitemap_body = '\n'.join(urls)
-    sitemap = f'''<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{sitemap_body}
-</urlset>'''
+    sitemap = f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{sitemap_body}\n</urlset>'
     
     return Response(sitemap, mimetype='application/xml', headers={
-        'Cache-Control': 'public, max-age=3600',
-        'X-Robots-Tag': 'noindex'  # Don't index the sitemap itself
+        'Cache-Control': 'public, max-age=3600'
+        # Removed X-Robots-Tag: noindex as it can cause "Couldn't fetch" in Search Console
     })
 
 
