@@ -39,7 +39,7 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718" crossorigin="anonymous"></script>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="/static/css/style.css?v=2.2">
+    <link rel="stylesheet" href="/static/css/style.css?v=2.4">
 </head>
 <body>
 
@@ -58,6 +58,7 @@
                 <a class="vpg-nav-link" href="/blog">Blog</a>
                 <a class="vpg-nav-link" href="/about">About</a>
                 <a class="vpg-nav-link" href="/contact">Contact</a>
+                <button class="vpg-nav-link vpg-install-manual-btn" style="color:#10b981; font-weight:700;" onclick="installPwaManual()">Install App</button>
                 <!-- User auth badge -->
                 <span id="vpg-user-badge" class="vpg-user-badge hidden">
                     <span id="vpg-user-avatar" class="vpg-user-avatar"></span>
@@ -598,6 +599,7 @@
             <a href="/blog" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;">Blog</a>
             <a href="/privacy" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="appState ? showLegalContent('privacy') : true; return false;">Privacy Policy</a>
             <a href="/terms" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="appState ? showLegalContent('terms') : true; return false;">Terms of Service</a>
+            <a href="#" class="vpg-install-manual-btn" style="color: #10b981; font-weight: 600; text-decoration: none;" onclick="installPwaManual(); return false;">Install App</a>
         </div>
         <div style="margin-bottom: 0.5rem;">&copy; 2026 Video Prompts Gallery. All prompts are free under CC0 licence.</div>
         <div style="font-size: 0.75rem; color: rgba(255,255,255,0.25);">We use cookies and Google AdSense to personalize content and analyze traffic.</div>
@@ -624,7 +626,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/static/js/app.js?v=2.3"></script>
+    <script src="/static/js/app.js?v=2.4"></script>
 
     <!-- PWA Service Worker Registration -->
     <script>

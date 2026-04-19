@@ -2471,3 +2471,10 @@ select.admin-input option {
 .vpg-pwa-install:hover {
     background: #7c3aed;
 }
+
+/* Hide manual install buttons if already in the app */
+@media all and (display-mode: standalone) {
+    .vpg-install-manual-btn {
+        display: none !important;
+    }
+}

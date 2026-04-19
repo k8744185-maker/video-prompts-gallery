@@ -556,7 +556,14 @@ function showDetail(id) {
     shareBtn.innerHTML = `↗ Share`;
     shareBtn.onclick = () => sharePrompt(id);
 
-    actionRow.append(favBtn, shareBtn);
+    const installBtn = el('button', 'btn-detail-action');
+    installBtn.innerHTML = `📲 Install App`;
+    installBtn.className = 'btn-detail-action vpg-install-manual-btn';
+    installBtn.style.color = '#10b981';
+    installBtn.style.fontWeight = 'bold';
+    installBtn.onclick = () => installPwaManual();
+
+    actionRow.append(favBtn, shareBtn, installBtn);
     body.appendChild(actionRow);
 
     // Main Copy & Open button
@@ -2210,6 +2217,21 @@ function installPwa() {
             deferredPrompt = null;
             dismissPwaPopup();
         });
+    }
+}
+
+function installPwaManual() {
+    if (deferredPrompt) {
+        installPwa();
+    } else if (isIos() && !isInStandaloneMode()) {
+        if(pwaInstallBtn) pwaInstallBtn.style.display = 'none';
+        if(iosInstructions) iosInstructions.classList.remove('hidden');
+        if(pwaPopup) {
+            pwaPopup.classList.remove('hidden');
+            setTimeout(() => pwaPopup.classList.add('show'), 50);
+        }
+    } else {
+        alert("To install, open your browser menu and select 'Add to Home Screen' or 'Install App'.");
     }
 }
 
