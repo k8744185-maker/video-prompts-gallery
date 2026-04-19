@@ -39,7 +39,7 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718" crossorigin="anonymous"></script>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="/static/css/style.css?v=2.4">
+    <link rel="stylesheet" href="/static/css/style.css?v=2.6">
 </head>
 <body>
 
@@ -599,11 +599,40 @@
             <a href="/blog" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;">Blog</a>
             <a href="/privacy" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="showLegal('privacy'); return false;">Privacy Policy</a>
             <a href="/terms" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="showLegal('terms'); return false;">Terms of Service</a>
-            <a href="#" class="vpg-install-manual-btn" style="color: #10b981; font-weight: 600; text-decoration: none;" onclick="installPwaManual(); return false;">Install App</a>
         </div>
         <div style="margin-bottom: 0.5rem;">&copy; 2026 Video Prompts Gallery. All prompts are free under CC0 licence.</div>
         <div style="font-size: 0.75rem; color: rgba(255,255,255,0.25);">We use cookies and Google AdSense to personalize content and analyze traffic.</div>
     </footer>
+
+    <!-- Fixed Floating Install App Button (always visible on every page) -->
+    <button
+        id="vpg-fab-install"
+        class="vpg-install-manual-btn"
+        onclick="installPwaManual()"
+        title="Install App"
+        style="
+            position: fixed;
+            bottom: 5.5rem;
+            right: 1.2rem;
+            z-index: 35000;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.65rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5);
+            animation: installPulse 2.5s ease-in-out infinite;
+            letter-spacing: 0.02em;
+        ">
+        📲 <span class="fab-install-label">Install App</span>
+    </button>
 
     <!-- Custom PWA Install Prompt -->
     <div id="vpg-pwa-popup" class="vpg-pwa-popup hidden">
@@ -626,7 +655,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/static/js/app.js?v=2.5"></script>
+    <script src="/static/js/app.js?v=2.6"></script>
 
     <!-- PWA Service Worker Registration -->
     <script>

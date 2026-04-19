@@ -2478,3 +2478,14 @@ select.admin-input option {
         display: none !important;
     }
 }
+
+/* Floating Install FAB pulse animation */
+@keyframes installPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5); }
+    50% { box-shadow: 0 4px 35px rgba(16, 185, 129, 0.85), 0 0 0 6px rgba(16, 185, 129, 0.15); }
+}
+
+/* On very small screens, hide the label text to save space */
+@media (max-width: 380px) {
+    .fab-install-label { display: none; }
+}
