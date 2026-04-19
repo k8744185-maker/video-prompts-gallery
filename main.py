@@ -404,6 +404,11 @@ def about_page():
 def contact_page():
     return render_template('contact.html')
 
+@app.route('/privacy')
+@app.route('/terms')
+def legal_spa_pages():
+    return render_template('index.html')
+
 @app.route('/blog')
 def blog_page():
     return render_template('blog.html')

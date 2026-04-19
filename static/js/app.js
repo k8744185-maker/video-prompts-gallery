@@ -888,6 +888,7 @@ function handleRouting() {
     const params = new URLSearchParams(window.location.search);
     const promptId = params.get('prompt_id');
     const tab = (params.get('tab') || '').toLowerCase();
+    const pathname = window.location.pathname;
 
     if (promptId) {
         // Try immediately; if prompts not yet loaded this won't find it (shouldn't happen)
@@ -900,6 +901,8 @@ function handleRouting() {
     } else if (tab && LEGAL_CONTENT[tab]) {
         // Handle direct links like /?tab=faq — show the correct legal/info page
         showLegal(tab);
+    } else if (pathname === '/privacy' || pathname === '/terms') {
+        showLegal(pathname.replace('/', ''));
     }
 
     // Cookie consent

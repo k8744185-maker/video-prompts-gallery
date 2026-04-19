@@ -597,8 +597,8 @@
             <a href="/about" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;">About Us</a>
             <a href="/contact" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;">Contact Us</a>
             <a href="/blog" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;">Blog</a>
-            <a href="/privacy" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="appState ? showLegalContent('privacy') : true; return false;">Privacy Policy</a>
-            <a href="/terms" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="appState ? showLegalContent('terms') : true; return false;">Terms of Service</a>
+            <a href="/privacy" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="showLegal('privacy'); return false;">Privacy Policy</a>
+            <a href="/terms" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="showLegal('terms'); return false;">Terms of Service</a>
             <a href="#" class="vpg-install-manual-btn" style="color: #10b981; font-weight: 600; text-decoration: none;" onclick="installPwaManual(); return false;">Install App</a>
         </div>
         <div style="margin-bottom: 0.5rem;">&copy; 2026 Video Prompts Gallery. All prompts are free under CC0 licence.</div>
@@ -626,7 +626,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/static/js/app.js?v=2.4"></script>
+    <script src="/static/js/app.js?v=2.5"></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
