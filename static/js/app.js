@@ -2153,3 +2153,69 @@ function _imgGenStopProgress() {
     const el = document.getElementById('imggen-progress');
     if (el) el.classList.add('hidden');
 }
+
+
+// ─────────────────────────────────────────────────────────────
+// PWA CUSTOM INSTALL LOGIC
+// ─────────────────────────────────────────────────────────────
+let deferredPrompt;
+const pwaPopup = document.getElementById('vpg-pwa-popup');
+const pwaInstallBtn = document.getElementById('vpg-pwa-install-btn');
+const iosInstructions = document.getElementById('vpg-pwa-ios-instructions');
+
+// Check if user already dismissed or installed
+const hasDismissedPwa = localStorage.getItem('vpg_pwa_dismissed');
+
+// Listen for Android/Desktop install event
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the default mini-infobar
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Show our custom popup if not dismissed
+    if (!hasDismissedPwa && pwaPopup) {
+        setTimeout(() => pwaPopup.classList.add('show'), 3000); // show after 3 seconds
+    }
+});
+
+function installPwa() {
+    if (deferredPrompt) {
+        // Show the native browser prompt
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            }
+            deferredPrompt = null;
+            dismissPwaPopup();
+        });
+    }
+}
+
+function dismissPwaPopup() {
+    if (pwaPopup) {
+        pwaPopup.classList.remove('show');
+        localStorage.setItem('vpg_pwa_dismissed', 'true');
+    }
+}
+
+// iOS Safari special handling
+const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+};
+
+// Detect if running in standalone mode (already installed)
+const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+window.addEventListener('load', () => {
+    // If it's an iPhone in Safari, and NOT already installed as an app, and not dismissed
+    if (isIos() && !isInStandaloneMode() && !hasDismissedPwa && pwaPopup) {
+        // Hide the install button because iOS doesn't support programmatic install
+        if(pwaInstallBtn) pwaInstallBtn.style.display = 'none';
+        // Show instructions text instead
+        if(iosInstructions) iosInstructions.classList.remove('hidden');
+        
+        setTimeout(() => pwaPopup.classList.add('show'), 3000);
+    }
+});

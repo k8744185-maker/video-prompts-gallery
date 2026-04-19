@@ -2384,3 +2384,90 @@ select.admin-input option {
         display: none;
     }
 }
+
+/* ─────────────────────────────────────────────────────────── */
+/* CUSTOM PWA INSTALL POPUP                                    */
+/* ─────────────────────────────────────────────────────────── */
+.vpg-pwa-popup {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(150%);
+    width: 90%;
+    max-width: 400px;
+    background: #1a1a1a;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 20px rgba(139, 92, 246, 0.2);
+    border-radius: 16px;
+    z-index: 40000;
+    padding: 1.5rem;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.vpg-pwa-popup.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+.vpg-pwa-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.vpg-pwa-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.vpg-pwa-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+}
+
+.vpg-pwa-title h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.vpg-pwa-title p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--vpg-text-dim);
+}
+
+.vpg-pwa-actions {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.vpg-pwa-btn {
+    flex: 1;
+    padding: 0.7rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.vpg-pwa-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.vpg-pwa-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.vpg-pwa-install {
+    background: #8b5cf6;
+    color: white;
+}
+
+.vpg-pwa-install:hover {
+    background: #7c3aed;
+}

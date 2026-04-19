@@ -603,6 +603,26 @@
         <div style="font-size: 0.75rem; color: rgba(255,255,255,0.25);">We use cookies and Google AdSense to personalize content and analyze traffic.</div>
     </footer>
 
+    <!-- Custom PWA Install Prompt -->
+    <div id="vpg-pwa-popup" class="vpg-pwa-popup hidden">
+        <div class="vpg-pwa-content">
+            <div class="vpg-pwa-header">
+                <img src="/static/favicon.png" alt="App Icon" class="vpg-pwa-icon">
+                <div class="vpg-pwa-title">
+                    <h4>Install Video Prompts</h4>
+                    <p>Get the app for a faster experience!</p>
+                </div>
+            </div>
+            <div id="vpg-pwa-ios-instructions" class="hidden" style="font-size:0.85rem; color:#aaa; margin-bottom:1rem; padding:0.5rem; background:rgba(255,255,255,0.05); border-radius:6px; line-height: 1.5;">
+                Tap the <span style="color:white; font-weight:bold;">Share</span> icon at the bottom of your screen and select <span style="color:white; font-weight:bold;">Add to Home Screen</span>.
+            </div>
+            <div class="vpg-pwa-actions">
+                <button class="vpg-pwa-btn vpg-pwa-cancel" onclick="dismissPwaPopup()">Not Now</button>
+                <button class="vpg-pwa-btn vpg-pwa-install" id="vpg-pwa-install-btn" onclick="installPwa()">Install App</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="/static/js/app.js?v=2.0"></script>
 
