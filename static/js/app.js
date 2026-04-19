@@ -538,10 +538,34 @@ function showDetail(id) {
 
     // Tags Row
     const tagsRow = el('div', 'modal-tag-row');
-    tagsRow.innerHTML = `
-        <div class="modal-tag-pill" style="color: ${toolColor}; border-color: ${toolColor}40;">✨ ${toolName}</div>
-        <div class="modal-tag-pill">🏷️ ${category.split(',')[0]}</div>
-    `;
+    
+    // AI Tool Tag (Filter by search)
+    const toolTag = el('button', 'modal-tag-pill');
+    toolTag.style.color = toolColor;
+    toolTag.style.borderColor = `${toolColor}50`;
+    toolTag.innerHTML = `✨ ${toolName}`;
+    toolTag.onclick = () => {
+        closeModal();
+        appState.searchQuery = toolName.toLowerCase();
+        const searchInput = document.getElementById('vpg-search');
+        if (searchInput) searchInput.value = toolName;
+        appState.activeCategory = 'All';
+        renderFilters();
+        renderGrid();
+        const search = document.getElementById('vpg-search');
+        if (search) window.scrollTo({ top: search.offsetTop - 100, behavior: 'smooth' });
+    };
+
+    // Category Tag (Filter by category)
+    const firstCat = category.split(',')[0].trim();
+    const catTag = el('button', 'modal-tag-pill');
+    catTag.innerHTML = `🏷️ ${firstCat}`;
+    catTag.onclick = () => {
+        closeModal();
+        setCategory(firstCat);
+    };
+
+    tagsRow.append(toolTag, catTag);
     body.appendChild(tagsRow);
 
     // Action Row (Fav, Share)
