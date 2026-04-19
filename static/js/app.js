@@ -2163,8 +2163,26 @@ const pwaPopup = document.getElementById('vpg-pwa-popup');
 const pwaInstallBtn = document.getElementById('vpg-pwa-install-btn');
 const iosInstructions = document.getElementById('vpg-pwa-ios-instructions');
 
-// Check if user already dismissed or installed
-const hasDismissedPwa = localStorage.getItem('vpg_pwa_dismissed');
+// Check if user dismissed the popup within the last 24 hours
+function shouldShowPwaPopup() {
+    const legacyDismissed = localStorage.getItem('vpg_pwa_dismissed');
+    if (legacyDismissed) {
+        localStorage.removeItem('vpg_pwa_dismissed'); // migrate to new system
+        return true; 
+    }
+    
+    const dismissedAt = localStorage.getItem('vpg_pwa_dismissed_at');
+    if (!dismissedAt) return true;
+    
+    const now = new Date().getTime();
+    const ONE_DAY = 24 * 60 * 60 * 1000; // 24 hours
+    
+    if ((now - parseInt(dismissedAt)) > ONE_DAY) {
+        localStorage.removeItem('vpg_pwa_dismissed_at');
+        return true;
+    }
+    return false;
+}
 
 // Listen for Android/Desktop install event
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -2173,7 +2191,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPrompt = e;
     
     // Show our custom popup if not dismissed
-    if (!hasDismissedPwa && pwaPopup) {
+    if (shouldShowPwaPopup() && pwaPopup) {
         setTimeout(() => {
             pwaPopup.classList.remove('hidden');
             setTimeout(() => pwaPopup.classList.add('show'), 50);
@@ -2198,7 +2216,8 @@ function installPwa() {
 function dismissPwaPopup() {
     if (pwaPopup) {
         pwaPopup.classList.remove('show');
-        localStorage.setItem('vpg_pwa_dismissed', 'true');
+        // Store current timestamp
+        localStorage.setItem('vpg_pwa_dismissed_at', new Date().getTime().toString());
     }
 }
 
@@ -2213,7 +2232,7 @@ const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.n
 
 window.addEventListener('load', () => {
     // If it's an iPhone in Safari, and NOT already installed as an app, and not dismissed
-    if (isIos() && !isInStandaloneMode() && !hasDismissedPwa && pwaPopup) {
+    if (isIos() && !isInStandaloneMode() && shouldShowPwaPopup() && pwaPopup) {
         // Hide the install button because iOS doesn't support programmatic install
         if(pwaInstallBtn) pwaInstallBtn.style.display = 'none';
         // Show instructions text instead
