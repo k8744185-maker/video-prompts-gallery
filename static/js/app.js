@@ -2174,7 +2174,10 @@ window.addEventListener('beforeinstallprompt', (e) => {
     
     // Show our custom popup if not dismissed
     if (!hasDismissedPwa && pwaPopup) {
-        setTimeout(() => pwaPopup.classList.add('show'), 3000); // show after 3 seconds
+        setTimeout(() => {
+            pwaPopup.classList.remove('hidden');
+            setTimeout(() => pwaPopup.classList.add('show'), 50);
+        }, 3000);
     }
 });
 
@@ -2216,6 +2219,9 @@ window.addEventListener('load', () => {
         // Show instructions text instead
         if(iosInstructions) iosInstructions.classList.remove('hidden');
         
-        setTimeout(() => pwaPopup.classList.add('show'), 3000);
+        setTimeout(() => {
+            pwaPopup.classList.remove('hidden');
+            setTimeout(() => pwaPopup.classList.add('show'), 50);
+        }, 3000);
     }
 });
