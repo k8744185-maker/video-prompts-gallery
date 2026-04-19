@@ -129,14 +129,21 @@ body {
     margin: 0 auto;
 }
 
+.gallery-filters {
+    position: relative;
+    margin-bottom: 2.5rem;
+}
+
 .gallery-filters-scroll {
     display: flex;
-    gap: 0.8rem;
-    margin-bottom: 2rem;
+    gap: 0.75rem;
     overflow-x: auto;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem 0;
     scrollbar-width: none;
+    -ms-overflow-style: none;
     -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
 .gallery-filters-scroll::-webkit-scrollbar {
@@ -144,28 +151,33 @@ body {
 }
 
 .filter-pill {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--vpg-border);
-    color: white;
-    padding: 0.5rem 1.2rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
+    color: var(--vpg-text-dim);
+    padding: 0.6rem 1.4rem;
+    border-radius: 50px;
+    font-size: 0.88rem;
+    font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+}
+
+.filter-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
 }
 
 .filter-pill.active {
-    background: #10b981;
-    border-color: #10b981;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    background: #10b981 !important;
+    border-color: #10b981 !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 .filter-pill.active::before {
-    content: "✓";
+    content: none;
 }
 
 #vpg-category-select:focus {
@@ -212,101 +224,7 @@ body {
     }
 }
 
-@media (max-width: 768px) {
-    .prompt-grid {
-        grid-template-columns: 1fr;
-    }
 
-    /* Navbar — Hamburger on Mobile */
-    .vpg-brand {
-        font-size: 1.1rem;
-    }
-
-    /* Hide all nav links on mobile by default */
-    .vpg-nav-links {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(10,10,10,0.97);
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 2rem;
-        z-index: 99999;
-    }
-
-    /* Show nav links when hamburger is open */
-    .vpg-nav-links.mobile-open {
-        display: flex;
-    }
-
-    .vpg-nav-link {
-        font-size: 1.1rem;
-        padding: 0.6rem 1.2rem;
-    }
-
-    /* Hamburger button */
-    .vpg-hamburger {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        cursor: pointer;
-        background: none;
-        border: none;
-        padding: 0.5rem;
-        z-index: 100000;
-    }
-
-    .vpg-hamburger span {
-        display: block;
-        width: 24px;
-        height: 2px;
-        background: white;
-        border-radius: 2px;
-        transition: all 0.3s ease;
-    }
-
-    /* X icon when open */
-    .vpg-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-    .vpg-hamburger.open span:nth-child(2) { opacity: 0; }
-    .vpg-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-
-    /* Mobile nav close button */
-    .vpg-mobile-close {
-        position: absolute;
-        top: 1.5rem;
-        right: 1.5rem;
-        background: none;
-        border: none;
-        color: white;
-        font-size: 2rem;
-        cursor: pointer;
-    }
-
-    /* Hero — fix top clipping on mobile */
-    .vpg-hero {
-        min-height: auto;
-        padding: 6rem 1.2rem 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .vpg-hero-subtitle {
-        font-size: 1rem;
-    }
-
-    /* Prompt cards */
-    .vpg-card {
-        padding: 1.5rem;
-    }
-
-    .vpg-card-title {
-        font-size: 1.3rem;
-        margin-bottom: 1rem;
-    }
-}
 
 /* ─────────────────────────────────────────────────────────── */
 /* PROMPT CARDS                                                 */
@@ -1032,6 +950,7 @@ body {
 .vpg-nav-links {
     display: flex;
     gap: 1.5rem;
+    align-items: center;
 }
 
 .vpg-nav-link {
@@ -2551,8 +2470,103 @@ select.admin-input option {
     50% { box-shadow: 0 4px 35px rgba(16, 185, 129, 0.85), 0 0 0 6px rgba(16, 185, 129, 0.15); }
 }
 
-/* On very small screens, hide the label text to save space */
-@media (max-width: 380px) {
-    .fab-install-label,
-    #fab-install-label { display: none; }
+@media (max-width: 768px) {
+    .prompt-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Navbar — Hamburger on Mobile */
+    .vpg-brand {
+        font-size: 1.1rem;
+    }
+
+    /* Hide all nav links on mobile by default */
+    .vpg-nav-links {
+        display: none !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(10,10,10,0.98);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        z-index: 99999;
+    }
+
+    /* Show nav links when hamburger is open */
+    .vpg-nav-links.mobile-open {
+        display: flex !important;
+    }
+
+    .vpg-nav-link {
+        font-size: 1.2rem;
+        padding: 0.8rem 1.5rem;
+    }
+
+    /* Hamburger button */
+    .vpg-hamburger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0.5rem;
+        z-index: 100000;
+    }
+
+    .vpg-hamburger span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: white;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    /* X icon when open */
+    .vpg-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .vpg-hamburger.open span:nth-child(2) { opacity: 0; }
+    .vpg-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* Mobile nav close button */
+    .vpg-mobile-close {
+        display: block;
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+    }
+
+    /* Hero — deeper fix for text overlap and clipping */
+    .vpg-hero {
+        min-height: auto;
+        padding: 7rem 1.2rem 2rem !important;
+        margin-bottom: 1rem;
+    }
+
+    .vpg-hero h1 {
+        font-size: 2.8rem !important;
+        line-height: 1.1;
+    }
+
+    .vpg-hero-subtitle {
+        font-size: 0.95rem;
+        padding: 0 1rem;
+    }
+
+    /* FAB Position on mobile to avoid card overlap */
+    #vpg-fab-install {
+        bottom: 1.5rem !important;
+        left: 1rem !important;
+        transform: scale(0.9);
+        transform-origin: bottom left;
+    }
 }

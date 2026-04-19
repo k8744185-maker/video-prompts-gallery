@@ -313,19 +313,7 @@
         </div>
     </section>
 
-    <footer class="vpg-footer">
-        <div class="footer-brand">Video Prompts Gallery</div>
-        <div class="footer-links">
-            <button class="footer-link-btn" onclick="showLegal('faq')">FAQ</button>
-            <button class="footer-link-btn" onclick="showLegal('privacy')">Privacy</button>
-            <button class="footer-link-btn" onclick="showLegal('terms')">Terms</button>
-            <button class="footer-link-btn" onclick="showLegal('contact')">Contact</button>
-            <button class="footer-link-btn" onclick="showLegal('about')">About</button>
-        </div>
-        <!-- Triple-click on copyright to open admin login -->
-        <p style="color:var(--vpg-text-dim);font-size:0.75rem;letter-spacing:0.1em;opacity:0.5;cursor:default;"
-           ondblclick="openAdminLogin()" title="">&copy; 2026 DESIGNED FOR THE CINEMATIC EDGE.</p>
-    </footer>
+
 
     <!-- ─── USER AUTH MODAL (Login / Register) ──────────────── -->
     <div id="vpg-auth-modal" class="vpg-modal hidden" role="dialog" aria-modal="true" aria-label="Login or Register">
@@ -604,6 +592,7 @@
             <a href="/blog" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;">Blog</a>
             <a href="/privacy" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="showLegal('privacy'); return false;">Privacy Policy</a>
             <a href="/terms" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s;" onclick="showLegal('terms'); return false;">Terms of Service</a>
+            <a href="#" style="color: #10b981; text-decoration: none; font-weight: 700;" onclick="installPwaManual(); return false;">Install App</a>
         </div>
         <div style="margin-bottom: 0.5rem;">&copy; 2026 Video Prompts Gallery. All prompts are free under CC0 licence.</div>
         <div style="font-size: 0.75rem; color: rgba(255,255,255,0.25);">We use cookies and Google AdSense to personalize content and analyze traffic.</div>

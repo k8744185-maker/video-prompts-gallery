@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        .page-hero { padding: 5rem 5% 2rem; background: linear-gradient(180deg, #111 0%, #0a0a0a 100%); border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .page-hero { padding: 7rem 5% 2rem; background: linear-gradient(180deg, #111 0%, #0a0a0a 100%); border-bottom: 1px solid rgba(255,255,255,0.06); }
         .page-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; margin-bottom: 1rem; }
         .page-hero p { font-size: 1.15rem; color: rgba(255,255,255,0.6); max-width: 640px; line-height: 1.8; }
         .page-body { max-width: 860px; margin: 0 auto; padding: 5rem 5%; }
@@ -34,12 +34,17 @@
     <nav class="vpg-navbar">
         <div class="vpg-navbar-content">
             <div class="vpg-brand" onclick="location.href='/'" style="cursor:pointer">Video Prompts Gallery</div>
-            <div class="vpg-nav-links">
+            <!-- Hamburger Button (mobile only) -->
+            <button class="vpg-hamburger" id="vpg-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="vpg-nav-links" id="vpg-nav-links">
+                <button class="vpg-mobile-close" onclick="closeMobileNav()">✕</button>
                 <a class="vpg-nav-link" href="/">Gallery</a>
                 <a class="vpg-nav-link" href="/blog">Blog</a>
                 <a class="vpg-nav-link" href="/about" style="color:white;">About</a>
                 <a class="vpg-nav-link" href="/contact">Contact</a>
-                <button class="vpg-nav-link vpg-install-manual-btn" style="color:#10b981; font-weight:700; background:none; border:none; cursor:pointer;" onclick="installPwaManual ? installPwaManual() : void(0)">Install App</button>
+                <button class="vpg-nav-link vpg-install-manual-btn" style="color:#10b981; font-weight:700; background:none; border:none; cursor:pointer;" onclick="installPwaManual ? installPwaManual() : void(0); closeMobileNav()">Install App</button>
             </div>
         </div>
     </nav>
