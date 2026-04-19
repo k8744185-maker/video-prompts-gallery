@@ -2474,7 +2474,8 @@ select.admin-input option {
 
 /* Hide manual install buttons if already in the app */
 @media all and (display-mode: standalone) {
-    .vpg-install-manual-btn {
+    .vpg-install-manual-btn,
+    #vpg-fab-install {
         display: none !important;
     }
 }
@@ -2487,5 +2488,6 @@ select.admin-input option {
 
 /* On very small screens, hide the label text to save space */
 @media (max-width: 380px) {
-    .fab-install-label { display: none; }
+    .fab-install-label,
+    #fab-install-label { display: none; }
 }

@@ -39,7 +39,7 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718" crossorigin="anonymous"></script>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="/static/css/style.css?v=2.6">
+    <link rel="stylesheet" href="/static/css/style.css?v=2.7">
 </head>
 <body>
 
@@ -607,14 +607,13 @@
     <!-- Fixed Floating Install App Button (always visible on every page) -->
     <button
         id="vpg-fab-install"
-        class="vpg-install-manual-btn"
         onclick="installPwaManual()"
-        title="Install App"
+        title="Install App on your Phone"
         style="
             position: fixed;
-            bottom: 5.5rem;
-            right: 1.2rem;
-            z-index: 35000;
+            bottom: 2rem;
+            left: 1.2rem;
+            z-index: 50000;
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             border: none;
@@ -631,7 +630,7 @@
             animation: installPulse 2.5s ease-in-out infinite;
             letter-spacing: 0.02em;
         ">
-        📲 <span class="fab-install-label">Install App</span>
+        📲 <span id="fab-install-label">Install App</span>
     </button>
 
     <!-- Custom PWA Install Prompt -->
@@ -655,7 +654,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/static/js/app.js?v=2.6"></script>
+    <script src="/static/js/app.js?v=2.7"></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
