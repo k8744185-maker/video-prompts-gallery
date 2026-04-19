@@ -1118,6 +1118,14 @@ def sitemap_xml():
 @app.route('/favicon.ico')
 def favicon():   return send_from_directory('static', 'favicon.png')
 
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('static', 'manifest.json', mimetype='application/json')
+
+@app.route('/sw.js')
+def service_worker():
+    return send_from_directory('static', 'sw.js', mimetype='application/javascript')
+
 @app.route('/google7b16d249e9588da5.html')
 def google_verification():
     return send_from_directory('static', 'google7b16d249e9588da5.html')

@@ -27,6 +27,12 @@
     <link rel="icon" type="image/png" href="/static/favicon.png">
     <link rel="apple-touch-icon" href="/static/favicon.png">
     
+    <!-- PWA Manifest & App Info -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <!-- Google AdSense & Verification -->
     <meta name="google-site-verification" content="8MpJT70JgoawSi-Z8yz-ZOHphQiFAsmJTq2622M41Us">
     <meta name="google-adsense-account" content="ca-pub-5050768956635718">
@@ -599,6 +605,17 @@
 
     <!-- Scripts -->
     <script src="/static/js/app.js?v=2.0"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('PWA Service Worker registered.', reg))
+            .catch(err => console.log('PWA Registration failed.', err));
+        });
+      }
+    </script>
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
