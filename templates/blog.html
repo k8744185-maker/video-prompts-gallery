@@ -29,14 +29,15 @@
     </style>
 </head>
 <body>
-    <nav class="vpg-nav">
-        <div class="vpg-nav-inner">
-            <a href="/" class="vpg-brand">Video Prompts Gallery</a>
+    <nav class="vpg-navbar">
+        <div class="vpg-navbar-content">
+            <div class="vpg-brand" onclick="location.href='/'" style="cursor:pointer">Video Prompts Gallery</div>
             <div class="vpg-nav-links">
-                <a href="/" class="vpg-nav-link">Gallery</a>
-                <a href="/blog" class="vpg-nav-link" style="color:white;">Blog</a>
-                <a href="/about" class="vpg-nav-link">About</a>
-                <a href="/contact" class="vpg-nav-link">Contact</a>
+                <a class="vpg-nav-link" href="/">Gallery</a>
+                <a class="vpg-nav-link" href="/blog" style="color:white;">Blog</a>
+                <a class="vpg-nav-link" href="/about">About</a>
+                <a class="vpg-nav-link" href="/contact">Contact</a>
+                <button class="vpg-nav-link vpg-install-manual-btn" style="color:#10b981; font-weight:700; background:none; border:none; cursor:pointer;" onclick="installPwaManual ? installPwaManual() : void(0)">Install App</button>
             </div>
         </div>
     </nav>
@@ -100,11 +101,20 @@
         </div>
     </div>
 
-    <footer style="border-top:1px solid rgba(255,255,255,0.06); padding:2rem 5%; text-align:center; color:rgba(255,255,255,0.35); font-size:0.85rem;">
-        &copy; 2026 Video Prompts Gallery &mdash; All prompts are free under CC0 licence.
-        &nbsp;|&nbsp; <a href="/" style="color:rgba(255,255,255,0.5);">Home</a>
-        &nbsp;|&nbsp; <a href="/about" style="color:rgba(255,255,255,0.5);">About</a>
-        &nbsp;|&nbsp; <a href="/contact" style="color:rgba(255,255,255,0.5);">Contact</a>
+    <footer style="margin-top: 3rem; padding: 3rem 5%; background: #080808; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; color: rgba(255,255,255,0.4); font-size: 0.85rem; font-family: 'Inter', sans-serif;">
+        <div style="margin-bottom: 1rem; display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+            <a href="/" style="color: rgba(255,255,255,0.6); text-decoration: none;">Gallery</a>
+            <a href="/about" style="color: rgba(255,255,255,0.6); text-decoration: none;">About Us</a>
+            <a href="/contact" style="color: rgba(255,255,255,0.6); text-decoration: none;">Contact Us</a>
+            <a href="/blog" style="color: rgba(255,255,255,0.6); text-decoration: none;">Blog</a>
+            <a href="/" style="color: rgba(255,255,255,0.6); text-decoration: none;" onclick="location.href='/?tab=privacy'; return false;">Privacy Policy</a>
+            <a href="/" style="color: rgba(255,255,255,0.6); text-decoration: none;" onclick="location.href='/?tab=terms'; return false;">Terms of Service</a>
+        </div>
+        <div style="margin-bottom: 0.5rem;">&copy; 2026 Video Prompts Gallery. All prompts are free under CC0 licence.</div>
+        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.25);">We use cookies and Google AdSense to personalize content and analyze traffic.</div>
     </footer>
+
+    <!-- Floating Install App Button -->
+    <button id="vpg-fab-install" onclick="location.href='/'" title="Install App on your Phone" style="position:fixed;bottom:2rem;left:1.2rem;z-index:50000;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;border-radius:50px;padding:0.65rem 1.2rem;font-size:0.85rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 20px rgba(16,185,129,0.5);animation:installPulse 2.5s ease-in-out infinite;letter-spacing:0.02em;">📲 Install App</button>
 </body>
 </html>
