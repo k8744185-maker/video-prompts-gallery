@@ -81,6 +81,16 @@ body {
     letter-spacing: -0.01em;
 }
 
+/* Hamburger hidden on desktop */
+.vpg-hamburger {
+    display: none;
+}
+
+/* Mobile close hidden on desktop */
+.vpg-mobile-close {
+    display: none;
+}
+
 /* ─────────────────────────────────────────────────────────── */
 /* HERO SECTION                                                */
 /* ─────────────────────────────────────────────────────────── */
@@ -207,24 +217,79 @@ body {
         grid-template-columns: 1fr;
     }
 
-    /* Navbar */
+    /* Navbar — Hamburger on Mobile */
     .vpg-brand {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
     }
 
+    /* Hide all nav links on mobile by default */
     .vpg-nav-links {
-        gap: 0.4rem;
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(10,10,10,0.97);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        z-index: 99999;
+    }
+
+    /* Show nav links when hamburger is open */
+    .vpg-nav-links.mobile-open {
+        display: flex;
     }
 
     .vpg-nav-link {
-        font-size: 0.72rem;
-        padding: 0.35rem 0.5rem;
+        font-size: 1.1rem;
+        padding: 0.6rem 1.2rem;
     }
 
-    /* Hero */
+    /* Hamburger button */
+    .vpg-hamburger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0.5rem;
+        z-index: 100000;
+    }
+
+    .vpg-hamburger span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: white;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    /* X icon when open */
+    .vpg-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .vpg-hamburger.open span:nth-child(2) { opacity: 0; }
+    .vpg-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* Mobile nav close button */
+    .vpg-mobile-close {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+    }
+
+    /* Hero — fix top clipping on mobile */
     .vpg-hero {
         min-height: auto;
-        padding: 5rem 1.2rem 1rem;
+        padding: 6rem 1.2rem 1rem;
         margin-bottom: 1rem;
     }
 

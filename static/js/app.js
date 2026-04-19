@@ -611,6 +611,10 @@ function showDetail(id) {
     document.body.style.overflow = 'hidden';
     document.title = `${title} — Video Prompts Gallery`;
 
+    // Hide floating FAB while modal is open (avoid overlap on mobile)
+    const fab = document.getElementById('vpg-fab-install');
+    if (fab) fab.style.display = 'none';
+
     // Self-referencing canonical for deep links
     _setCanonical(`https://video-prompts-gallery.onrender.com/?prompt_id=${id}`);
 
@@ -689,6 +693,30 @@ function closeModal() {
 
     // Restore homepage canonical
     _setCanonical('https://video-prompts-gallery.onrender.com/');
+
+    // Show FAB again after modal closes
+    const fab = document.getElementById('vpg-fab-install');
+    if (fab) fab.style.display = 'flex';
+}
+
+// ─────────────────────────────────────────────────────────────
+// HAMBURGER MOBILE NAV
+// ─────────────────────────────────────────────────────────────
+function toggleMobileNav() {
+    const nav = document.getElementById('vpg-nav-links');
+    const btn = document.getElementById('vpg-hamburger');
+    if (!nav || !btn) return;
+    const isOpen = nav.classList.toggle('mobile-open');
+    btn.classList.toggle('open', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+function closeMobileNav() {
+    const nav = document.getElementById('vpg-nav-links');
+    const btn = document.getElementById('vpg-hamburger');
+    if (nav) nav.classList.remove('mobile-open');
+    if (btn) btn.classList.remove('open');
+    document.body.style.overflow = '';
 }
 
 // ─────────────────────────────────────────────────────────────

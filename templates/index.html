@@ -39,7 +39,7 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5050768956635718" crossorigin="anonymous"></script>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="/static/css/style.css?v=2.7">
+    <link rel="stylesheet" href="/static/css/style.css?v=2.8">
 </head>
 <body>
 
@@ -53,12 +53,17 @@
     <nav class="vpg-navbar">
         <div class="vpg-navbar-content">
             <div class="vpg-brand" onclick="showGallery()" style="cursor:pointer">Video Prompts Gallery</div>
-            <div class="vpg-nav-links">
-                <button class="vpg-nav-link" onclick="showGallery()">Gallery</button>
-                <a class="vpg-nav-link" href="/blog">Blog</a>
-                <a class="vpg-nav-link" href="/about">About</a>
-                <a class="vpg-nav-link" href="/contact">Contact</a>
-                <button class="vpg-nav-link vpg-install-manual-btn" style="color:#10b981; font-weight:700;" onclick="installPwaManual()">Install App</button>
+            <!-- Hamburger Button (mobile only) -->
+            <button class="vpg-hamburger" id="vpg-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="vpg-nav-links" id="vpg-nav-links">
+                <button class="vpg-mobile-close" onclick="closeMobileNav()">✕</button>
+                <button class="vpg-nav-link" onclick="showGallery(); closeMobileNav()">Gallery</button>
+                <a class="vpg-nav-link" href="/blog" onclick="closeMobileNav()">Blog</a>
+                <a class="vpg-nav-link" href="/about" onclick="closeMobileNav()">About</a>
+                <a class="vpg-nav-link" href="/contact" onclick="closeMobileNav()">Contact</a>
+                <button class="vpg-nav-link vpg-install-manual-btn" style="color:#10b981; font-weight:700;" onclick="installPwaManual(); closeMobileNav()">Install App</button>
                 <!-- User auth badge -->
                 <span id="vpg-user-badge" class="vpg-user-badge hidden">
                     <span id="vpg-user-avatar" class="vpg-user-avatar"></span>
@@ -654,7 +659,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/static/js/app.js?v=2.7"></script>
+    <script src="/static/js/app.js?v=2.8"></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
