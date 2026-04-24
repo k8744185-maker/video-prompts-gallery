@@ -963,7 +963,10 @@ function handleRouting() {
         showLegal(tab);
     } else if (pathname === '/privacy' || pathname === '/terms') {
         showLegal(pathname.replace('/', ''));
+    } else if (pathname === '/admin') {
+        openAdminLogin();
     }
+
 
     // Cookie consent
     const cookieEl = document.getElementById('vpg-cookie-consent');
