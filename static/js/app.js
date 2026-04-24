@@ -950,7 +950,14 @@ function handleRouting() {
     const tab = (params.get('tab') || '').toLowerCase();
     const pathname = window.location.pathname;
 
+    // Admin routing (high priority)
+    if (pathname === '/admin') {
+        openAdminLogin();
+        return;
+    }
+
     if (promptId) {
+
         // Try immediately; if prompts not yet loaded this won't find it (shouldn't happen)
         const found = appState.prompts.find(p => p[F_ID] == promptId);
         if (found) {
@@ -963,9 +970,8 @@ function handleRouting() {
         showLegal(tab);
     } else if (pathname === '/privacy' || pathname === '/terms') {
         showLegal(pathname.replace('/', ''));
-    } else if (pathname === '/admin') {
-        openAdminLogin();
     }
+
 
 
     // Cookie consent
