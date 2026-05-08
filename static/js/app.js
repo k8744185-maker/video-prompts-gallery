@@ -240,8 +240,21 @@ function initPreloader() {
 // ─────────────────────────────────────────────────────────────
 // 2. DATA FETCHING
 // ─────────────────────────────────────────────────────────────
+function showSkeletonLoaders() {
+    const grid = document.getElementById('prompt-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (let i = 0; i < 12; i++) {
+        const card = document.createElement('div');
+        card.className = 'vpg-card';
+        card.style.aspectRatio = '4/5';
+        grid.appendChild(card);
+    }
+}
+
 async function fetchData() {
     try {
+        showSkeletonLoaders();
         const response = await fetch(API_BASE + '/api/v1/prompts');
         const data = await response.json();
         appState.prompts = data.prompts || [];
