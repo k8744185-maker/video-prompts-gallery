@@ -1052,6 +1052,7 @@ let featureFlags = {};
 // Human-readable labels for each flag
 const FEATURE_FLAG_LABELS = {
     generate_button: 'Generate AI Image Button',
+    monetag_ads: 'Enable Monetag In-Page Push Ads',
 };
 
 /**
@@ -1079,6 +1080,8 @@ async function loadFeatureFlags() {
     }
 }
 
+let monetagScriptInjected = false;
+
 /**
  * Show/hide UI elements based on the current flags.
  * Called both on initial load and after admin saves changes.
@@ -1096,6 +1099,20 @@ function applyFeatureFlags(flags) {
     document.querySelectorAll('.btn-generate-new').forEach(btn => {
         btn.style.display = enabled ? '' : 'none';
     });
+
+    // Monetag In-Page Push Ads loading logic
+    const monetagEnabled = !!flags.monetag_ads;
+    if (monetagEnabled && !monetagScriptInjected) {
+        console.log("Loading Monetag In-Page Push Ads dynamically...");
+        const s = document.createElement('script');
+        s.dataset.zone = '10918387';
+        s.src = 'https://nap5k.com/tag.min.js';
+        const target = [document.documentElement, document.body].filter(Boolean).pop();
+        if (target) {
+            target.appendChild(s);
+            monetagScriptInjected = true;
+        }
+    }
 }
 
 // ─────────────────────────────────────────────────────────────

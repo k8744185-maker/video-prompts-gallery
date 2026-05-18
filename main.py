@@ -545,6 +545,7 @@ def admin_status():
 # Default feature flags — add new features here
 DEFAULT_FEATURE_FLAGS = {
     'generate_button': {'enabled': True, 'description': 'Generate AI Image Button'},
+    'monetag_ads': {'enabled': True, 'description': 'Enable Monetag In-Page Push Ads'},
 }
 
 # In-memory cache of current flags (loaded from Google Sheets)
